@@ -277,6 +277,65 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 	PVPostKey(keyCode, nil, modifiers | NSEventModifierFlagCommand | inExtraModifiers);
 }
 
+@implementation PVDragInfo
+
++(PVDragInfo *)infoWithPasteboard:(NSPasteboard *)inPasteboard source:(id)inSource copy:(BOOL)inCopy
+{
+	PVDragInfo *info = [[[self alloc] init] autorelease];
+	info->mPasteboard = [inPasteboard retain];
+	info->mSource = [inSource retain];
+	info->mOperationMask = inCopy ? NSDragOperationCopy : NSDragOperationEvery;
+	return info;
+}
+
++(PVDragInfo *)infoWithFiles:(NSArray *)inPaths
+{
+	NSPasteboard *pasteboard = [NSPasteboard pasteboardWithUniqueName];
+	[pasteboard declareTypes:@[NSFilenamesPboardType] owner:nil];
+	[pasteboard setPropertyList:inPaths forType:NSFilenamesPboardType];
+	PVDragInfo *info = [self infoWithPasteboard:pasteboard source:nil copy:NO];
+	info->mOperationMask = NSDragOperationCopy | NSDragOperationLink | NSDragOperationGeneric;
+	return info;
+}
+
+-(void)dealloc
+{
+	[mPasteboard releaseGlobally];
+	[mPasteboard release];
+	[mSource release];
+	[mWindow release];
+	[super dealloc];
+}
+
+-(void)setLocation:(NSPoint)inPoint inView:(NSView *)inView
+{
+	mLocation = [inView convertPoint:inPoint toView:nil];
+	[mWindow autorelease];
+	mWindow = [[inView window] retain];
+}
+
+-(NSWindow *)draggingDestinationWindow { return mWindow; }
+-(NSDragOperation)draggingSourceOperationMask { return mOperationMask; }
+-(NSPoint)draggingLocation { return mLocation; }
+-(NSPoint)draggedImageLocation { return mLocation; }
+-(NSImage *)draggedImage { return nil; }
+-(NSPasteboard *)draggingPasteboard { return mPasteboard; }
+-(id)draggingSource { return mSource; }
+-(NSInteger)draggingSequenceNumber { return 1; }
+-(void)slideDraggedImageTo:(NSPoint)inPoint { }
+-(NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)inDestination { return nil; }
+-(NSDraggingFormation)draggingFormation { return NSDraggingFormationDefault; }
+-(void)setDraggingFormation:(NSDraggingFormation)inFormation { }
+-(BOOL)animatesToDestination { return NO; }
+-(void)setAnimatesToDestination:(BOOL)inAnimates { }
+-(NSInteger)numberOfValidItemsForDrop { return 1; }
+-(void)setNumberOfValidItemsForDrop:(NSInteger)inNumber { }
+-(void)enumerateDraggingItemsWithOptions:(NSDraggingItemEnumerationOptions)inOptions forView:(NSView *)inView classes:(NSArray *)inClasses searchOptions:(NSDictionary *)inSearchOptions usingBlock:(void (^)(NSDraggingItem *, NSInteger, BOOL *))inBlock { }
+-(NSSpringLoadingHighlight)springLoadingHighlight { return NSSpringLoadingHighlightNone; }
+-(void)resetSpringLoading { }
+
+@end
+
 void PVPrepareMenu(NSMenu *inMenu)
 {
 	id <NSMenuDelegate> delegate = [inMenu delegate];

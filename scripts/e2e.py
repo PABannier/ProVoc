@@ -30,6 +30,8 @@ BASE = ['-ApplePersistenceIgnoreState', 'YES', '-NSQuitAlwaysKeepsWindows', 'NO'
 SCENARIOS = {
     'launch': [('clearRecentDocuments', FRESH), ('launch', FRESH)],
     'document-new-save-close-reopen': [('documentNewSaveCloseReopen', FRESH)],
+    'editing-words-with-undo': [('editingWordsWithUndo', FRESH)],
+    'editing-lessons-with-undo': [('editingLessonsWithUndo', FRESH)],
 }
 
 

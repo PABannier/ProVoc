@@ -111,6 +111,7 @@
 		948D8183280372E7D2019905 /* SpeakerOff.png in Resources */ = {isa = PBXBuildFile; fileRef = F8CDD9669BD6BB2DC237F2CB /* SpeakerOff.png */; };
 		9499F2F7CB150C71FC993B93 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A1D02BF62739B4D079394 /* AVFoundation.framework */; };
 		96C21167EBE2B562A7911E94 /* TableViewExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 507128D935DCBFAB5043D660 /* TableViewExtensions.m */; };
+		9B038725B02BE6BF38225F5B /* PVEditingScenarios.m in Sources */ = {isa = PBXBuildFile; fileRef = 5430B7A23099A0A461BFDE5E /* PVEditingScenarios.m */; };
 		9C86BCEF5D9073BD0CF9D214 /* action.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 38B5FC2FD049CC3A04717AE7 /* action.tiff */; };
 		9D1E3BA75A8C2B644858967B /* ProVocHelpController.m in Sources */ = {isa = PBXBuildFile; fileRef = D64F6FC1BC6A1A9692DC00B6 /* ProVocHelpController.m */; };
 		9D766CF74CD4447267B33419 /* ZIPCompresser.m in Sources */ = {isa = PBXBuildFile; fileRef = D20A7F5B2487D72480B00CBC /* ZIPCompresser.m */; };
@@ -280,6 +281,7 @@
 		51E2176F4830BBC27641327A /* ProVocColoredWindowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocColoredWindowView.m; sourceTree = "<group>"; };
 		5202F3FD2770FCD8C709F302 /* ProVocObsolete.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocObsolete.m; sourceTree = "<group>"; };
 		5306337D19DF193743041FB3 /* ProVocActionPopUpButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocActionPopUpButton.h; sourceTree = "<group>"; };
+		5430B7A23099A0A461BFDE5E /* PVEditingScenarios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVEditingScenarios.m; sourceTree = "<group>"; };
 		554A6DD30E40556291FD62E2 /* ProVocDocument+Columns.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ProVocDocument+Columns.h"; sourceTree = "<group>"; };
 		5572018BF6E5F26DD19FF69B /* ProVocSpotlighter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocSpotlighter.m; sourceTree = "<group>"; };
 		576907EFD328F2FD5406E8E2 /* PlugIns */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PlugIns; sourceTree = SOURCE_ROOT; };
@@ -758,6 +760,7 @@
 				5D8F29CDB49EAEDC4637C6CD /* PVDocumentScenarios.m */,
 				A48116B7BEE22BDB249049CA /* PVDriver.h */,
 				153507AC6DEADE950764DFE1 /* PVDriver.m */,
+				5430B7A23099A0A461BFDE5E /* PVEditingScenarios.m */,
 				ED71EA8005BCD066F36CF68D /* PVLaunchScenarios.m */,
 			);
 			path = ProVocDriver;
@@ -1044,6 +1047,7 @@
 			files = (
 				2906E13943D6F721D0F11558 /* PVDocumentScenarios.m in Sources */,
 				52CC1331BB2F94AA006CEEC2 /* PVDriver.m in Sources */,
+				9B038725B02BE6BF38225F5B /* PVEditingScenarios.m in Sources */,
 				E0341A527C151E19A4F073C2 /* PVLaunchScenarios.m in Sources */,
 				6AF12C22DC96F5520DBFE0BE /* PVTestSupport.m in Sources */,
 			);

@@ -62,6 +62,25 @@ void PVTypeText(NSString *inText);
 // Command-<character>, e.g. PVTypeCommand(@"r", 0); extra modifiers may be added.
 void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers);
 
+// What a view is told about a drag over it. A real drag session follows the mouse
+// pointer of the window server and cannot be played with posted events: the tests
+// let the drag source write its pasteboard, then hand this to the methods of the
+// destination that AppKit calls (validate, accept).
+@interface PVDragInfo : NSObject <NSDraggingInfo> {
+	NSPasteboard *mPasteboard;
+	id mSource;
+	NSDragOperation mOperationMask;
+	NSPoint mLocation;
+	NSWindow *mWindow;
+}
+// inCopy: the Option key is held (the only operation offered is a copy)
++(PVDragInfo *)infoWithPasteboard:(NSPasteboard *)inPasteboard source:(id)inSource copy:(BOOL)inCopy;
+// A drag of files from the Finder
++(PVDragInfo *)infoWithFiles:(NSArray *)inPaths;
+// Where the pointer is, in a view of the destination window
+-(void)setLocation:(NSPoint)inPoint inView:(NSView *)inView;
+@end
+
 // Does what AppKit does when a menu is about to open: asks its delegate to fill it in
 // (the Open Recent menu, for instance, has no items until then), then validates the items.
 void PVPrepareMenu(NSMenu *inMenu);

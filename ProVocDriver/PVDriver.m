@@ -149,12 +149,12 @@ __attribute__((constructor)) static void PVDriverLoad(void)
 	return field && [window isKeyWindow] && [firstResponder isKindOfClass:[NSText class]] && [(NSText *)firstResponder delegate] == (id)field;
 }
 
-+(NSMenuItem *)itemWithAction:(SEL)inAction inMenu:(NSMenu *)inMenu
++(NSMenuItem *)itemWithAction:(SEL)inAction tag:(NSInteger)inTag inMenu:(NSMenu *)inMenu
 {
 	for (NSMenuItem *item in [inMenu itemArray]) {
-		if ([item action] == inAction)
+		if ([item action] == inAction && (inTag == NSNotFound || [item tag] == inTag))
 			return item;
-		NSMenuItem *found = [item submenu] ? [self itemWithAction:inAction inMenu:[item submenu]] : nil;
+		NSMenuItem *found = [item submenu] ? [self itemWithAction:inAction tag:inTag inMenu:[item submenu]] : nil;
 		if (found)
 			return found;
 	}
@@ -163,7 +163,12 @@ __attribute__((constructor)) static void PVDriverLoad(void)
 
 +(NSMenuItem *)menuItemWithAction:(SEL)inAction
 {
-	return [self itemWithAction:inAction inMenu:[NSApp mainMenu]];
+	return [self itemWithAction:inAction tag:NSNotFound inMenu:[NSApp mainMenu]];
+}
+
++(NSMenuItem *)menuItemWithAction:(SEL)inAction tag:(NSInteger)inTag
+{
+	return [self itemWithAction:inAction tag:inTag inMenu:[NSApp mainMenu]];
 }
 
 +(NSButton *)buttonWithTitle:(NSString *)inTitle inView:(NSView *)inView

@@ -41,6 +41,7 @@ void PVFail(const char *inFile, int inLine, NSString *inFormat, ...) NS_FORMAT_F
 +(NSTextField *)answerField;
 +(BOOL)answerFieldHasFocus;
 +(NSMenuItem *)menuItemWithAction:(SEL)inAction;
++(NSMenuItem *)menuItemWithAction:(SEL)inAction tag:(NSInteger)inTag;
 +(NSButton *)buttonWithTitle:(NSString *)inTitle inWindow:(NSWindow *)inWindow;
 +(NSArray *)sourceWordsOf:(ProVocDocument *)inDocument;
 @end
