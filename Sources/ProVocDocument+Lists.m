@@ -395,10 +395,8 @@ static NSArray *sDraggedItems = nil;
 
 -(BOOL)tableView:(NSTableView *)inTableView shouldEditTableColumn:(NSTableColumn *)inTableColumn row:(int)inRowIndex
 {
-	if (inTableView == mPresetTableView) {
-		[self setEditingPreset:!mEditingPreset];
-		return NO;
-	}
+	if (inTableView == mPresetTableView)
+		return NO;	// see -togglePresetEditing:
     if (inTableView == mWordTableView && [[inTableColumn identifier] isEqualTo:@"Mark"]) {
 		NSEvent *event = [NSApp currentEvent];
         if ([event type] == NSLeftMouseDown && [event clickCount] > 1 && inRowIndex < [mVisibleWords count]) {

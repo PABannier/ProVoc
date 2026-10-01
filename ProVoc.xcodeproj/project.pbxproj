@@ -135,6 +135,7 @@
 		C96A87E168FDF8243AEB59CD /* ProVocTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = DC15F70325BB8EE14F9D0139 /* ProVocTimer.m */; };
 		C9BDCC221A5322C424D26EC4 /* ProVocTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 83FEF69EA61F03ED1215DAF2 /* ProVocTester.m */; };
 		CA2B9F4F290538A25FDE4844 /* ProVocDocument+Export.m in Sources */ = {isa = PBXBuildFile; fileRef = E4631ED28DFF0BBE7123FA67 /* ProVocDocument+Export.m */; };
+		CF155AFEC923EB1831829837 /* ProVocTrainingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A147167E0639FC0BE5129CF /* ProVocTrainingTests.m */; };
 		D102F05F9C12D2723D499352 /* TrainingPreferences.tif in Resources */ = {isa = PBXBuildFile; fileRef = 75F7E8A2E14FAD4937C92469 /* TrainingPreferences.tif */; };
 		D881E6546E4A9C27C0494C5F /* OpenDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B4636EBB6668A3BE4D5AF76 /* OpenDocument.png */; };
 		D8F7DD45291FF405F3560CA8 /* flagged.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 4C1A0ADA346CB7BE36506AF0 /* flagged.tiff */; };
@@ -302,6 +303,7 @@
 		85D019107DCBFA626C67E2B0 /* stripe.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = stripe.tiff; sourceTree = "<group>"; };
 		864A47CA10F582B451D3312B /* ProVocImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocImageView.h; sourceTree = "<group>"; };
 		88228A2CB5DCAFA949869B13 /* ProVocSlideshowControlView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocSlideshowControlView.h; sourceTree = "<group>"; };
+		8A147167E0639FC0BE5129CF /* ProVocTrainingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocTrainingTests.m; sourceTree = "<group>"; };
 		8B46B07E618B05704523C62A /* Camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Camera.png; sourceTree = "<group>"; };
 		91103CA24A3A383365798000 /* ProVocTextField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocTextField.h; sourceTree = "<group>"; };
 		93153A51B2E16D90F78E96EA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -481,6 +483,7 @@
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
 				039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */,
 				A3F2D50FB350CAE24A4731DB /* ProVocTestOptionsTests.m */,
+				8A147167E0639FC0BE5129CF /* ProVocTrainingTests.m */,
 				09630A8F6BD5A88F55E8E3FC /* ProVocVisualTests.m */,
 				D5A5208E7DDE5D7182516705 /* PVScenarioTestCase.h */,
 				D65671105E74F43BA783A292 /* PVScenarioTestCase.m */,
@@ -933,6 +936,7 @@
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,
 				8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */,
 				E01C4F8FA3501B9C2D77BD94 /* ProVocTestOptionsTests.m in Sources */,
+				CF155AFEC923EB1831829837 /* ProVocTrainingTests.m in Sources */,
 				1869A17BAE9A329013A74684 /* ProVocVisualTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -394,7 +394,7 @@
 	NSString *voice = [voices containsObject:@"com.apple.voice.compact.en-US.Samantha"] ? @"com.apple.voice.compact.en-US.Samantha" : [NSSpeechSynthesizer defaultVoice];
 	[mDocument setValue:@YES forKey:@"useSpeechSynthesizer"];
 	// the voice is chosen with the pop-up of the Training view ("Default Voice" comes first)
-	NSPopUpButton *voicePopUp = (NSPopUpButton *)[self view:[[mDocument window] contentView] withBinding:@"selectedIndex" to:@"selectedVoice"];
+	NSPopUpButton *voicePopUp = [self controlWithBinding:@"selectedIndex" to:@"selectedVoice"];
 	XCTAssertNotNil(voicePopUp, @"no voice pop-up");
 	XCTAssertTrue([voicePopUp isEnabled], @"the voice pop-up is disabled although the speech synthesizer is on");
 	XCTAssertEqual([voicePopUp numberOfItems], (NSInteger)[voices count] + 1);
@@ -514,27 +514,9 @@
 	[self runScript:script];
 }
 
--(NSView *)view:(NSView *)inView withBinding:(NSString *)inBinding to:(NSString *)inKeyPath
-{
-	if ([[[inView infoForBinding:inBinding] objectForKey:NSObservedKeyPathKey] isEqualToString:inKeyPath])
-		return inView;
-	for (NSView *subview in [inView subviews]) {
-		NSView *found = [self view:subview withBinding:inBinding to:inKeyPath];
-		if (found)
-			return found;
-	}
-	if ([inView isKindOfClass:[NSTabView class]])
-		for (NSTabViewItem *item in [(NSTabView *)inView tabViewItems]) {
-			NSView *found = [self view:[item view] withBinding:inBinding to:inKeyPath];
-			if (found)
-				return found;
-		}
-	return nil;
-}
-
 -(NSView *)view:(NSView *)inView boundTo:(NSString *)inKeyPath
 {
-	return [self view:inView withBinding:NSValueBinding to:inKeyPath];
+	return [self viewIn:inView withBinding:NSValueBinding to:inKeyPath];
 }
 
 @end

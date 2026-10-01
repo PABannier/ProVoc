@@ -271,6 +271,11 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 	[mPageOutlineView registerForDraggedTypes:@[ProVocSelfSourcesType, ProVocSourcesType,
 																	ProVocSelfWordsType, ProVocWordsType]];
 	[mPresetTableView registerForDraggedTypes:@[PRESET_PBOARD_TYPE]];
+	// A double click on a training mode shows or hides its settings. (This used to be done
+	// in -tableView:shouldEditTableColumn:row:, which is no longer asked for a cell that
+	// is not a text cell.)
+	[mPresetTableView setTarget:self];
+	[mPresetTableView setDoubleAction:@selector(togglePresetEditing:)];
 
     [self performSelector:@selector(sortWordsByColumn:) withObject:[mWordTableView tableColumnWithIdentifier:@"Number"] afterDelay:0.0];
 	
@@ -649,6 +654,12 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 		mEditingPreset = inEdit;
 		[self didChangeValueForKey:@"editingPreset"];
 	}
+}
+
+-(IBAction)togglePresetEditing:(id)inSender
+{
+	if ([mPresetTableView clickedRow] >= 0)
+		[self setEditingPreset:!mEditingPreset];
 }
 
 -(BOOL)isEditing

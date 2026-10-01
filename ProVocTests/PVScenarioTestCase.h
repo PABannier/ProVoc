@@ -43,6 +43,10 @@
 -(NSString *)displayedSolution;
 -(NSString *)visibleStringBoundTo:(NSString *)inKeyPath inView:(NSView *)inView;
 -(NSButton *)buttonWithAction:(SEL)inAction inView:(NSView *)inView;
+// The view (also in the tabs not shown) with a binding to a key path, e.g. NSValueBinding to "testMCQ"
+-(id)viewIn:(NSView *)inView withBinding:(NSString *)inBinding to:(NSString *)inKeyPath;
+// In the document window
+-(id)controlWithBinding:(NSString *)inBinding to:(NSString *)inKeyPath;
 -(NSButton *)retryButton;
 -(NSArray *)resultValues;
 -(BOOL)testIsOver;

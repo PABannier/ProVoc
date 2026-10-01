@@ -139,6 +139,11 @@
 -(void)presetsDidChange:(id)inSender
 {
 	[self willChangeValueForKey:@"presetName"];
+	// The current preset is selected before reloading too: when the selected row is one
+	// that went away (the last preset was removed), reloading selects the first row, and
+	// the first preset became the current one instead of the previous one.
+	if (mIndexOfCurrentPresets < [mPresetTableView numberOfRows])
+		[mPresetTableView selectRowAtIndex:mIndexOfCurrentPresets byExtendingSelection:NO];
 	[mPresetTableView reloadData];
 	[mPresetTableView selectRowAtIndex:mIndexOfCurrentPresets byExtendingSelection:NO];
 	[self didChangeValueForKey:@"presetName"];

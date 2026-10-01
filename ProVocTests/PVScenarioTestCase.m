@@ -129,6 +129,30 @@
 	return nil;
 }
 
+-(id)viewIn:(NSView *)inView withBinding:(NSString *)inBinding to:(NSString *)inKeyPath
+{
+	if ([[[inView infoForBinding:inBinding] objectForKey:NSObservedKeyPathKey] isEqualToString:inKeyPath])
+		return inView;
+	for (NSView *subview in [inView subviews]) {
+		NSView *found = [self viewIn:subview withBinding:inBinding to:inKeyPath];
+		if (found)
+			return found;
+	}
+	if ([inView isKindOfClass:[NSTabView class]])
+		for (NSTabViewItem *item in [(NSTabView *)inView tabViewItems])
+			if ([item view] && [[item view] superview] != inView) {
+				NSView *found = [self viewIn:[item view] withBinding:inBinding to:inKeyPath];
+				if (found)
+					return found;
+			}
+	return nil;
+}
+
+-(id)controlWithBinding:(NSString *)inBinding to:(NSString *)inKeyPath
+{
+	return [self viewIn:[[mDocument window] contentView] withBinding:inBinding to:inKeyPath];
+}
+
 -(BOOL)answerFieldHasFocus
 {
 	NSTextField *field = [self answerField];
