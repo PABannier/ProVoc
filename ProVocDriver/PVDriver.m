@@ -48,6 +48,29 @@ static void PVWriteVerdict(BOOL inTerminated)
 	[self performSelector:@selector(start) withObject:nil afterDelay:0.0];
 }
 
+// A trace of the first responder of each window, for the logs
++(void)observeValueForKeyPath:(NSString *)inKeyPath ofObject:(id)inObject change:(NSDictionary *)inChange context:(void *)inContext
+{
+	NSResponder *responder = [(NSWindow *)inObject firstResponder];
+	id delegate = [responder isKindOfClass:[NSText class]] ? [(NSText *)responder delegate] : nil;
+	NSLog(@"PVDriver: first responder of \"%@\": %@%@", [(NSWindow *)inObject title], [responder className], delegate ? [NSString stringWithFormat:@" (editing %@)", [delegate className]] : @"");
+	if (getenv("PV_TRACE_RESPONDER") && [[responder className] isEqualToString:[NSString stringWithUTF8String:getenv("PV_TRACE_RESPONDER")]])
+		NSLog(@"PVDriver: current event %@; responder frame in window %@", [NSApp currentEvent], [responder isKindOfClass:[NSView class]] ? NSStringFromRect([(NSView *)responder convertRect:[(NSView *)responder bounds] toView:nil]) : @"");
+	if (getenv("PV_TRACE_RESPONDER") && [[responder className] isEqualToString:[NSString stringWithUTF8String:getenv("PV_TRACE_RESPONDER")]])
+		NSLog(@"PVDriver: %@", [[[NSThread callStackSymbols] subarrayWithRange:NSMakeRange(2, MIN(26u, [[NSThread callStackSymbols] count] - 2))] componentsJoinedByString:@"\n"]);
+}
+
++(void)traceFirstResponderOf:(NSWindow *)inWindow
+{
+	static NSHashTable *observed = nil;
+	if (!observed)
+		observed = [[NSHashTable weakObjectsHashTable] retain];
+	if (![observed containsObject:inWindow] && [inWindow isKindOfClass:[NSWindow class]]) {
+		[observed addObject:inWindow];
+		[inWindow addObserver:(id)self forKeyPath:@"firstResponder" options:0 context:NULL];
+	}
+}
+
 +(void)applicationWillTerminate:(NSNotification *)inNotification
 {
 	PVWriteVerdict(YES);
@@ -102,10 +125,18 @@ __attribute__((constructor)) static void PVDriverLoad(void)
 		NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 		[center addObserver:[PVDriver class] selector:@selector(applicationDidFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
 		[center addObserver:[PVDriver class] selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
+		if (getenv("PV_TRACE_RESPONDER"))
+			[NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp handler:^NSEvent *(NSEvent *inEvent) {
+				NSPoint onScreen = [[inEvent window] convertPointToScreen:[inEvent locationInWindow]];
+				NSLog(@"PVDriver: event %@ in \"%@\"; on screen %@; real mouse at %@; CGEvent %p", inEvent, [[inEvent window] title], NSStringFromPoint(onScreen), NSStringFromPoint([NSEvent mouseLocation]), [inEvent CGEvent]);
+				return inEvent;
+			}];
 		// a trace of what happens to the windows, for the logs
 		for (NSString *name in @[NSWindowDidBecomeKeyNotification, NSWindowDidBecomeMainNotification, NSWindowWillCloseNotification, NSWindowDidResignKeyNotification])
 			[center addObserverForName:name object:nil queue:nil usingBlock:^(NSNotification *inNotification) {
 				NSWindow *window = [inNotification object];
+				if (name == NSWindowDidBecomeKeyNotification && [[NSDocumentController sharedDocumentController] documentForWindow:window])
+					[PVDriver traceFirstResponderOf:window];
 				NSLog(@"PVDriver: %@ %@ \"%@\" (%lu documents)", [name substringFromIndex:2], [window className], [window title], (unsigned long)[[[NSDocumentController sharedDocumentController] documents] count]);
 			}];
 	}

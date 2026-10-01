@@ -182,6 +182,23 @@ void PVPostKey(unsigned short inKeyCode, NSString *inCharacters, NSEventModifier
 	PVPostKeyRepeat(inKeyCode, inCharacters, inModifiers, NO);
 }
 
+// A window that has just been shown (a new document, a sheet, an alert) is still moving
+// and growing on the screen for a moment: the window server animates it into place,
+// while AppKit already reports its final frame. A mouse event posted during that time
+// lands somewhere else. The window has settled when the window server shows it where
+// AppKit says it is.
+BOOL PVWindowHasSettled(NSWindow *inWindow)
+{
+	NSArray *windows = [(NSArray *)CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, (CGWindowID)[inWindow windowNumber]) autorelease];
+	CGRect bounds;
+	if (![windows count] || !CGRectMakeWithDictionaryRepresentation((CFDictionaryRef)[[windows firstObject] objectForKey:(id)kCGWindowBounds], &bounds))
+		return NO;
+	NSRect frame = [inWindow frame];
+	CGFloat top = NSMaxY([[[NSScreen screens] firstObject] frame]) - NSMaxY(frame);	// the window server counts from the top of the first screen
+	return fabs(bounds.origin.x - NSMinX(frame)) <= 1 && fabs(bounds.origin.y - top) <= 1 && fabs(bounds.size.width - NSWidth(frame)) <= 1 && fabs(bounds.size.height - NSHeight(frame)) <= 1;
+}
+
+// (PVScript does not run a step while a window is unsettled: see -runSteps:)
 void PVClickAtPoint(NSView *inView, NSPoint inPoint, NSInteger inClickCount, NSEventModifierFlags inModifiers)
 {
 	NSPoint location = [inView convertPoint:inPoint toView:nil];
@@ -372,6 +389,8 @@ void PVPrepareMenu(NSMenu *inMenu)
 	NSString *mFailure;
 	BOOL mFinished;
 	NSDate *mInactiveSince;
+	NSDate *mUnsettledSince;
+	BOOL mWarnedUnsettled;
 	void (^mCompletion)(NSString *);
 }
 @end
@@ -463,6 +482,32 @@ void PVPrepareMenu(NSMenu *inMenu)
 		}
 		[mInactiveSince release];
 		mInactiveSince = nil;
+	}
+	// ... and a click only lands where it is aimed once the windows have stopped moving
+	// (see PVWindowHasSettled). A user cannot act on a window that is still appearing either.
+	if (!mFinished) {
+		NSWindow *unsettled = nil;
+		for (NSWindow *window in [NSApp windows])
+			if ([window isVisible] && ![window isMiniaturized] && [window alphaValue] > 0 && [window windowNumber] > 0 && !PVWindowHasSettled(window))
+				unsettled = window;
+		if (unsettled && !mUnsettledSince)
+			mUnsettledSince = [[NSDate alloc] init];
+		if (unsettled && -[mUnsettledSince timeIntervalSinceNow] < 3)
+			return;
+		if (unsettled && !mWarnedUnsettled) {
+			mWarnedUnsettled = YES;
+			NSLog(@"PVScript: the window %@ \"%@\" did not settle in 3 s (AppKit %@)", [unsettled className], [unsettled title], NSStringFromRect([unsettled frame]));
+		}
+		if (!unsettled && mUnsettledSince) {
+			if (mStepStart) {
+				NSDate *shifted = [[mStepStart dateByAddingTimeInterval:-[mUnsettledSince timeIntervalSinceNow]] retain];
+				[mStepStart release];
+				mStepStart = shifted;
+			}
+			[mUnsettledSince release];
+			mUnsettledSince = nil;
+			mWarnedUnsettled = NO;
+		}
 	}
 	while (!mFinished) {
 		if (mIndex >= [mSteps count]) {

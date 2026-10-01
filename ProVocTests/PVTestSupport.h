@@ -50,6 +50,8 @@ void PVPostKey(unsigned short inKeyCode, NSString *inCharacters, NSEventModifier
 void PVPostKeyRepeat(unsigned short inKeyCode, NSString *inCharacters, NSEventModifierFlags inModifiers, BOOL inIsRepeat);
 // A mouse click (or double click...) in the middle of a view, or at a point of it.
 void PVClickView(NSView *inView, NSInteger inClickCount, NSEventModifierFlags inModifiers);
+// NO while the window server is still animating a window into place (see PVClickAtPoint)
+BOOL PVWindowHasSettled(NSWindow *inWindow);
 void PVClickAtPoint(NSView *inView, NSPoint inPoint, NSInteger inClickCount, NSEventModifierFlags inModifiers);
 // A modifier key going down (or up, with no flag): windows get -flagsChanged:
 void PVPostFlagsChanged(NSEventModifierFlags inModifiers);

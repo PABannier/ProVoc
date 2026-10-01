@@ -38,6 +38,12 @@ SCENARIOS = {
     'launch-with-document': [('launchWithDocument', FRESH + ['{copy:generated/Rich.pvoc}'])],
     'launch-with-old-format-document': [('launchWithOldFormatDocument', FRESH + ['{copy:generated/Old format.provoc}'])],
     'window-state': [('windowStateSave', FRESH), ('windowStateRestore', [])],
+    'localization-english': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(en)', 'PV_LANGUAGE=English'])],
+    'localization-french': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(fr)', 'PV_LANGUAGE=French'])],
+    'localization-german': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(de)', 'PV_LANGUAGE=German'])],
+    'localization-italian': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(it)', 'PV_LANGUAGE=Italian'])],
+    'localization-spanish': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(es)', 'PV_LANGUAGE=Spanish'])],
+    'localization-danish': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(da)', 'PV_LANGUAGE=Danish'])],
     'quit-with-two-unsaved-documents': [('quitWithTwoUnsavedDocuments', FRESH)],
     'quit-without-changes': [('clearRecentDocuments', FRESH), ('quitWithoutChanges', FRESH)],
 }
@@ -65,10 +71,15 @@ def run_phase(name, method, arguments, workdir, logs, timeout=120):
     # activated before its windows appear, and the documents to open come as an "open
     # documents" event. (Started as a plain child process it comes up in the background,
     # and its windows do not become key the same way.)
+    extra = dict(a.split('=', 1) for a in arguments if re.match(r'PV_[A-Z_]+=', a))
+    arguments = [a for a in arguments if not re.match(r'PV_[A-Z_]+=', a)]
+    env.update(extra)
+    if 'PV_TRACE_RESPONDER' in os.environ:    # debugging aid: a backtrace when a view of that class becomes first responder
+        extra['PV_TRACE_RESPONDER'] = os.environ['PV_TRACE_RESPONDER']
     documents = [a for a in arguments if a.startswith('/')]
     options = [a for a in arguments if not a.startswith('/')]
     command = ['open', '-n', '-W', '-a', BUNDLE, '--stdout', log_path, '--stderr', log_path]
-    for key in ('DYLD_INSERT_LIBRARIES', 'PV_SCENARIO', 'PV_RESULT_FILE', 'PV_WORKDIR', 'PV_FIXTURES'):
+    for key in ['DYLD_INSERT_LIBRARIES', 'PV_SCENARIO', 'PV_RESULT_FILE', 'PV_WORKDIR', 'PV_FIXTURES'] + sorted(extra):
         command += ['--env', '%s=%s' % (key, env[key])]
     command += documents + ['--args'] + BASE + options
     process = subprocess.Popen(command, cwd=workdir)

@@ -164,9 +164,12 @@
 	[inScript wait:@"Command-M to minimize the window" timeout:10 until:^BOOL { return [[[[self documents] lastObject] window] isMiniaturized]; }];
 	[inScript then:^{ [[[[self documents] lastObject] window] deminiaturize:nil]; }];
 	[inScript wait:@"the window back" timeout:10 until:^BOOL { return ![[[[self documents] lastObject] window] isMiniaturized] && [[[[self documents] lastObject] window] isKeyWindow]; }];
-	// Command-H hides the application
+	// Command-H hides the application. (A hidden application is not active, and the script
+	// only goes on once it is active again: the notification tells that it was hidden.)
+	__block BOOL didHide = NO;
+	[[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidHideNotification object:nil queue:nil usingBlock:^(NSNotification *inNotification) { didHide = YES; }];
 	[inScript then:^{ PVTypeCommand(@"h", 0); }];
-	[inScript wait:@"Command-H to hide the application" timeout:10 until:^BOOL { return [NSApp isHidden]; }];
+	[inScript wait:@"Command-H to hide the application" timeout:10 until:^BOOL { return didHide; }];
 	[inScript then:^{
 		// Hide Others is there with its shortcut (not played: it would hide the windows of the other applications of this Mac)
 		NSMenuItem *hideOthers = [PVScenarios menuItemWithAction:@selector(hideOtherApplications:)];
@@ -629,6 +632,161 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 		return [[self documents] count] == 1 && [[document window] isKeyWindow];
 	}];
 	[inScript then:^{ check(@"after saving and opening again"); }];
+}
+
+@end
+
+@interface PVScenarios (Localization)
+@end
+
+@implementation PVScenarios (Localization)
+
+-(NSArray *)slideViews
+{
+	NSMutableArray *views = [NSMutableArray array];
+	for (NSWindow *window in [NSApp windows])
+		if ([window isVisible] && [[window contentView] isKindOfClass:NSClassFromString(@"SlideView")])
+			[views addObject:[window contentView]];
+	return views;
+}
+
+-(NSView *)buttonWithAction:(SEL)inAction in:(NSView *)inView
+{
+	if ([inView isKindOfClass:[NSButton class]] && [(NSButton *)inView action] == inAction)
+		return inView;
+	for (NSView *subview in [inView subviews]) {
+		NSView *found = [self buttonWithAction:inAction in:subview];
+		if (found)
+			return found;
+	}
+	return nil;
+}
+
+// The application in the language given by PV_LANGUAGE (launched with -AppleLanguages):
+// the starting point, a new document, two words, the first training mode (slideshow of
+// the new words, then multiple choice), the written test, Preferences, the Inspector.
+-(void)localizedSmoke:(PVScript *)inScript
+{
+	NSString *language = [NSString stringWithUTF8String:getenv("PV_LANGUAGE") ?: "English"];
+	NSBundle *english = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"English" ofType:@"lproj"]];
+	__block ProVocDocument *document = nil;
+	ProVocTester *(^tester)(void) = ^{ return [PVScenarios tester]; };
+	NSPanel *(^testPanel)(void) = ^{ return (NSPanel *)[tester() performSelector:@selector(testPanel)]; };
+	NSPanel *(^resultPanel)(void) = ^{ return (NSPanel *)[[document valueForKey:@"mTester"] valueForKey:@"mResultPanel"]; };
+	BOOL (^testIsOver)(void) = ^BOOL { return ![document valueForKey:@"mTester"] && [NSApp modalWindow] == nil && [[document window] attachedSheet] == nil && [[document window] isKeyWindow]; };
+
+	[inScript wait:@"the starting point window" timeout:15 until:^BOOL {
+		return [[self startingPoint] isKeyWindow] && ([[self startingPoint] occlusionState] & NSWindowOcclusionStateVisible) && ![[self startingPoint] viewsNeedDisplay];
+	}];
+	[inScript then:^{
+		PVExpectEqualObjects([[[NSBundle mainBundle] preferredLocalizations] firstObject], language, @"the localization in use");
+		// the strings and the menus are those of the language
+		if (![language isEqualToString:@"English"]) {
+			NSString *verify = NSLocalizedString(@"Verify Button Title", @"");
+			PVExpect(![verify isEqualToString:[english localizedStringForKey:@"Verify Button Title" value:nil table:nil]] && ![verify isEqualToString:@"Verify Button Title"], @"the strings are not localized: %@", verify);
+			PVExpect(![[[[NSApp mainMenu] itemAtIndex:1] title] isEqualToString:@"File"], @"the menus are not localized: %@", [[[NSApp mainMenu] itemArray] valueForKey:@"title"]);
+		}
+		PVExpectEqual([[NSApp mainMenu] numberOfItems], 8, @"menus: %@", [[[NSApp mainMenu] itemArray] valueForKey:@"title"]);
+		PVExpect([PVScenarios menuItemWithAction:@selector(performMediaCommand:)] != nil, @"no Media menu");
+		PVExpect(![[[[PVScenarios menuItemWithAction:@selector(performMediaCommand:)] menu] title] isEqualToString:@"Media Menu Title"], @"the Media menu is not localized");
+		for (NSString *action in @[@"startTest:", @"startSlideshow:", @"viewOptions:", @"import:", @"export:", @"printCards:", @"toggleInspector:", @"showPreferences:", @"findDoubles:", @"saveDocumentAs:"])
+			PVExpect([PVScenarios menuItemWithAction:NSSelectorFromString(action)] != nil, @"no menu item for %@", action);
+		PVSaveWindowScreenshot([self startingPoint], [NSString stringWithFormat:@"localizations/%@-starting-point", language]);
+		PVClickView([self buttonWithAction:NSSelectorFromString(@"newDocument:") in:[[self startingPoint] contentView]], 1, 0);
+	}];
+	[inScript wait:@"a new document" until:^BOOL {
+		document = [[self documents] lastObject];
+		return [[self documents] count] == 1 && [[document window] isKeyWindow] && [[document valueForKey:@"mainTab"] intValue] == 1;
+	}];
+	[self typeWord:@"house" translation:@"maison" in:inScript];
+	[self typeWord:@"cat" translation:@"chat" in:inScript];
+	[inScript then:^{
+		PVSaveWindowScreenshot([document window], [NSString stringWithFormat:@"localizations/%@-document-editing", language]);
+		PVTypeCommand(@"r", 0);
+	}];
+	// the first training mode starts with a slideshow of the new words; Esc ends it
+	[inScript wait:@"the slideshow of the new words" timeout:15 until:^BOOL { return [[self slideViews] count] > 0; }];
+	[inScript then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
+	// ... then asks multiple-choice questions
+	for (int number = 1; number <= 2; number++) {
+		[inScript wait:[NSString stringWithFormat:@"multiple-choice question %i", number] timeout:15 until:^BOOL {
+			id view = [tester() valueForKey:@"mMCQView"];
+			return [[self slideViews] count] == 0 && [testPanel() isKeyWindow] && [testPanel() firstResponder] == view && [[tester() valueForKey:@"progressValue"] intValue] == number
+				&& [[view valueForKey:@"mSelectedIndex"] intValue] < 0 && [[view valueForKey:@"mAnswers"] count] == 2;
+		}];
+		[inScript then:^{
+			if (number == 1)
+				PVSaveWindowScreenshot(testPanel(), [NSString stringWithFormat:@"localizations/%@-multiple-choice", language]);
+			static const unsigned short digitKeys[] = {18, 19, 20, 21};
+			PVPostKey(digitKeys[[[[tester() valueForKey:@"mMCQView"] valueForKey:@"mSolutionIndex"] intValue]], nil, 0);
+		}];
+		[inScript wait:@"the right choice to be selected" until:^BOOL {
+			id view = [tester() valueForKey:@"mMCQView"];
+			return [[view valueForKey:@"mSelectedIndex"] intValue] == [[view valueForKey:@"mSolutionIndex"] intValue];
+		}];
+		[inScript then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
+	}
+	[inScript wait:@"the result panel" timeout:10 until:^BOOL { return [resultPanel() isVisible]; }];
+	[inScript then:^{
+		PVSaveWindowScreenshot(resultPanel(), [NSString stringWithFormat:@"localizations/%@-results", language]);
+		PVExpectEqualObjects([[[[document valueForKey:@"mTester"] valueForKey:@"mResultView"] valueForKey:@"mResults"] valueForKey:@"Value"], (@[@2, @0]), @"results of the multiple-choice test");
+		PVPostKey(PVKeyReturn, nil, 0);
+	}];
+	[inScript wait:@"the end of the test" until:testIsOver];
+
+	// the Training view, the second training mode (written, from the translation to the word)
+	[inScript then:^{ PVTypeCommand(@"2", NSEventModifierFlagOption); }];
+	[inScript wait:@"the Training view" until:^BOOL {
+		NSTableView *presets = [document valueForKey:@"mPresetTableView"];
+		return [[document valueForKey:@"mainTab"] intValue] == 0 && [presets window] == [document window] && [presets numberOfRows] == 4;
+	}];
+	[inScript then:^{
+		PVSaveWindowScreenshot([document window], [NSString stringWithFormat:@"localizations/%@-document-training", language]);
+		NSTableView *presets = [document valueForKey:@"mPresetTableView"];
+		NSRect row = [presets rectOfRow:1];
+		PVClickAtPoint(presets, NSMakePoint(NSMidX(row), NSMidY(row)), 1, 0);
+	}];
+	[inScript wait:@"the second training mode to be selected" until:^BOOL { return [[document valueForKey:@"mPresetTableView"] selectedRow] == 1 && ![[document valueForKey:@"testMCQ"] boolValue]; }];
+	[inScript then:^{ PVTypeCommand(@"r", 0); }];
+	for (int number = 1; number <= 2; number++) {
+		[inScript wait:[NSString stringWithFormat:@"written question %i, the answer field ready", number] timeout:10 until:^BOOL {
+			return [testPanel() isVisible] && [PVScenarios answerFieldHasFocus] && [[tester() valueForKey:@"progressValue"] intValue] == number && [[[PVScenarios answerField] stringValue] length] == 0;
+		}];
+		[inScript then:^{
+			if (number == 1)
+				PVSaveWindowScreenshot(testPanel(), [NSString stringWithFormat:@"localizations/%@-written-test", language]);
+			NSString *question = [tester() question];
+			PVExpect([question isEqualToString:@"maison"] || [question isEqualToString:@"chat"], @"unexpected question %@", question);
+			PVTypeText([question isEqualToString:@"maison"] ? @"house" : @"cat");
+			PVPostKey(PVKeyReturn, nil, 0);
+		}];
+	}
+	[inScript wait:@"the result panel" timeout:10 until:^BOOL { return [resultPanel() isVisible]; }];
+	[inScript then:^{
+		PVExpectEqualObjects([[[[document valueForKey:@"mTester"] valueForKey:@"mResultView"] valueForKey:@"mResults"] valueForKey:@"Value"], (@[@2, @0]), @"results of the written test");
+		PVPostKey(PVKeyReturn, nil, 0);
+	}];
+	[inScript wait:@"the end of the test" until:testIsOver];
+
+	// Preferences (Command-,) and the Inspector (Command-I)
+	NSWindow *(^preferences)(void) = ^{ return [[NSClassFromString(@"ProVocPreferences") performSelector:@selector(sharedPreferences)] window]; };
+	[inScript then:^{ PVTypeCommand(@",", 0); }];
+	[inScript wait:@"the Preferences window (Command-,)" timeout:10 until:^BOOL { return [preferences() isKeyWindow]; }];
+	[inScript then:^{
+		PVSaveWindowScreenshot(preferences(), [NSString stringWithFormat:@"localizations/%@-preferences", language]);
+		PVTypeCommand(@"w", 0);
+	}];
+	[inScript wait:@"Command-W to close the Preferences" until:^BOOL { return ![preferences() isVisible] && [[document window] isKeyWindow]; }];
+	[inScript then:^{ PVTypeCommand(@"1", NSEventModifierFlagOption); }];
+	[inScript wait:@"the Editing view" until:^BOOL { return [[document valueForKey:@"mainTab"] intValue] == 1; }];
+	[inScript then:^{ if (![[ProVocInspector sharedInspector] isVisible]) PVTypeCommand(@"i", 0); }];
+	[inScript wait:@"the Inspector (Command-I)" until:^BOOL { return [[ProVocInspector sharedInspector] isVisible]; }];
+	[inScript then:^{
+		PVSaveWindowScreenshot([[ProVocInspector sharedInspector] window], [NSString stringWithFormat:@"localizations/%@-inspector", language]);
+		PVTypeCommand(@"i", 0);
+	}];
+	[inScript wait:@"Command-I to close the Inspector" until:^BOOL { return ![[ProVocInspector sharedInspector] isVisible]; }];
+	[inScript then:^{ [document updateChangeCount:NSChangeCleared]; }];
 }
 
 @end
