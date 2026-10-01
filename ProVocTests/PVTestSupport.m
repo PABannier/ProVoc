@@ -181,6 +181,33 @@ void PVPostKey(unsigned short inKeyCode, NSString *inCharacters, NSEventModifier
 	PVPostKeyRepeat(inKeyCode, inCharacters, inModifiers, NO);
 }
 
+void PVClickAtPoint(NSView *inView, NSPoint inPoint, NSInteger inClickCount, NSEventModifierFlags inModifiers)
+{
+	NSPoint location = [inView convertPoint:inPoint toView:nil];
+	for (NSInteger click = 1; click <= inClickCount; click++)
+		for (NSNumber *type in @[@(NSEventTypeLeftMouseDown), @(NSEventTypeLeftMouseUp)]) {
+			NSEvent *event = [NSEvent mouseEventWithType:[type unsignedIntegerValue] location:location modifierFlags:inModifiers
+											   timestamp:[[NSProcessInfo processInfo] systemUptime] windowNumber:[[inView window] windowNumber]
+												 context:nil eventNumber:0 clickCount:click pressure:[type unsignedIntegerValue] == NSEventTypeLeftMouseDown ? 1.0 : 0.0];
+			[NSApp postEvent:event atStart:NO];
+		}
+}
+
+void PVClickView(NSView *inView, NSInteger inClickCount, NSEventModifierFlags inModifiers)
+{
+	NSRect bounds = [inView bounds];
+	PVClickAtPoint(inView, NSMakePoint(NSMidX(bounds), NSMidY(bounds)), inClickCount, inModifiers);
+}
+
+void PVPostFlagsChanged(NSEventModifierFlags inModifiers)
+{
+	CGEventRef cgEvent = CGEventCreateKeyboardEvent(NULL, 58 /* left Option */, inModifiers != 0);
+	CGEventSetType(cgEvent, kCGEventFlagsChanged);
+	CGEventSetFlags(cgEvent, (CGEventFlags)inModifiers);
+	[NSApp postEvent:[NSEvent eventWithCGEvent:cgEvent] atStart:NO];
+	CFRelease(cgEvent);
+}
+
 // The key (and Shift / Option state) that produces a character with the current keyboard
 // layout, found by asking the layout what each key produces - whatever the layout is.
 // With inCommand, the layout is asked what the keys produce while Command is held (on

@@ -28,6 +28,7 @@
 -(BOOL)isPlayable;
 -(NSSize)naturalSize;
 -(float)rate;
+-(NSImage *)posterImage;
 
 @end
 
@@ -43,6 +44,7 @@
 
 -(IBAction)play:(id)inSender;
 -(IBAction)pause:(id)inSender;
+-(IBAction)gotoBeginning:(id)inSender;
 -(BOOL)isPlaying;
 
 -(void)setControllerVisible:(BOOL)inVisible;

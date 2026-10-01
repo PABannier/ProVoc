@@ -16,6 +16,7 @@
 		0D6DD6A22F165DF6F3EA8892 /* TextFieldExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = AEED1A72D8B56D4103FA8E7D /* TextFieldExtensions.m */; };
 		0F5DB4FDC920B700AE8D9E85 /* ProVoc.scriptSuite in Resources */ = {isa = PBXBuildFile; fileRef = 1FD6EFC6F0076F61090FC672 /* ProVoc.scriptSuite */; };
 		1075AFAFA5FDD8CEC2CC8D6C /* SplitViewExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7374AFD14A131E45FC9724 /* SplitViewExtensions.m */; };
+		10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B9E76677603488A055E9E23 /* ProVocMCQTests.m */; };
 		1466EF04D22EAB9DC922FAF0 /* TransformerExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CDE574EE496C00B6BFE37E41 /* TransformerExtensions.m */; };
 		15866AFEC17C606200A3949B /* ProVocDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = C179E54AF3E7CE64A3BD0CB3 /* ProVocDocument.m */; };
 		164E2BE8C91A712A49777C3C /* Continuous.tif in Resources */ = {isa = PBXBuildFile; fileRef = 4C19A45D22A79607C5C9FC94 /* Continuous.tif */; };
@@ -60,6 +61,7 @@
 		42EA0787406D3D02A01EA194 /* LabelPreferences.tif in Resources */ = {isa = PBXBuildFile; fileRef = F0A2ACA3964DFBE132798FA6 /* LabelPreferences.tif */; };
 		4535C1E512C318977E452C1D /* ARAbout.nib in Resources */ = {isa = PBXBuildFile; fileRef = E7D1BA60B70E69AB6DCF00C4 /* ARAbout.nib */; };
 		457EDD00EA086DCA0DE1195B /* page.tif in Resources */ = {isa = PBXBuildFile; fileRef = 47579481EEA24762EF76CFD7 /* page.tif */; };
+		4872D856FB9AE8FB6B8A6F1B /* PVScenarioTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D65671105E74F43BA783A292 /* PVScenarioTestCase.m */; };
 		4CE64535E1180E873F033808 /* send.tif in Resources */ = {isa = PBXBuildFile; fileRef = F81FC1A8A61C15F54C628475 /* send.tif */; };
 		4DC29E02CE164D16A9CB7C19 /* ProVocBackgroundScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA6A12C9B39B3830D680A33 /* ProVocBackgroundScene.m */; };
 		4E46C0DE424549B6E045C937 /* ARInspector.m in Sources */ = {isa = PBXBuildFile; fileRef = 701D25193003B5C94B4DC69B /* ARInspector.m */; };
@@ -91,6 +93,7 @@
 		7734A506364DDE95A95425B7 /* DownloadDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = B9EFAFC2A74CEF0C57205011 /* DownloadDocument.png */; };
 		7A393762AF6F245CBDE6EFE1 /* ARDisclosureArrowRight.tif in Resources */ = {isa = PBXBuildFile; fileRef = 045DF83CA849D09120AEAF62 /* ARDisclosureArrowRight.tif */; };
 		83347720E8084F2E53E30BA1 /* ProVocStartingPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = A2F14B4CE172F0AD08E4FD88 /* ProVocStartingPoint.m */; };
+		8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */; };
 		89EDBF10B4070DB8720A0149 /* Inspector.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0D198F14946F3D1D6D80B376 /* Inspector.tiff */; };
 		8B2824D73F02FD14D55D63F4 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93153A51B2E16D90F78E96EA /* CoreMedia.framework */; };
 		8D336E1512BE9093979492C3 /* Warning.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D53249A1A8F0D669782715C3 /* Warning.tiff */; };
@@ -178,6 +181,7 @@
 		01F351FA0AAEA50936B0331B /* ARDisclosureArrowDown.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ARDisclosureArrowDown.tif; sourceTree = "<group>"; };
 		028433C55EB561C947334787 /* ProVocSpotlighter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocSpotlighter.h; sourceTree = "<group>"; };
 		0313D741BB5E57D44373487F /* StringExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringExtensions.h; sourceTree = "<group>"; };
+		039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocSlideshowTests.m; sourceTree = "<group>"; };
 		045DF83CA849D09120AEAF62 /* ARDisclosureArrowRight.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ARDisclosureArrowRight.tif; sourceTree = "<group>"; };
 		056897ECF604D6C947FCD00B /* ProVocTester.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocTester.h; sourceTree = "<group>"; };
 		06E7D2257F3977B3D76F5F4E /* TableViewExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TableViewExtensions.h; sourceTree = "<group>"; };
@@ -258,6 +262,7 @@
 		5943F8522ADA93E92E29FB05 /* ProVocTableColumns.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocTableColumns.m; sourceTree = "<group>"; };
 		5B15685A7A812AC16458B893 /* ProVocDocument+Slideshow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ProVocDocument+Slideshow.h"; sourceTree = "<group>"; };
 		5B69161914AD9EA67B4BE74F /* ProVocCardsView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocCardsView.m; sourceTree = "<group>"; };
+		5B9E76677603488A055E9E23 /* ProVocMCQTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocMCQTests.m; sourceTree = "<group>"; };
 		5BE3E5D50CD2BEFD549F5A8C /* ProVocPrintView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocPrintView.h; sourceTree = "<group>"; };
 		5F6A4B3470B8CFF3BABD7B3A /* ProVocCardController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocCardController.m; sourceTree = "<group>"; };
 		61494296EB4A223FD694D88F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -351,7 +356,9 @@
 		D29BE8E0DD51024D89536196 /* ArchiverExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchiverExtensions.m; sourceTree = "<group>"; };
 		D3264050335C0629A49C87C0 /* ProVocMovieView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocMovieView.h; sourceTree = "<group>"; };
 		D53249A1A8F0D669782715C3 /* Warning.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Warning.tiff; sourceTree = "<group>"; };
+		D5A5208E7DDE5D7182516705 /* PVScenarioTestCase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PVScenarioTestCase.h; sourceTree = "<group>"; };
 		D64F6FC1BC6A1A9692DC00B6 /* ProVocHelpController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocHelpController.m; sourceTree = "<group>"; };
+		D65671105E74F43BA783A292 /* PVScenarioTestCase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVScenarioTestCase.m; sourceTree = "<group>"; };
 		D6B35FEDC12B0382A382D956 /* Version.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Version.tif; sourceTree = "<group>"; };
 		D8C3FC7D3982BF66CDF71E77 /* SpeechSynthesizerExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeechSynthesizerExtensions.h; sourceTree = "<group>"; };
 		DC15F70325BB8EE14F9D0139 /* ProVocTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocTimer.m; sourceTree = "<group>"; };
@@ -462,8 +469,12 @@
 				EEB39A1436B3C35BE848DA9F /* ProVocBackgroundTests.m */,
 				A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */,
 				EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */,
+				5B9E76677603488A055E9E23 /* ProVocMCQTests.m */,
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
+				039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */,
 				09630A8F6BD5A88F55E8E3FC /* ProVocVisualTests.m */,
+				D5A5208E7DDE5D7182516705 /* PVScenarioTestCase.h */,
+				D65671105E74F43BA783A292 /* PVScenarioTestCase.m */,
 				4C29C9DAA6C46DFEFA99EE37 /* PVTestSupport.h */,
 				71DF1D8055CDDB3BCF8CB70F /* PVTestSupport.m */,
 			);
@@ -900,13 +911,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4872D856FB9AE8FB6B8A6F1B /* PVScenarioTestCase.m in Sources */,
 				1A5D70F781DA1E87EB883F8B /* PVTestSupport.m in Sources */,
 				67E8663207A6893FF87955CC /* ProVocAnswerTests.m in Sources */,
 				E2544214161ED9CC0284537D /* ProVocAppTests.m in Sources */,
 				C69685B8D7718EED8B398A01 /* ProVocBackgroundTests.m in Sources */,
 				0A7C012DF0917F393EFD1824 /* ProVocDeckTests.m in Sources */,
 				DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */,
+				10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */,
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,
+				8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */,
 				1869A17BAE9A329013A74684 /* ProVocVisualTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

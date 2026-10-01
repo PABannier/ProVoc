@@ -48,6 +48,11 @@ enum {
 // it came from the window server: it goes through -[NSApplication sendEvent:].
 void PVPostKey(unsigned short inKeyCode, NSString *inCharacters, NSEventModifierFlags inModifiers);
 void PVPostKeyRepeat(unsigned short inKeyCode, NSString *inCharacters, NSEventModifierFlags inModifiers, BOOL inIsRepeat);
+// A mouse click (or double click...) in the middle of a view, or at a point of it.
+void PVClickView(NSView *inView, NSInteger inClickCount, NSEventModifierFlags inModifiers);
+void PVClickAtPoint(NSView *inView, NSPoint inPoint, NSInteger inClickCount, NSEventModifierFlags inModifiers);
+// A modifier key going down (or up, with no flag): windows get -flagsChanged:
+void PVPostFlagsChanged(NSEventModifierFlags inModifiers);
 // One key event per character.
 void PVTypeText(NSString *inText);
 // Command-<character>, e.g. PVTypeCommand(@"r", 0); extra modifiers may be added.

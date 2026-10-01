@@ -29,6 +29,8 @@
 	SEL mAction;
 }
 
++(int)digitForKeyDownEvent:(NSEvent *)inEvent;
+
 -(int)columns;
 -(void)setColumns:(int)inColumns;
 -(int)rows;

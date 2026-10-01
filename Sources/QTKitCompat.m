@@ -105,6 +105,20 @@
 	return [mPlayer rate];
 }
 
+-(NSImage *)posterImage
+{
+	if (!mPlayable || !mFile)
+		return nil;
+	AVAssetImageGenerator *generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:mFile] options:nil]];
+	[generator setAppliesPreferredTrackTransform:YES];
+	CGImageRef image = [generator copyCGImageAtTime:kCMTimeZero actualTime:NULL error:NULL];
+	if (!image)
+		return nil;
+	NSImage *poster = [[[NSImage alloc] initWithCGImage:image size:mNaturalSize] autorelease];
+	CGImageRelease(image);
+	return poster;
+}
+
 @end
 
 @implementation QTMovieView
@@ -187,6 +201,11 @@
 -(IBAction)pause:(id)inSender
 {
 	[[mMovie player] pause];
+}
+
+-(IBAction)gotoBeginning:(id)inSender
+{
+	[[mMovie player] seekToTime:kCMTimeZero];
 }
 
 -(void)setControllerVisible:(BOOL)inVisible

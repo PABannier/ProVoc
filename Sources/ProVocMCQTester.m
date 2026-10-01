@@ -88,7 +88,7 @@
 
 -(BOOL)handleKeyDownEvent:(NSEvent *)inEvent
 {
-	if (([inEvent modifierFlags] & (NSCommandKeyMask | NSControlKeyMask)) == 0 && ([[inEvent charactersIgnoringModifiers] isEqualToString:@"0"] || [[inEvent charactersIgnoringModifiers] isEqualToString:@" "])) {
+	if (([inEvent modifierFlags] & (NSCommandKeyMask | NSControlKeyMask)) == 0 && ([ProVocMCQView digitForKeyDownEvent:inEvent] == 0 || [[inEvent charactersIgnoringModifiers] isEqualToString:@"0"] || [[inEvent charactersIgnoringModifiers] isEqualToString:@" "])) {
 		if ([self canPlayQuestionAudio]) {
 			[self playQuestionAudio:nil];
 			return YES;

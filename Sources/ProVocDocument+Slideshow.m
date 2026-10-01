@@ -584,6 +584,8 @@ waitAgain:
 	[[self window] nextEventMatchingMask:NSLeftMouseDownMask | NSRightMouseDownMask | NSKeyDownMask
 									untilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
 									inMode:NSDefaultRunLoopMode dequeue:YES];
+	[NSObject cancelPreviousPerformRequestsWithTarget:slideShowControlView];
+	[controlPanel orderOut:nil];
 	[NSScreen undimScreens];
 	[NSCursor unhide];
 }
