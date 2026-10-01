@@ -59,6 +59,10 @@
 -(void)answerCorrectlyIn:(PVScript *)inScript withReturnKeyCode:(unsigned short)inReturnKeyCode;
 -(void)answerCorrectlyIn:(PVScript *)inScript;
 
+// Chooses an item of the menu bar (the menu is validated first, as when it is opened)
+-(void)chooseMenuItemWithAction:(SEL)inAction tag:(NSInteger)inTag;
+-(NSMenuItem *)menuItemWithAction:(SEL)inAction tag:(NSInteger)inTag;
+
 -(void)runScript:(PVScript *)inScript;
 
 @end

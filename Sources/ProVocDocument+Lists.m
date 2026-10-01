@@ -901,11 +901,21 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 	sKeepOnDoubleWordSearch = NO;
 }
 
+-(void)addSilentTesterTo:(NSMutableArray *)ioTesters
+{
+	[ioTesters addObject:[[[ProVocSilentTester alloc] initWithDocument:self] autorelease]];
+}
+
 -(id)doubleWordsIn:(NSArray *)inWords progressDelegate:(id)inDelegate
 {
 	sKeepOnDoubleWordSearch = YES;
 	NSMutableSet *doubles = [NSMutableSet set];
-	ProVocSilentTester *tester = [[[ProVocSilentTester alloc] initWithDocument:self] autorelease];
+	// This runs in a thread of its own (-findDoublesThread:). The tester that compares the
+	// words loads a nib with windows, which may only be made - and released - in the main
+	// thread: Find Double Entries raised an exception there and the application quit.
+	NSMutableArray *testers = [NSMutableArray array];
+	[self performSelectorOnMainThread:@selector(addSilentTesterTo:) withObject:testers waitUntilDone:YES];
+	ProVocSilentTester *tester = [testers lastObject];
 	
 	int pass, i, j, n = [inWords count];
 	int count = 0, total = n * (n - 1);
@@ -930,6 +940,7 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 		}
 	}
 
+	[testers performSelectorOnMainThread:@selector(removeAllObjects) withObject:nil waitUntilDone:YES];
 	return sKeepOnDoubleWordSearch ? doubles : nil;
 }
 

@@ -241,6 +241,32 @@
 	return nil;
 }
 
+-(NSMenuItem *)itemWithAction:(SEL)inAction tag:(NSInteger)inTag inMenu:(NSMenu *)inMenu
+{
+	for (NSMenuItem *item in [inMenu itemArray]) {
+		if ([item action] == inAction && [item tag] == inTag)
+			return item;
+		NSMenuItem *found = [item submenu] ? [self itemWithAction:inAction tag:inTag inMenu:[item submenu]] : nil;
+		if (found)
+			return found;
+	}
+	return nil;
+}
+
+-(NSMenuItem *)menuItemWithAction:(SEL)inAction tag:(NSInteger)inTag
+{
+	return [self itemWithAction:inAction tag:inTag inMenu:[NSApp mainMenu]];
+}
+
+-(void)chooseMenuItemWithAction:(SEL)inAction tag:(NSInteger)inTag
+{
+	NSMenuItem *item = [self menuItemWithAction:inAction tag:inTag];
+	XCTAssertNotNil(item, @"no menu item for %@", NSStringFromSelector(inAction));
+	PVPrepareMenu([item menu]);
+	XCTAssertTrue([item isEnabled], @"the menu item %@ is disabled", [item title]);
+	[[item menu] performActionForItemAtIndex:[[item menu] indexOfItem:item]];
+}
+
 -(void)runScript:(PVScript *)inScript
 {
 	NSString *failure = [inScript run];

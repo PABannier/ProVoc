@@ -158,9 +158,14 @@
 
 -(NSString *)stringWithContentsOfFile:(NSString *)inFilename
 {
-	if (![self useCustomEncoding])
-		return [NSString stringWithContentsOfFile:inFilename];
-	else {
+	if (![self useCustomEncoding]) {
+		// "Automatic": text files are in UTF-8 today (or in UTF-16 with a byte order mark),
+		// and read as such. The files of the time, in the encoding of the system (Mac OS
+		// Roman), are not valid UTF-8 as soon as they have an accent: they are read as before.
+		NSStringEncoding encoding;
+		NSString *string = [NSString stringWithContentsOfFile:inFilename usedEncoding:&encoding error:NULL];
+		return string ? string : [NSString stringWithContentsOfFile:inFilename];
+	} else {
 		NSData *data = [NSData dataWithContentsOfFile:inFilename];
 		return [[[NSString alloc] initWithData:data encoding:[self stringEncoding]] autorelease];
 	}

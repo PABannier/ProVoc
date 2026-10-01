@@ -542,6 +542,25 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 	}];
 	[inScript then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
 	[inScript wait:@"Return to close the sheet, the Comment column gone" until:^BOOL { return optionsSheet() == nil && [[self wordTable] columnWithIdentifier:@"Comment"] < 0; }];
+	// ... and show it again, with the column of the next review (hidden at first)
+	[inScript then:^{ PVTypeCommand(@"j", 0); }];
+	[inScript wait:@"the View Options sheet once more" until:^BOOL { return optionsSheet() != nil && matrix() != nil; }];
+	[inScript then:^{
+		PVExpect([[self wordTable] columnWithIdentifier:@"NextReview"] < 0, @"the Next Review column should be hidden at first");
+		clickCheckBox(@"Comment");
+	}];
+	[inScript wait:@"the Comment box to be checked" until:^BOOL { return [[[optionsSheet() windowController] valueForKey:@"Comment"] boolValue]; }];
+	[inScript then:^{ clickCheckBox(@"NextReview"); }];
+	[inScript wait:@"the Next Review box to be checked" until:^BOOL { return [[[optionsSheet() windowController] valueForKey:@"NextReview"] boolValue]; }];
+	[inScript then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
+	[inScript wait:@"Return to show both columns" until:^BOOL { return optionsSheet() == nil && [[self wordTable] columnWithIdentifier:@"Comment"] >= 0 && [[self wordTable] columnWithIdentifier:@"NextReview"] >= 0; }];
+	// hide Comment again for the rest of the scenario
+	[inScript then:^{ PVTypeCommand(@"j", 0); }];
+	[inScript wait:@"the View Options sheet" until:^BOOL { return optionsSheet() != nil && matrix() != nil; }];
+	[inScript then:^{ clickCheckBox(@"Comment"); }];
+	[inScript wait:@"the Comment box to be unchecked" until:^BOOL { return ![[[optionsSheet() windowController] valueForKey:@"Comment"] boolValue]; }];
+	[inScript then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
+	[inScript wait:@"the Comment column to go again" until:^BOOL { return optionsSheet() == nil && [[self wordTable] columnWithIdentifier:@"Comment"] < 0; }];
 	// Esc cancels: nothing changes
 	[inScript then:^{ PVTypeCommand(@"j", 0); }];
 	[inScript wait:@"the View Options sheet again" until:^BOOL { return optionsSheet() != nil && matrix() != nil; }];
@@ -607,6 +626,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 		NSTableView *table = [document valueForKey:@"mWordTableView"];
 		PVExpect([table columnWithIdentifier:@"Comment"] < 0, @"the Comment column is back");
 		PVExpect([table columnWithIdentifier:@"Difficulty"] >= 0, @"the Difficulty column is gone");
+		PVExpect([table columnWithIdentifier:@"NextReview"] >= 0, @"the Next Review column, shown with View Options, is hidden again");
 		PVExpectEqual([[document valueForKey:@"mVisibleWords"] count], 5, @"the words of both selected lessons are listed");
 		PVTypeCommand(@"3", NSEventModifierFlagOption);
 	}];

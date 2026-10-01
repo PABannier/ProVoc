@@ -161,6 +161,10 @@
 	mPaperSize.height -= [info topMargin] + [info bottomMargin];
 	
 	[mPages removeAllObjects];
+	// (they belonged to mPages: the first -closePage of a second pagination - the print
+	// panel paginates more than once - sent a message to a freed dictionary and crashed)
+	mCurrentPage = nil;
+	mCurrentWords = nil;
 	mCurrentY = 0;
 	
 	BOOL firstPage = YES;
