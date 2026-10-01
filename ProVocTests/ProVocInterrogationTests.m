@@ -282,4 +282,204 @@
 	[self runScript:script];
 }
 
+// Holding Option turns "Give Answer" into "Give Hint": each click reveals one more
+// letter in the answer field, which keeps the focus.
+-(void)scenarioHintWithOptionClick
+{
+	[mDocument setValue:@YES forKey:@"dontShuffleWords"];
+	PVScript *script = [PVScript script];
+	NSButton *(^giveButton)(void) = ^{ return [self buttonWithAction:@selector(giveAnswerTestPanel:) inView:[[self testPanel] contentView]]; };
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	[script wait:@"question 1 (house)" until:^BOOL { return [self showsQuestionNumber:1] && [[self question] isEqualToString:@"house"]; }];
+	[script then:^{
+		XCTAssertEqualObjects([giveButton() title], NSLocalizedString(@"Give Answer Button Title", @""));
+		PVPostFlagsChanged(NSEventModifierFlagOption);
+	}];
+	[script wait:@"the button to read Give Hint while Option is down" until:^BOOL { return [[giveButton() title] isEqualToString:NSLocalizedString(@"Give Hint Button Title", @"")]; }];
+	[script then:^{ PVClickView(giveButton(), 1, NSEventModifierFlagOption); }];
+	[script wait:@"the first letter" until:^BOOL { return [[self typedAnswer] isEqualToString:@"m"] && [self answerFieldHasFocus]; }];
+	[script then:^{ PVClickView(giveButton(), 1, NSEventModifierFlagOption); }];
+	[script wait:@"the second letter" until:^BOOL { return [[self typedAnswer] isEqualToString:@"ma"] && [self answerFieldHasFocus]; }];
+	[script then:^{ PVPostFlagsChanged(0); }];
+	[script wait:@"the button to read Give Answer again" until:^BOOL { return [[giveButton() title] isEqualToString:NSLocalizedString(@"Give Answer Button Title", @"")]; }];
+	// the cursor is after the hint: the rest of the word is typed
+	[script then:^{ XCTAssertFalse([self showsSolution]); PVTypeText(@"ison"); }];
+	[script wait:@"the completed answer" until:^BOOL { return [[self typedAnswer] isEqualToString:@"maison"]; }];
+	[script then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
+	[script wait:@"question 2" until:^BOOL { return [self showsQuestionNumber:2]; }];
+	[script then:^{
+		XCTAssertEqual([[self wordWithSource:@"house"] right], 1);
+		PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption);
+	}];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
+// Holding Option turns "Pause" into "Edit": the test is paused and the current word
+// is selected in the list, ready to be edited; the test can be resumed.
+-(void)scenarioEditCurrentWordWithOptionClick
+{
+	PVScript *script = [PVScript script];
+	__block NSString *question = nil;
+	NSButton *(^pauseButton)(void) = ^{ return [self buttonWithAction:@selector(pauseTestPanel:) inView:[[self testPanel] contentView]]; };
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	[script wait:@"question 1" until:^BOOL { return [self showsQuestionNumber:1]; }];
+	[self answerCorrectlyIn:script];
+	[script wait:@"question 2" until:^BOOL { return [self showsQuestionNumber:2]; }];
+	[script then:^{ question = [[self question] copy]; PVPostFlagsChanged(NSEventModifierFlagOption); }];
+	[script wait:@"the button to read Edit while Option is down" until:^BOOL { return [[pauseButton() title] isEqualToString:NSLocalizedString(@"Edit Button Title", @"")]; }];
+	[script then:^{ PVClickView(pauseButton(), 1, NSEventModifierFlagOption); }];
+	[script wait:@"the test to pause and the word to be selected in the Editing view" until:^BOOL {
+		NSArray *selected = [mDocument selectedWords];
+		return ![[self testPanel] isVisible] && [[mDocument valueForKey:@"canResumeTest"] boolValue] && [[mDocument valueForKey:@"mainTab"] intValue] == 1
+			&& [selected count] == 1 && [[(ProVocWord *)selected[0] sourceWord] isEqualToString:question];
+	}];
+	[script then:^{ PVPostFlagsChanged(0); PVTypeCommand(@"r", 0); }];
+	[script wait:@"the test to resume on the same question" until:^BOOL { return [self showsQuestionNumber:2] && [[self question] isEqualToString:question]; }];
+	[script then:^{ PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
+// Direction target -> source: the questions are the translations.
+-(void)scenarioDirectionTargetToSource
+{
+	[mDocument setValue:@1 forKey:@"testDirection"];
+	NSDictionary *reversed = [NSDictionary dictionaryWithObjects:[mAnswers allKeys] forKeys:[mAnswers allValues]];
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	for (int number = 1; number <= 4; number++) {
+		[script wait:[NSString stringWithFormat:@"question %i", number] until:^BOOL { return [self showsQuestionNumber:number]; }];
+		[script then:^{
+			XCTAssertNotNil(reversed[[self question]], @"the question should be a translation, not %@", [self question]);
+			PVTypeText(reversed[[self question]]);
+			PVPostKey(PVKeyReturn, nil, 0);
+		}];
+	}
+	[script wait:@"the result panel" until:^BOOL { return [[self resultPanel] isVisible]; }];
+	[script then:^{ XCTAssertEqualObjects([self resultValues], (@[@4, @0])); PVPostKey(PVKeyReturn, nil, 0); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
+// Direction "both": every word is asked once in each direction.
+-(void)scenarioDirectionBoth
+{
+	[mDocument setValue:@3 forKey:@"testDirection"];
+	NSDictionary *reversed = [NSDictionary dictionaryWithObjects:[mAnswers allKeys] forKeys:[mAnswers allValues]];
+	NSMutableSet *asked = [NSMutableSet set];
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	for (int number = 1; number <= 8; number++) {
+		[script wait:[NSString stringWithFormat:@"question %i of 8", number] until:^BOOL { return [self showsQuestionNumber:number] && [self progressMax] == 8; }];
+		[script then:^{
+			NSString *question = [self question];
+			XCTAssertFalse([asked containsObject:question], @"%@ asked twice", question);
+			[asked addObject:question];
+			NSString *answer = mAnswers[question] ? mAnswers[question] : reversed[question];
+			XCTAssertNotNil(answer, @"unexpected question %@", question);
+			PVTypeText(answer);
+			PVPostKey(PVKeyReturn, nil, 0);
+		}];
+	}
+	[script wait:@"the result panel" until:^BOOL { return [[self resultPanel] isVisible]; }];
+	[script then:^{
+		XCTAssertEqual([asked count], 8u);
+		XCTAssertEqualObjects([self resultValues], (@[@8, @0]));
+		PVPostKey(PVKeyReturn, nil, 0);
+	}];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
+// Direction "random": with the slider at one end all questions are in one language.
+-(void)scenarioDirectionRandom
+{
+	[mDocument setValue:@2 forKey:@"testDirection"];
+	[mDocument setValue:@1.0f forKey:@"testDirectionProbability"];
+	NSDictionary *reversed = [NSDictionary dictionaryWithObjects:[mAnswers allKeys] forKeys:[mAnswers allValues]];
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	for (int number = 1; number <= 4; number++) {
+		[script wait:[NSString stringWithFormat:@"question %i", number] until:^BOOL { return [self showsQuestionNumber:number]; }];
+		[script then:^{
+			XCTAssertNotNil(reversed[[self question]], @"with a probability of 100%% the question should be a translation, not %@", [self question]);
+			PVTypeText(reversed[[self question]]);
+			PVPostKey(PVKeyReturn, nil, 0);
+		}];
+	}
+	[script wait:@"the result panel" until:^BOOL { return [[self resultPanel] isVisible]; }];
+	[script then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
+// "Train words in random order" off: the words come in the order of the list.
+-(void)scenarioWordsInListOrder
+{
+	[mDocument setValue:@YES forKey:@"dontShuffleWords"];
+	NSArray *order = @[@"house", @"cat", @"dog", @"summer"];
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	for (int number = 1; number <= 4; number++) {
+		[script wait:[NSString stringWithFormat:@"question %i", number] until:^BOOL { return [self showsQuestionNumber:number]; }];
+		[script then:^{ XCTAssertEqualObjects([self question], order[number - 1]); }];
+		[self answerCorrectlyIn:script];
+	}
+	[script wait:@"the result panel" until:^BOOL { return [[self resultPanel] isVisible]; }];
+	[script then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
+// "Train only": flagged words, words with given labels, a limited number of words.
+-(void)scenarioTrainOnlyFilters
+{
+	[[self wordWithSource:@"cat"] setMark:1];
+	[[self wordWithSource:@"dog"] setLabel:3];
+	[[self wordWithSource:@"summer"] setLabel:5];
+	[mDocument setValue:@YES forKey:@"testMarked"];
+	// row 0 of the label list is "Marked", row n + 1 is label n
+	NSMutableIndexSet *labels = [NSMutableIndexSet indexSetWithIndex:0];
+	[labels addIndex:3 + 1];
+	[mDocument setValue:labels forKey:@"labelsToTest"];
+	NSMutableSet *asked = [NSMutableSet set];
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	for (int number = 1; number <= 2; number++) {
+		[script wait:[NSString stringWithFormat:@"question %i of 2", number] until:^BOOL { return [self showsQuestionNumber:number] && [self progressMax] == 2; }];
+		[script then:^{ [asked addObject:[self question]]; }];
+		[self answerCorrectlyIn:script];
+	}
+	[script wait:@"the result panel" until:^BOOL { return [[self resultPanel] isVisible]; }];
+	[script then:^{
+		XCTAssertEqualObjects(asked, ([NSSet setWithArray:@[@"cat", @"dog"]]), @"only the flagged word and the word with label 3");
+		PVPostKey(PVKeyReturn, nil, 0);
+	}];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	// a limited number of words
+	[script then:^{
+		[mDocument setValue:@NO forKey:@"testMarked"];
+		[mDocument setValue:@YES forKey:@"testLimit"];
+		[mDocument setValue:@3 forKey:@"testLimitNumber"];
+		[mDocument setValue:@0 forKey:@"testLimitWhat"];
+		PVTypeCommand(@"r", 0);
+	}];
+	[script wait:@"a test of 3 words" until:^BOOL { return [self showsQuestionNumber:1] && [self progressMax] == 3; }];
+	[script then:^{ PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	// the most difficult words first
+	[script then:^{
+		[[self wordWithSource:@"summer"] increaseDifficulty];
+		[[self wordWithSource:@"summer"] increaseDifficulty];
+		[mDocument setValue:@1 forKey:@"testLimitNumber"];
+		[mDocument setValue:@1 forKey:@"testLimitWhat"];
+		PVTypeCommand(@"r", 0);
+	}];
+	[script wait:@"a test of the most difficult word" until:^BOOL { return [self showsQuestionNumber:1] && [self progressMax] == 1 && [[self question] isEqualToString:@"summer"]; }];
+	[script then:^{ PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
 @end
