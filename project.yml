@@ -1,0 +1,126 @@
+# ProVoc.xcodeproj is generated from this file: `xcodegen generate`.
+name: ProVoc
+options:
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+  knownRegions: [English, French, German, Italian, Spanish, Danish]
+settings:
+  base:
+    ARCHS: arm64
+    SDKROOT: macosx
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CLANG_ENABLE_OBJC_ARC: NO          # the code base is manual retain/release
+    CLANG_ENABLE_MODULES: YES
+    ALWAYS_SEARCH_USER_PATHS: NO
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: NO
+    GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS: NO
+    CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF: NO
+    GCC_WARN_64_TO_32_BIT_CONVERSION: NO
+  configs:
+    Debug:
+      ONLY_ACTIVE_ARCH: YES
+      GCC_OPTIMIZATION_LEVEL: 0
+      GCC_PREPROCESSOR_DEFINITIONS: ["DEBUG=1", "$(inherited)"]
+    Release:
+      COPY_PHASE_STRIP: YES
+targets:
+  ProVoc:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Resources
+        excludes:
+          - "**/*~.nib"
+          - "**/.DS_Store"
+          - "Info.plist"
+          - "ProVoc.entitlements"
+          - "ProVoc.mdimporter"
+          - "*.lproj"
+      # The .pvback backgrounds are data-only bundles: they live in Resources (code
+      # signing rejects unsigned bundles in Contents/PlugIns).
+      - path: PlugIns
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: ProVoc
+        PRODUCT_BUNDLE_IDENTIFIER: ch.arizona-software.provoc
+        INFOPLIST_FILE: Resources/Info.plist
+        GCC_PREFIX_HEADER: Sources/ProVoc_Prefix.pch
+        GCC_PRECOMPILE_PREFIX_HEADER: YES
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        ENABLE_DEBUG_DYLIB: NO
+      configs:
+        Debug:
+          # Debug (and test) builds keep their own preferences, apart from the real app.
+          PRODUCT_BUNDLE_IDENTIFIER: ch.arizona-software.provoc.debug
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Quartz.framework
+      - sdk: AVFoundation.framework
+      - sdk: AVKit.framework
+      - sdk: CoreMedia.framework
+    postBuildScripts:
+      - name: Copy localized resources
+        script: |
+          # The .lproj folders hold Interface Builder 2.x nibs that Xcode can no longer
+          # open; they are already compiled, so they are copied as they are (without the
+          # IB-only files and without the stale "~" backups).
+          for lproj in "$SRCROOT"/Resources/*.lproj; do
+            rsync -a --delete --exclude .DS_Store --exclude '*~.nib' \
+              --exclude classes.nib --exclude info.nib --exclude designable.nib --exclude data.dependency \
+              "$lproj" "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/"
+          done
+        basedOnDependencyAnalysis: false
+  ProVocTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: ProVocTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ch.arizona-software.provoc.tests
+        GENERATE_INFOPLIST_FILE: YES
+        HEADER_SEARCH_PATHS: ["$(SRCROOT)/Sources"]
+        GCC_PREFIX_HEADER: Sources/ProVoc_Prefix.pch
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ProVoc.app/Contents/MacOS/ProVoc"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: ProVoc
+  ProVocUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: ProVocUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ch.arizona-software.provoc.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.0"
+        TEST_TARGET_NAME: ProVoc
+        CLANG_ENABLE_OBJC_ARC: YES
+    dependencies:
+      - target: ProVoc
+schemes:
+  ProVoc:
+    build:
+      targets:
+        ProVoc: all
+        ProVocTests: [test]
+        ProVocUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - ProVocTests
+        - ProVocUITests
+    archive:
+      config: Release

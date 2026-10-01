@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 @interface ProVocMovieView : QTMovieView
 

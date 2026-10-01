@@ -15,8 +15,7 @@
 #import "ProVocBackground.h"
 #import "ProVocTimer.h"
 
-#import <Carbon/Carbon.h>
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 #import "WindowExtensions.h"
 #import "StringExtensions.h"
@@ -332,7 +331,7 @@ static NSMutableArray *sCurrentTesters = nil;
 	return mMode;
 }
 
-int SORT_BY_NUMBER(id left, id right, void *info)
+NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 {
 	int nA = [left number];
 	int nB = [right number];
@@ -2411,10 +2410,7 @@ static int sDimCount = 0;
 
 +(void)dimScreensHidingMenuBar:(BOOL)inHideMenuBar
 {
-	if (inHideMenuBar)
-		HideMenuBar();
-	else
-		ShowMenuBar();
+	[NSMenu setMenuBarVisible:!inHideMenuBar];
 	if (sDimCount++ == 0) {
 		[[ProVocInspector sharedInspector] setInspectorHidden:YES];
 		NSEnumerator *enumerator = [[NSScreen screens] objectEnumerator];
@@ -2439,7 +2435,7 @@ static int sDimCount = 0;
 	if (--sDimCount == 0) {
 		[sDimWindows makeObjectsPerformSelector:@selector(orderOut:) withObject:nil];
 		[sDimWindows removeAllObjects];
-		ShowMenuBar();
+		[NSMenu setMenuBarVisible:YES];
 		[[ProVocInspector sharedInspector] setInspectorHidden:NO];
 	}
 }

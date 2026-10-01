@@ -13,7 +13,7 @@
 #import "MenuExtensions.h"
 #import "SpeechSynthesizerExtensions.h"
 
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 @interface NSObject (MCQViewDelegate)
 

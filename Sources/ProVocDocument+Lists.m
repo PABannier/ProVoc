@@ -22,7 +22,7 @@
 #import "ImageExtensions.h"
 #import "ExtendedCell.h"
 
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 static NSArray *sDraggedItems = nil;
 
@@ -1003,7 +1003,7 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 
 typedef struct { id identifier; BOOL descending; id determinents; BOOL ignoreCase; BOOL ignoreAccents; } SortContext;
 
-int ORDER_BY_CONTEXT (id left, id right, void *ctxt)
+NSInteger ORDER_BY_CONTEXT (id left, id right, void *ctxt)
 {
 	SortContext *context = (SortContext *)ctxt;
 	int order = 0;

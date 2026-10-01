@@ -177,7 +177,7 @@
         [bundleSearchPaths addObject:[currPath stringByAppendingPathComponent:@"Application Support/ProVoc/PlugIns"]];
         [bundleSearchPaths addObject:[currPath stringByAppendingPathComponent:@"Application Support/ProVoc/Backgrounds"]];
 	}
-    [bundleSearchPaths addObject:[[NSBundle mainBundle] builtInPlugInsPath]];
+    [bundleSearchPaths addObject:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"PlugIns"]];
     
     searchPathEnum = [bundleSearchPaths objectEnumerator];
     while (currPath = [searchPathEnum nextObject]) {

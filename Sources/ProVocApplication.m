@@ -13,44 +13,6 @@
 #import "ProVocTester.h"
 #import "ProVocFontNameField.h"
 
-@interface ProVocResponder : NSResponder {
-	int mFirstResponderChange;
-}
-
--(int)firstResponderChange;
-
-@end
-
-@implementation ProVocResponder
-
--(int)firstResponderChange
-{
-	return mFirstResponderChange;
-}
-
--(void)insertTab:(id)inSender
-{
-	mFirstResponderChange = 1;
-}
-
--(void)insertBacktab:(id)inSender
-{
-	mFirstResponderChange = -1;
-}
-
--(void)doCommandBySelector:(SEL)inSelector
-{
-	if ([self respondsToSelector:inSelector])
-		[self performSelector:inSelector withObject:nil];
-}
-
--(void)insertText:(NSString *)inText
-{
-}
-
-@end
-
-
 @implementation ProVocApplication
 
 -(BOOL)sendAction:(SEL)inAction to:(id)inTarget from:(id)inSender
@@ -60,19 +22,35 @@
 	return [super sendAction:inAction to:inTarget from:inSender];
 }
 
+-(int)firstResponderChangeForKeyDownEvent:(NSEvent *)inEvent
+{
+	// Tab / Shift-Tab only. Every other key (dead keys, option-combinations, input
+	// methods) must reach the text system untouched.
+	if ([inEvent keyCode] != 48)
+		return 0;
+	NSEventModifierFlags flags = [inEvent modifierFlags] & (NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption | NSEventModifierFlagCommand);
+	if (flags == 0)
+		return 1;
+	if (flags == NSEventModifierFlagShift)
+		return -1;
+	return 0;
+}
+
 -(void)sendEvent:(NSEvent *)inEvent
 {
-	if ([inEvent type] == NSKeyDown) {
-		ProVocResponder *responder = [[[ProVocResponder alloc] init] autorelease];
-		[responder interpretKeyEvents:@[inEvent]];
-		if ([responder firstResponderChange] != 0) {
+	if ([inEvent type] == NSEventTypeKeyDown) {
+		int firstResponderChange = [self firstResponderChangeForKeyDownEvent:inEvent];
+		if (firstResponderChange != 0) {
 			id firstResponder = [[NSApp keyWindow] firstResponder];
+			BOOL composing = [firstResponder respondsToSelector:@selector(hasMarkedText)] && [firstResponder hasMarkedText];
 			if ([firstResponder respondsToSelector:@selector(delegate)])
 				firstResponder = [firstResponder delegate];
-			if ([firstResponder isKindOfClass:[ProVocTextField class]]) {
-				id next = [firstResponder chainedResponder:[responder firstResponderChange]];
-				[[firstResponder window] performSelector:@selector(makeFirstResponder:) withObject:next afterDelay:0.0];
-				return;
+			if (!composing && [firstResponder isKindOfClass:[ProVocTextField class]]) {
+				id next = [firstResponder chainedResponder:firstResponderChange];
+				if (next) {
+					[[firstResponder window] performSelector:@selector(makeFirstResponder:) withObject:next afterDelay:0.0 inModes:@[NSDefaultRunLoopMode, NSModalPanelRunLoopMode]];
+					return;
+				}
 			}
 		}
 
@@ -85,31 +63,26 @@
 		if ([[ProVocInspector sharedInspector] handleKeyDownEvent:inEvent])
 			return;
 	}
-	NS_DURING
-		[super sendEvent:inEvent];
-	NS_HANDLER
-	NS_ENDHANDLER
+	[super sendEvent:inEvent];
 }
 
 @end
 
 @implementation NSApplication (ProVoc)
 
-+(NSApplication *)sharedApplication
-{
-	static NSApplication *sharedApplication = nil;
-	if (!sharedApplication)
-		sharedApplication = [[ProVocApplication alloc] init];
-	return sharedApplication;
-}
-
 -(long)systemVersion
 {
+	// Same encoding as the old Gestalt selector (0x1040 = 10.4); anything newer than
+	// 10.15 is reported as at least 0x1100 so that every ">= 0x10xx" check holds.
 	static long systemVersion = 0;
-	if (systemVersion == 0)
-		Gestalt(gestaltSystemVersion, &systemVersion);
+	if (systemVersion == 0) {
+		NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+		if (version.majorVersion > 10)
+			systemVersion = version.majorVersion << 8;
+		else
+			systemVersion = 0x1000 + (MIN(version.minorVersion, 15) << 4) + MIN(version.patchVersion, 15);
+	}
 	return systemVersion;
 }
 
 @end
-

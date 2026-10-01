@@ -76,7 +76,7 @@
 	<key>CFBundleIconFile</key>
 	<string>ProVoc.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>ch.arizona-software.provoc</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -96,7 +96,59 @@
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<string>ProVocApplication</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>ProVoc records the pronunciation of words with the microphone.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ProVoc captures images and movies for words with the camera.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>ProVoc runs the AppleScripts you start from it.</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>ch.arizona-software.provoc.package</string>
+			<key>UTTypeDescription</key>
+			<string>ProVoc Document</string>
+			<key>UTTypeIconFile</key>
+			<string>ProVocFile.icns</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+				<string>public.composite-content</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>pvoc</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>ch.arizona-software.provoc.document</string>
+			<key>UTTypeDescription</key>
+			<string>ProVoc Document (old format)</string>
+			<key>UTTypeIconFile</key>
+			<string>ProVocFile.icns</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>provoc</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 	<key>NSServices</key>
 	<array>
 		<dict>

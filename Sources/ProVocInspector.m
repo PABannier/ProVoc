@@ -18,7 +18,7 @@
 #import "BezierPathExtensions.h"
 #import "AppleScriptExtensions.h"
 #import "SoundRecorderController.h"
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 @implementation ProVocInspector
 

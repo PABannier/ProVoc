@@ -1,0 +1,240 @@
+//
+//  QTKitCompat.m
+//  ProVoc
+//
+
+#import "QTKitCompat.h"
+
+#import <AVFoundation/AVFoundation.h>
+#import <AVKit/AVKit.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
+@implementation QTMovie
+
++(NSArray *)movieUnfilteredFileTypes
+{
+	static NSArray *fileTypes = nil;
+	if (!fileTypes) {
+		NSMutableArray *extensions = [NSMutableArray array];
+		NSEnumerator *enumerator = [[AVURLAsset audiovisualTypes] objectEnumerator];
+		NSString *identifier;
+		while (identifier = [enumerator nextObject]) {
+			UTType *type = [UTType typeWithIdentifier:identifier];
+			if ([type conformsToType:UTTypeMovie] || [type conformsToType:UTTypeVideo])
+				[extensions addObjectsFromArray:[type tags][UTTagClassFilenameExtension]];
+		}
+		fileTypes = [extensions copy];
+	}
+	return fileTypes;
+}
+
++(BOOL)canInitWithFile:(NSString *)inFile
+{
+	return [[self movieUnfilteredFileTypes] containsObject:[[inFile pathExtension] lowercaseString]];
+}
+
++(id)movieWithFile:(NSString *)inFile error:(NSError **)outError
+{
+	return [[[self alloc] initWithFile:inFile error:outError] autorelease];
+}
+
+-(id)initWithFile:(NSString *)inFile error:(NSError **)outError
+{
+	if (!inFile || ![[NSFileManager defaultManager] fileExistsAtPath:inFile]) {
+		[self release];
+		return nil;
+	}
+	if (self = [super init]) {
+		mFile = [inFile copy];
+		AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:inFile] options:nil];
+		AVAssetTrack *track = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+		mPlayable = [asset isPlayable];
+		if (track) {
+			CGSize size = CGSizeApplyAffineTransform([track naturalSize], [track preferredTransform]);
+			mNaturalSize = NSMakeSize(fabs(size.width), fabs(size.height));
+		}
+		if (mPlayable)
+			mPlayer = [[AVPlayer alloc] initWithPlayerItem:[AVPlayerItem playerItemWithAsset:asset]];
+		else
+			// Old QuickTime-only codecs: keep the movie (so the UI can say so), it just cannot play.
+			NSLog(@"ProVoc: movie %@ cannot be decoded by AVFoundation", [inFile lastPathComponent]);
+	}
+	return self;
+}
+
+-(id)initWithCoder:(NSCoder *)inCoder
+{
+	// Empty placeholder movies are archived in the old nibs.
+	return [super init];
+}
+
+-(void)encodeWithCoder:(NSCoder *)inCoder
+{
+}
+
+-(void)dealloc
+{
+	[mPlayer pause];
+	[mPlayer release];
+	[mFile release];
+	[super dealloc];
+}
+
+-(NSString *)file
+{
+	return mFile;
+}
+
+-(AVPlayer *)player
+{
+	return mPlayer;
+}
+
+-(BOOL)isPlayable
+{
+	return mPlayable;
+}
+
+-(NSSize)naturalSize
+{
+	return mNaturalSize;
+}
+
+-(float)rate
+{
+	return [mPlayer rate];
+}
+
+@end
+
+@implementation QTMovieView
+
+-(void)setUpPlayerView
+{
+	mControllerVisible = YES;
+	mPlayerView = [[AVPlayerView alloc] initWithFrame:[self bounds]];
+	[mPlayerView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	[mPlayerView setControlsStyle:AVPlayerViewControlsStyleInline];
+	[mPlayerView setVideoGravity:AVLayerVideoGravityResizeAspect];
+	[mPlayerView setHidden:YES];
+	[self addSubview:mPlayerView];
+
+	mMessageField = [[NSTextField wrappingLabelWithString:NSLocalizedString(@"Movie Unsupported Format Message", @"")] retain];
+	[mMessageField setAlignment:NSTextAlignmentCenter];
+	[mMessageField setTextColor:[NSColor secondaryLabelColor]];
+	[mMessageField setFrame:NSInsetRect([self bounds], 4, 4)];
+	[mMessageField setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	[mMessageField setHidden:YES];
+	[self addSubview:mMessageField];
+}
+
+-(id)initWithFrame:(NSRect)inFrame
+{
+	if (self = [super initWithFrame:inFrame])
+		[self setUpPlayerView];
+	return self;
+}
+
+-(id)initWithCoder:(NSCoder *)inCoder
+{
+	if (self = [super initWithCoder:inCoder])
+		[self setUpPlayerView];
+	return self;
+}
+
+-(void)dealloc
+{
+	[mPlayerView setPlayer:nil];
+	[mPlayerView release];
+	[mMessageField release];
+	[mMovie release];
+	[super dealloc];
+}
+
+-(QTMovie *)movie
+{
+	return mMovie;
+}
+
+-(void)setMovie:(QTMovie *)inMovie
+{
+	if (![inMovie isKindOfClass:[QTMovie class]])
+		inMovie = nil;
+	if (mMovie != inMovie) {
+		[self pause:nil];
+		[mMovie release];
+		mMovie = [inMovie retain];
+		[mPlayerView setPlayer:[mMovie player]];
+	}
+	[mPlayerView setHidden:![mMovie isPlayable]];
+	[mMessageField setHidden:!mMovie || [mMovie isPlayable]];
+}
+
+-(BOOL)isPlaying
+{
+	return [mMovie rate] != 0;
+}
+
+-(IBAction)play:(id)inSender
+{
+	AVPlayer *player = [mMovie player];
+	AVPlayerItem *item = [player currentItem];
+	if (item && CMTIME_IS_NUMERIC([item duration]) && CMTimeCompare([player currentTime], [item duration]) >= 0)
+		[player seekToTime:kCMTimeZero];
+	[player play];
+}
+
+-(IBAction)pause:(id)inSender
+{
+	[[mMovie player] pause];
+}
+
+-(void)setControllerVisible:(BOOL)inVisible
+{
+	mControllerVisible = inVisible;
+	[mPlayerView setControlsStyle:inVisible ? AVPlayerViewControlsStyleInline : AVPlayerViewControlsStyleNone];
+}
+
+-(void)setPreservesAspectRatio:(BOOL)inPreserve
+{
+	[mPlayerView setVideoGravity:inPreserve ? AVLayerVideoGravityResizeAspect : AVLayerVideoGravityResize];
+}
+
+-(void)setFillColor:(NSColor *)inColor
+{
+	// AVPlayerView letterboxes in black; there is no fill color to set.
+}
+
+-(float)controllerBarHeight
+{
+	// AVKit draws its controls over the picture, not in a bar below it.
+	return 0;
+}
+
+-(BOOL)acceptsFirstResponder
+{
+	return YES;
+}
+
+-(NSMenu *)menuForEvent:(NSEvent *)inEvent
+{
+	return [[[NSMenu alloc] initWithTitle:@""] autorelease];
+}
+
+-(BOOL)validateMenuItem:(NSMenuItem *)inItem
+{
+	return YES;
+}
+
+-(void)keyDown:(NSEvent *)inEvent
+{
+	if ([[inEvent characters] isEqualToString:@" "]) {
+		if ([self isPlaying])
+			[self pause:nil];
+		else
+			[self play:nil];
+	} else
+		[super keyDown:inEvent];
+}
+
+@end

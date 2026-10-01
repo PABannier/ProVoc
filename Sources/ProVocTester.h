@@ -14,7 +14,7 @@
 #import "ProVocMovieView.h"
 #import "ProVocResultView.h"
 
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 #define PVDimTestBackground @"dimTestBackground"
 #define PVFullScreenWithMenuBar @"fullScreenWithMenuBar"

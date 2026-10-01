@@ -1313,7 +1313,7 @@ static int sNewWordLabel = 0;
 
 #pragma mark -
 
-int SORT_BY_DIFFICULT(id left, id right, void *info)
+NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 {
 	float diffA = [left difficulty];
 	float diffB = [right difficulty];
