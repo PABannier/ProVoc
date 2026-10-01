@@ -6,6 +6,7 @@
 
 #import "PVScenarioTestCase.h"
 #import "ProVocDocument+Slideshow.h"
+#import "QTKitCompat.h"
 
 @interface ProVocSlideshowTests : PVScenarioTestCase
 @end
@@ -113,6 +114,49 @@
 	}];
 	[self runScript:script];
 	[defaults setFloat:0.5 forKey:PVSlideshowSpeed];
+}
+
+// The picture of a word shows on its slide, its sounds play one after the other, and
+// its movie plays.
+-(void)testSlideshowShowsAndPlaysMedia
+{
+	ProVocWord *house = [self wordWithSource:@"house"];
+	[mDocument setAudioFile:PVMediaFile(@"aiff") forKey:@"Source" ofWord:house];
+	[mDocument setAudioFile:PVMediaFile(@"m4a") forKey:@"Target" ofWord:house];
+	[mDocument setImageFile:PVMediaFile(@"png") ofWord:house];
+	[mDocument setMovieFile:PVMediaFile(@"mov") ofWord:[self wordWithSource:@"cat"]];
+	id sounds = [NSClassFromString(@"SlideShowSoundGenerator") performSelector:@selector(sharedGenerator)];
+	NSView *(^slide)(void) = ^{ return (NSView *)[[self slideViews] lastObject]; };
+	QTMovieView *(^movieView)(void) = ^{
+		for (NSView *view in [self slideViews])
+			for (NSView *subview in [view subviews])
+				if ([subview isKindOfClass:[QTMovieView class]] && [[view window] alphaValue] > 0.9)
+					return (QTMovieView *)subview;
+		return (QTMovieView *)nil;
+	};
+	NSSound *(^playing)(void) = ^{ return (NSSound *)[sounds valueForKey:@"mCurrentSound"]; };
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", NSEventModifierFlagShift); }];
+	[script wait:@"the slide of house with its picture, its sound playing" timeout:10 until:^BOOL {
+		return [self shows:@[@"house"]] && [slide() valueForKey:@"mImage"] != nil && [playing() isPlaying];
+	}];
+	[script wait:@"the sound to end" until:^BOOL { return playing() == nil; }];
+	[script then:^{
+		// the word and its picture are really on the screen
+		NSBitmapImageRep *shot = PVSaveWindowScreenshot([slide() window], @"slideshow/word-with-picture");
+		XCTAssertTrue(PVNumberOfDistinctColors(shot) >= 4, @"the slide should show a blue and yellow picture and a word (%lu colors)", (unsigned long)PVNumberOfDistinctColors(shot));
+		PVPostKey(PVKeyRight, nil, 0);
+	}];
+	[script wait:@"the translation, its sound playing" until:^BOOL { return [self shows:@[@"house", @"maison"]] && [playing() isPlaying]; }];
+	[script wait:@"the sound to end" until:^BOOL { return playing() == nil; }];
+	[script then:^{ PVPostKey(PVKeyRight, nil, 0); }];
+	[script wait:@"the slide of cat, its movie playing" timeout:10 until:^BOOL { return [self shows:@[@"cat"]] && [movieView() isPlaying]; }];
+	[script then:^{
+		PVSaveWindowScreenshot([movieView() window], @"slideshow/word-with-movie");
+		PVPostKey(PVKeyEscape, nil, 0);
+	}];
+	[script wait:@"the slideshow to end (Esc)" until:^BOOL { return [[self slideViews] count] == 0 && [[mDocument window] isKeyWindow] && ![self controlPanel]; }];
+	[self runScript:script];
 }
 
 @end

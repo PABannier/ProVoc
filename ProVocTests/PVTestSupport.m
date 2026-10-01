@@ -371,6 +371,14 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 				mFailure = [[NSString alloc] initWithFormat:@"the script ended with a modal window still open: %@", [[NSApp modalWindow] title]];
 			[NSApp abortModal];
 		}
+		// The slideshow runs its own event loop until Esc: -run could never return either.
+		for (NSWindow *window in [NSApp windows])
+			if ([window isVisible] && [[window contentView] isKindOfClass:NSClassFromString(@"SlideView")]) {
+				if (!mFailure)
+					mFailure = [[NSString alloc] initWithString:@"the script ended with the slideshow still running"];
+				PVPostKey(PVKeyEscape, nil, 0);
+				break;
+			}
 		// wake the event loop of -run up
 		[NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined location:NSZeroPoint modifierFlags:0 timestamp:0 windowNumber:0 context:nil subtype:0 data1:0 data2:0] atStart:NO];
 	}
