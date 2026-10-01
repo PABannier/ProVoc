@@ -12,7 +12,8 @@ import os, re, shutil, subprocess, sys, tempfile, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PRODUCTS = os.path.join(ROOT, 'build/DerivedData/Build/Products/Debug')
-APP = os.path.join(PRODUCTS, 'ProVoc.app/Contents/MacOS/ProVoc')
+BUNDLE = os.path.join(PRODUCTS, 'ProVoc.app')
+APP = os.path.join(BUNDLE, 'Contents/MacOS/ProVoc')
 DRIVER = os.path.join(PRODUCTS, 'ProVocDriver.dylib')
 ACTIVATOR = os.path.join(ROOT, 'build/activate-test-host')
 FIXTURES = os.path.join(ROOT, 'fixtures')
@@ -32,6 +33,13 @@ SCENARIOS = {
     'document-new-save-close-reopen': [('documentNewSaveCloseReopen', FRESH)],
     'editing-words-with-undo': [('editingWordsWithUndo', FRESH)],
     'editing-lessons-with-undo': [('editingLessonsWithUndo', FRESH)],
+    'clipboard-between-documents': [('clipboardBetweenDocuments', FRESH)],
+    'quit-with-unsaved-changes': [('quitWithUnsavedChanges', FRESH)],
+    'launch-with-document': [('launchWithDocument', FRESH + ['{copy:generated/Rich.pvoc}'])],
+    'launch-with-old-format-document': [('launchWithOldFormatDocument', FRESH + ['{copy:generated/Old format.provoc}'])],
+    'window-state': [('windowStateSave', FRESH), ('windowStateRestore', [])],
+    'quit-with-two-unsaved-documents': [('quitWithTwoUnsavedDocuments', FRESH)],
+    'quit-without-changes': [('clearRecentDocuments', FRESH), ('quitWithoutChanges', FRESH)],
 }
 
 
@@ -42,20 +50,38 @@ def run_phase(name, method, arguments, workdir, logs, timeout=120):
     env = dict(os.environ, DYLD_INSERT_LIBRARIES=DRIVER, PV_SCENARIO=method, PV_RESULT_FILE=result, PV_WORKDIR=workdir,
                PV_FIXTURES=FIXTURES)
     arguments = [a.replace('{work}', workdir).replace('{fixtures}', FIXTURES) for a in arguments]
+    for index, argument in enumerate(arguments):
+        # {copy:path} is replaced by a copy of that fixture in the work directory: fixtures are never opened in place
+        match = re.fullmatch(r'\{copy:(.+)\}', argument)
+        if match:
+            source = os.path.join(FIXTURES, match.group(1))
+            target = os.path.join(workdir, os.path.basename(source))
+            if not os.path.exists(target):
+                (shutil.copytree if os.path.isdir(source) else shutil.copy)(source, target)
+            arguments[index] = target
     log_path = os.path.join(logs, 'e2e-%s-%s.log' % (name, method))
-    with open(log_path, 'w') as log:
-        process = subprocess.Popen([APP] + BASE + arguments, env=env, stdout=log, stderr=subprocess.STDOUT, cwd=workdir)
-        try:
-            status = process.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            return ['the application did not end within %d s (killed)' % timeout]
+    open(log_path, 'w').close()
+    # Launched through LaunchServices, as the Finder and the Dock do: the application is
+    # activated before its windows appear, and the documents to open come as an "open
+    # documents" event. (Started as a plain child process it comes up in the background,
+    # and its windows do not become key the same way.)
+    documents = [a for a in arguments if a.startswith('/')]
+    options = [a for a in arguments if not a.startswith('/')]
+    command = ['open', '-n', '-W', '-a', BUNDLE, '--stdout', log_path, '--stderr', log_path]
+    for key in ('DYLD_INSERT_LIBRARIES', 'PV_SCENARIO', 'PV_RESULT_FILE', 'PV_WORKDIR', 'PV_FIXTURES'):
+        command += ['--env', '%s=%s' % (key, env[key])]
+    command += documents + ['--args'] + BASE + options
+    process = subprocess.Popen(command, cwd=workdir)
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        subprocess.run(['pkill', '-f', APP])
+        process.wait()
+        return ['the application did not end within %d s (killed)' % timeout]
     failures = []
-    verdict = open(result).read().splitlines() if os.path.exists(result) else ['NO VERDICT (exit status %s)' % status]
+    verdict = open(result).read().splitlines() if os.path.exists(result) else ['NO VERDICT']
     if verdict[:1] != ['PASS']:
         failures += verdict
-    if status != 0 and not failures:
-        failures.append('exit status %s' % status)
     for line in open(log_path, errors='replace'):
         if FORBIDDEN.search(line) and not ALLOWED.search(line) and 'PVDriver: FAILED' not in line:
             failures.append('log: ' + line.strip()[:300])
@@ -111,6 +137,11 @@ def main():
     print('%d scenario(s) failed' % failed if failed else 'all scenarios passed')
     return 1 if failed else 0
 
+
+# scripts/make-fixtures.sh: only the scenario that writes fixtures/generated
+if '--make-fixtures' in sys.argv:
+    SCENARIOS = {'generate-fixtures': [('generateFixtures', FRESH)]}
+    sys.argv.remove('--make-fixtures')
 
 if __name__ == '__main__':
     sys.exit(main())

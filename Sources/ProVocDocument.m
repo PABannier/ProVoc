@@ -235,7 +235,13 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 		NSSize size;
 		size.width = [mLoadedParameters[@"WindowWidth"] floatValue];
 		size.height = [mLoadedParameters[@"WindowHeight"] floatValue];
-		[[self window] setContentSize:size keepTopLeftCorner:YES];
+		// The size that was saved is the size of the frame of the window, title bar included.
+		// (It used to be restored as the size of the content: the window grew by the height
+		// of the title bar each time the document was opened and saved again.)
+		NSRect frame = [[self window] frame];
+		frame.origin.y = NSMaxY(frame) - size.height;
+		frame.size = size;
+		[[self window] setFrame:frame display:NO];
 		if (mLoadedParameters[@"WindowLeft"] && mLoadedParameters[@"WindowTop"]) {
 			NSPoint topLeftCorner;
 			topLeftCorner.x = [mLoadedParameters[@"WindowLeft"] floatValue];

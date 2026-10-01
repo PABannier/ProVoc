@@ -25,7 +25,8 @@ static void PVWriteVerdict(BOOL inTerminated)
 	if (!path)
 		return;
 	NSMutableString *verdict = [NSMutableString string];
-	if (!sScriptEnded)
+	// (the step that makes the application quit is the last one of its scenario: it calls +expectTermination)
+	if (!sScriptEnded && !(sExpectsTermination && inTerminated))
 		[sFailures addObject:@"the application quit before the end of the scenario"];
 	if (sExpectsTermination && !inTerminated)
 		[verdict appendString:@"WAITING FOR THE APPLICATION TO QUIT\n"];
