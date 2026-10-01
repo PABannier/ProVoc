@@ -89,11 +89,13 @@
 -(BOOL)handleKeyDownEvent:(NSEvent *)inEvent
 {
 	if (([inEvent modifierFlags] & (NSCommandKeyMask | NSControlKeyMask)) == 0 && ([ProVocMCQView digitForKeyDownEvent:inEvent] == 0 || [[inEvent charactersIgnoringModifiers] isEqualToString:@"0"] || [[inEvent charactersIgnoringModifiers] isEqualToString:@" "])) {
+		// (the second test was a copy of the first one: without sound for the question,
+		// the sound of the selected choice was never played)
 		if ([self canPlayQuestionAudio]) {
 			[self playQuestionAudio:nil];
 			return YES;
-		} else if ([self canPlayQuestionAudio]) {
-			[self playQuestionAudio:nil];
+		} else if ([self canPlayAnswerAudio]) {
+			[self playAnswerAudio:nil];
 			return YES;
 		}
 	}
