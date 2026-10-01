@@ -14,6 +14,13 @@
 
 @implementation ProVocInterrogationTests
 
+-(NSArray *)words
+{
+	if ([NSStringFromSelector([[self invocation] selector]) rangeOfString:@"DeadKeys"].location != NSNotFound)
+		return @[@[@"forest", @"forêt"], @[@"naive", @"naïve"], @[@"child", @"niño"], @[@"pupil", @"élève"], @[@"boy", @"garçon"], @[@"where", @"où"], @[@"coffee", @"café"], @[@"there", @"là"]];
+	return [super words];
+}
+
 #pragma mark Scenarios
 
 // Type the answer, Return, type the answer, Return... never touching the mouse.
@@ -480,6 +487,93 @@
 	[script then:^{ PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption); }];
 	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
 	[self runScript:script];
+}
+
+// Dead keys and accented keys in the answer field, typed as key codes that go through
+// the text input system: ^ then e gives ê, ¨ then i gives ï, ~ then n gives ñ, and the
+// accented letters that have their own key. With the French (AZERTY) layout, and with
+// the U.S. layout (Option-E then e gives é...) when it is enabled on this Mac; the
+// layout of the user is put back at the end.
+-(void)scenarioDeadKeysAndAccentedLetters
+{
+	NSString *userLayout = [PVCurrentKeyboardLayout() copy];
+	NSMutableArray *layouts = [NSMutableArray array];
+	for (NSString *layout in @[@"com.apple.keylayout.French", @"com.apple.keylayout.US", @"com.apple.keylayout.ABC"])
+		if ([PVEnabledKeyboardLayouts() containsObject:layout])
+			[layouts addObject:layout];
+	XCTAssertTrue([layouts containsObject:@"com.apple.keylayout.French"], @"the French (AZERTY) layout is not enabled on this Mac: %@", PVEnabledKeyboardLayouts());
+	NSLog(@"PVTestSupport: dead keys tested with %@ (enabled layouts: %@)", [layouts componentsJoinedByString:@", "], [PVEnabledKeyboardLayouts() componentsJoinedByString:@", "]);
+	// what is typed: plain text, or an accent (a dead key) followed by its letter
+	NSArray *answers = @[
+		@[@"forest", @"forêt", @[@"for", @[@"^", @"e"], @"t"]],
+		@[@"naive", @"naïve", @[@"na", @[@"¨", @"i"], @"ve"]],
+		@[@"child", @"niño", @[@"ni", @[@"~", @"n"], @"o"]],
+		@[@"pupil", @"élève", @[@"élève"]],
+		@[@"boy", @"garçon", @[@"garçon"]],
+		@[@"where", @"où", @[@"où"]],
+		@[@"coffee", @"café", @[@"caf", @[@"´", @"e"]]],
+		@[@"there", @"là", @[@"l", @[@"`", @"a"]]],
+	];
+	[mDocument setValue:@YES forKey:@"dontShuffleWords"];
+	PVScript *script = [PVScript script];
+	for (NSString *layout in layouts) {
+		[script then:^{
+			XCTAssertTrue(PVSelectKeyboardLayout(layout), @"cannot select %@", layout);
+		}];
+		[script wait:[NSString stringWithFormat:@"the keyboard layout %@", layout] until:^BOOL { return [PVCurrentKeyboardLayout() isEqualToString:layout]; }];
+		[script then:^{ PVTypeCommand(@"r", 0); }];
+		for (NSUInteger index = 0; index < [answers count]; index++) {
+			NSArray *answer = answers[index];
+			[script wait:[NSString stringWithFormat:@"the question %@ (%@)", answer[0], layout] until:^BOOL { return [self showsQuestionNumber:(int)index + 1] && [[self question] isEqualToString:answer[0]]; }];
+			__block BOOL typed = YES;
+			for (id part in answer[2]) {
+				if ([part isKindOfClass:[NSString class]])
+					[script then:^{ PVTypeText(part); }];
+				else {
+					// the dead key: nothing is typed yet, the accent waits (marked text) in the field, which keeps the focus
+					[script then:^{ typed = typed && PVTypeDeadKey(part[0]); }];
+					[script wait:@"the accent to wait for its letter" until:^BOOL {
+						return !typed || ([(NSTextView *)[[self answerField] currentEditor] hasMarkedText] && [self answerFieldHasFocus]);
+					}];
+					[script then:^{ if (typed) PVTypeText(part[1]); }];
+					[script wait:@"the accented letter" until:^BOOL { return !typed || ![(NSTextView *)[[self answerField] currentEditor] hasMarkedText]; }];
+				}
+			}
+			[script wait:[NSString stringWithFormat:@"%@ in the answer field (%@)", answer[1], layout] until:^BOOL {
+				// (a layout without one of the dead keys cannot type that word: it is given up, and said)
+				return !typed || [[self typedAnswer] isEqualToString:answer[1]];
+			}];
+			[script then:^{
+				if (typed) {
+					XCTAssertEqualObjects([[self typedAnswer] precomposedStringWithCanonicalMapping], answer[1]);
+					PVPostKey(PVKeyReturn, nil, 0);
+				} else {
+					NSLog(@"PVTestSupport: %@ has no dead key to type %@", layout, answer[1]);
+					NSArray *typedWithFrenchDeadKeys = @[@"forêt", @"naïve", @"niño"];
+					XCTAssertFalse([layout isEqualToString:@"com.apple.keylayout.French"] && [typedWithFrenchDeadKeys containsObject:answer[1]], @"the French layout should type %@", answer[1]);
+					PVTypeCommand(@"a", 0);
+					PVPostKey(PVKeyDelete, nil, 0);
+					PVTypeCommand(@"g", 0);
+				}
+			}];
+			if (index + 1 < [answers count])
+				[script wait:@"the next question (or the solution of a word that cannot be typed)" until:^BOOL { return typed ? [self showsQuestionNumber:(int)index + 2] : [self showsSolution]; }];
+			else
+				[script wait:@"the result panel (or the solution of a word that cannot be typed)" until:^BOOL { return typed ? [[self resultPanel] isVisible] : [self showsSolution]; }];
+			[script then:^{ if (!typed) PVPostKey(PVKeyReturn, nil, 0); }];
+		}
+		[script wait:@"the result panel" until:^BOOL { return [[self resultPanel] isVisible]; }];
+		[script then:^{
+			// every word was typed, with the French layout as with the U.S. one
+			XCTAssertEqualObjects([self resultValues], (@[@8, @0]), @"correct answers with %@", layout);
+			PVPostKey(PVKeyEscape, nil, 0);
+		}];
+		[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+		[script then:^{ for (ProVocWord *word in [mDocument allWords]) [word reset]; }];
+	}
+	[self runScript:script];
+	XCTAssertTrue(PVSelectKeyboardLayout(userLayout), @"cannot put the keyboard layout %@ back", userLayout);
+	XCTAssertTrue(PVWaitUntil(5, ^BOOL { return [PVCurrentKeyboardLayout() isEqualToString:userLayout]; }), @"the keyboard layout %@ was not put back", userLayout);
 }
 
 @end

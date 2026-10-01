@@ -237,9 +237,91 @@ void PVPostFlagsChanged(NSEventModifierFlags inModifiers)
 // layout, found by asking the layout what each key produces - whatever the layout is.
 // With inCommand, the layout is asked what the keys produce while Command is held (on
 // AZERTY, for instance, Command plus the unshifted top-row keys gives the digits).
+// The tables of the current layout: [0] plain, [1] with Command, [2] dead keys
+static NSMutableDictionary *sKeyTables[3] = {nil, nil, nil};
+static NSString *sKeyTablesLayout = nil;
+
+NSString *PVCurrentKeyboardLayout(void)
+{
+	TISInputSourceRef source = TISCopyCurrentKeyboardLayoutInputSource();
+	NSString *identifier = [[(NSString *)TISGetInputSourceProperty(source, kTISPropertyInputSourceID) copy] autorelease];
+	CFRelease(source);
+	return identifier;
+}
+
+NSArray *PVEnabledKeyboardLayouts(void)
+{
+	NSMutableArray *identifiers = [NSMutableArray array];
+	NSArray *sources = [(NSArray *)TISCreateInputSourceList((CFDictionaryRef)@{(id)kTISPropertyInputSourceType: (id)kTISTypeKeyboardLayout}, false) autorelease];
+	for (id source in sources)
+		[identifiers addObject:(NSString *)TISGetInputSourceProperty((TISInputSourceRef)source, kTISPropertyInputSourceID)];
+	return identifiers;
+}
+
+BOOL PVSelectKeyboardLayout(NSString *inIdentifier)
+{
+	NSArray *sources = [(NSArray *)TISCreateInputSourceList((CFDictionaryRef)@{(id)kTISPropertyInputSourceID: inIdentifier}, false) autorelease];
+	if ([sources count] == 0)
+		return NO;
+	return TISSelectInputSource((TISInputSourceRef)[sources firstObject]) == noErr;
+}
+
+// The tables are made again when the layout has changed
+static void PVCheckKeyTables(void)
+{
+	NSString *layout = PVCurrentKeyboardLayout();
+	if (![layout isEqual:sKeyTablesLayout]) {
+		for (int i = 0; i < 3; i++) {
+			[sKeyTables[i] release];
+			sKeyTables[i] = nil;
+		}
+		[sKeyTablesLayout release];
+		sKeyTablesLayout = [layout copy];
+	}
+}
+
+BOOL PVTypeDeadKey(NSString *inAccent)
+{
+	PVCheckKeyTables();
+	if (!sKeyTables[2]) {
+		NSMutableDictionary *keys = sKeyTables[2] = [[NSMutableDictionary alloc] init];
+		TISInputSourceRef source = TISCopyCurrentKeyboardLayoutInputSource();
+		CFDataRef layoutData = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData);
+		if (layoutData) {
+			const UCKeyboardLayout *layout = (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
+			NSEventModifierFlags modifiers[4] = {0, NSEventModifierFlagShift, NSEventModifierFlagOption, NSEventModifierFlagShift | NSEventModifierFlagOption};
+			for (int m = 3; m >= 0; m--)	// plainest combination last, so that it wins
+				for (int keyCode = 127; keyCode >= 0; keyCode--) {
+					if (keyCode >= 65 && keyCode <= 92)
+						continue;	// keypad
+					UInt32 deadKeyState = 0;
+					UniChar characters[4];
+					UniCharCount length = 0;
+					UInt32 carbonModifiers = ((modifiers[m] & NSEventModifierFlagShift) ? shiftKey : 0) | ((modifiers[m] & NSEventModifierFlagOption) ? optionKey : 0);
+					if (UCKeyTranslate(layout, keyCode, kUCKeyActionDown, carbonModifiers >> 8, LMGetKbdType(), 0, &deadKeyState, 4, &length, characters) != noErr || deadKeyState == 0)
+						continue;
+					// a dead key: followed by a space, it types its accent alone
+					if (UCKeyTranslate(layout, 49, kUCKeyActionDown, 0, LMGetKbdType(), 0, &deadKeyState, 4, &length, characters) == noErr && length == 1)
+						keys[[NSString stringWithCharacters:characters length:1]] = @[@(keyCode), @(modifiers[m])];
+				}
+		}
+		CFRelease(source);
+	}
+	// (some layouts type the spacing variant of the accent: U+02C6 for ^, U+02DC for ~)
+	NSDictionary *variants = @{@"^": @"\u02C6", @"~": @"\u02DC", @"´": @"\u02CA", @"`": @"\u02CB"};
+	NSArray *key = sKeyTables[2][inAccent];
+	if (!key && variants[inAccent])
+		key = sKeyTables[2][variants[inAccent]];
+	if (!key)
+		return NO;
+	PVPostKey([key[0] unsignedShortValue], nil, [key[1] unsignedIntegerValue]);
+	return YES;
+}
+
 static BOOL PVKeyForCharacter(NSString *inCharacter, BOOL inCommand, unsigned short *outKeyCode, NSEventModifierFlags *outModifiers)
 {
-	static NSMutableDictionary *tables[2] = {nil, nil};
+	PVCheckKeyTables();
+	NSMutableDictionary **tables = sKeyTables;
 	if (!tables[inCommand]) {
 		NSMutableDictionary *keys = tables[inCommand] = [[NSMutableDictionary alloc] init];
 		TISInputSourceRef source = TISCopyCurrentKeyboardLayoutInputSource();

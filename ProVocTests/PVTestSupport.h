@@ -61,6 +61,16 @@ void PVPostFlagsChanged(NSEventModifierFlags inModifiers);
 void PVPressAlertButton(NSButton *inButton);
 // One key event per character.
 void PVTypeText(NSString *inText);
+
+// Keyboard layouts ("com.apple.keylayout.French", "com.apple.keylayout.US"...)
+NSString *PVCurrentKeyboardLayout(void);
+// The layouts enabled in the keyboard settings of this Mac
+NSArray *PVEnabledKeyboardLayouts(void);
+// Selects one of the enabled layouts (as the input menu does); NO if it is not enabled
+BOOL PVSelectKeyboardLayout(NSString *inIdentifier);
+// Presses the dead key of the current layout for an accent given as the character it
+// types when followed by a space: "^", "¨", "´", "`", "~". NO if the layout has none.
+BOOL PVTypeDeadKey(NSString *inAccent);
 // Command-<character>, e.g. PVTypeCommand(@"r", 0); extra modifiers may be added.
 void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers);
 
