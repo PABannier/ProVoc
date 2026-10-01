@@ -437,15 +437,6 @@
 
 -(SoundRecorderController *)sharedSoundRecorderController
 {
-	if ([NSApp systemVersion] < 0x1050)
-    {
-		int result = NSRunAlertPanel(NSLocalizedString(@"Leopard Only Feature Title", @""), NSLocalizedString(@"Leopard Only Feature Message", @""), NSLocalizedString(@"OK", @""), NSLocalizedString(@"Leopard Only Feature Download Button", @""), nil);
-		if (result == NSAlertAlternateReturn) {
-			[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Leopard Only Feature Download URL", @"")]];
-		}
-		return nil;
-	}
-    
     return [SoundRecorderController sharedController];
 }
 
@@ -524,7 +515,7 @@ static BOOL sRecording = NO;
 {
 	if (!sRecording) {
 		sRecording = YES;
-		NSImage *image = [[SoundRecorderController sharedGrabber] captureImage];
+		NSImage *image = [[ProVocCameraGrabber sharedGrabber] captureImage];
 		sRecording = NO;
 		if (image) {
 			NSEnumerator *enumerator = [mSelectedWords objectEnumerator];
@@ -573,7 +564,7 @@ static BOOL sRecording = NO;
 {
 	if (!sRecording) {
 		sRecording = YES;
-		NSString *file = [[SoundRecorderController sharedGrabber] captureMovie];
+		NSString *file = [[ProVocCameraGrabber sharedGrabber] captureMovie];
 		sRecording = NO;
 		if (file) {
 			NSEnumerator *enumerator = [mSelectedWords objectEnumerator];

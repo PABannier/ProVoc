@@ -413,3 +413,110 @@ NSUInteger PVNumberOfDistinctColors(NSBitmapImageRep *inBitmap)
 		}
 	return [colors count];
 }
+
+#import <AVFoundation/AVFoundation.h>
+
+static void PVWriteWAV(NSString *inPath)
+{
+	// 0.4 s of a very faint 440 Hz tone, 16 bit mono at 22050 Hz
+	const int rate = 22050, count = rate * 4 / 10;
+	NSMutableData *data = [NSMutableData data];
+	uint32_t dataSize = count * 2, riffSize = 36 + dataSize, fmtSize = 16, byteRate = rate * 2, sampleRate = rate;
+	uint16_t pcm = 1, channels = 1, blockAlign = 2, bits = 16;
+	[data appendBytes:"RIFF" length:4]; [data appendBytes:&riffSize length:4]; [data appendBytes:"WAVEfmt " length:8];
+	[data appendBytes:&fmtSize length:4]; [data appendBytes:&pcm length:2]; [data appendBytes:&channels length:2];
+	[data appendBytes:&sampleRate length:4]; [data appendBytes:&byteRate length:4]; [data appendBytes:&blockAlign length:2]; [data appendBytes:&bits length:2];
+	[data appendBytes:"data" length:4]; [data appendBytes:&dataSize length:4];
+	for (int i = 0; i < count; i++) {
+		int16_t sample = (int16_t)(200 * sin(2 * M_PI * 440 * i / rate));
+		[data appendBytes:&sample length:2];
+	}
+	[data writeToFile:inPath atomically:YES];
+}
+
+static void PVWriteMP3(NSString *inPath)
+{
+	// 40 silent MPEG-1 Layer III frames (128 kbit/s, 44.1 kHz, mono): about one second
+	NSMutableData *data = [NSMutableData data];
+	const unsigned char header[4] = {0xFF, 0xFB, 0x90, 0xC4};
+	for (int frame = 0; frame < 40; frame++) {
+		[data appendBytes:header length:4];
+		[data increaseLengthBy:413];
+	}
+	[data writeToFile:inPath atomically:YES];
+}
+
+static void PVWritePicture(NSString *inPath, NSBitmapImageFileType inType)
+{
+	NSBitmapImageRep *rep = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:320 pixelsHigh:240 bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO
+																  colorSpaceName:NSCalibratedRGBColorSpace bytesPerRow:0 bitsPerPixel:0] autorelease];
+	[NSGraphicsContext saveGraphicsState];
+	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+	[[NSColor colorWithCalibratedRed:0.2 green:0.5 blue:0.8 alpha:1.0] set];
+	NSRectFill(NSMakeRect(0, 0, 320, 240));
+	[[NSColor yellowColor] set];
+	[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(100, 60, 120, 120)] fill];
+	[NSGraphicsContext restoreGraphicsState];
+	[[rep representationUsingType:inType properties:@{}] writeToFile:inPath atomically:YES];
+}
+
+static void PVWriteMovie(NSString *inPath, AVFileType inFileType)
+{
+	// one second of H.264 video, 320 x 240, 10 frames, each of another gray
+	[[NSFileManager defaultManager] removeItemAtPath:inPath error:NULL];
+	AVAssetWriter *writer = [AVAssetWriter assetWriterWithURL:[NSURL fileURLWithPath:inPath] fileType:inFileType error:NULL];
+	AVAssetWriterInput *input = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:@{AVVideoCodecKey: AVVideoCodecTypeH264, AVVideoWidthKey: @320, AVVideoHeightKey: @240}];
+	AVAssetWriterInputPixelBufferAdaptor *adaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:input
+		sourcePixelBufferAttributes:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB), (id)kCVPixelBufferWidthKey: @320, (id)kCVPixelBufferHeightKey: @240}];
+	[writer addInput:input];
+	[writer startWriting];
+	[writer startSessionAtSourceTime:kCMTimeZero];
+	for (int frame = 0; frame < 10; frame++) {
+		CVPixelBufferRef buffer = NULL;
+		CVPixelBufferCreate(NULL, 320, 240, kCVPixelFormatType_32ARGB, NULL, &buffer);
+		CVPixelBufferLockBaseAddress(buffer, 0);
+		memset(CVPixelBufferGetBaseAddress(buffer), 40 + frame * 20, CVPixelBufferGetBytesPerRow(buffer) * 240);
+		CVPixelBufferUnlockBaseAddress(buffer, 0);
+		while (![input isReadyForMoreMediaData])
+			[NSThread sleepForTimeInterval:0.01];
+		[adaptor appendPixelBuffer:buffer withPresentationTime:CMTimeMake(frame, 10)];
+		CVPixelBufferRelease(buffer);
+	}
+	[input markAsFinished];
+	[writer endSessionAtSourceTime:CMTimeMake(10, 10)];
+	__block BOOL finished = NO;
+	[writer finishWritingWithCompletionHandler:^{ finished = YES; }];
+	while (!finished)
+		[NSThread sleepForTimeInterval:0.01];
+}
+
+static void PVConvertSound(NSString *inSource, NSString *inDestination, NSArray *inFormat)
+{
+	NSTask *task = [[[NSTask alloc] init] autorelease];
+	[task setLaunchPath:@"/usr/bin/afconvert"];
+	[task setArguments:[inFormat arrayByAddingObjectsFromArray:@[inSource, inDestination]]];
+	[task launch];
+	[task waitUntilExit];
+}
+
+NSString *PVMediaFile(NSString *inKind)
+{
+	static NSString *directory = nil;
+	if (!directory) {
+		directory = [[NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"ProVocTestMedia-%i", [[NSProcessInfo processInfo] processIdentifier]]] retain];
+		[[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:NULL];
+		NSString *(^file)(NSString *) = ^(NSString *name) { return [directory stringByAppendingPathComponent:name]; };
+		PVWriteWAV(file(@"sound.wav"));
+		PVConvertSound(file(@"sound.wav"), file(@"sound.aiff"), @[@"-f", @"AIFF", @"-d", @"BEI16"]);
+		PVConvertSound(file(@"sound.wav"), file(@"sound.m4a"), @[@"-f", @"m4af", @"-d", @"aac"]);
+		PVWriteMP3(file(@"sound.mp3"));
+		PVWritePicture(file(@"picture.png"), NSBitmapImageFileTypePNG);
+		PVWritePicture(file(@"picture.jpg"), NSBitmapImageFileTypeJPEG);
+		PVWriteMovie(file(@"movie.mov"), AVFileTypeQuickTimeMovie);
+		PVWriteMovie(file(@"movie.mp4"), AVFileTypeMPEG4);
+		[[@"this is not a movie" dataUsingEncoding:NSUTF8StringEncoding] writeToFile:file(@"bad.mov") atomically:YES];
+	}
+	NSDictionary *names = @{@"wav": @"sound.wav", @"aiff": @"sound.aiff", @"m4a": @"sound.m4a", @"mp3": @"sound.mp3", @"png": @"picture.png", @"jpg": @"picture.jpg",
+							@"mov": @"movie.mov", @"mp4": @"movie.mp4", @"bad.mov": @"bad.mov"};
+	return [directory stringByAppendingPathComponent:names[inKind]];
+}

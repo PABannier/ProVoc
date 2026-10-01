@@ -29,6 +29,103 @@
 	[[ProVocHelpController sharedController] showPage:@"index"];
 }
 
+#pragma mark Media commands
+
+// tag, key, modifiers (besides Command), title
+static struct { int tag; NSString *key; NSEventModifierFlags modifiers; NSString *title; } sMediaCommands[] = {
+	{1, @"k", 0, @"Media Menu Play First Audio"},
+	{2, @"l", 0, @"Media Menu Play Second Audio"},
+	{3, @"d", 0, @"Media Menu Show Image"},
+	{4, @"e", 0, @"Media Menu Play Movie"},
+	{5, @"e", NSEventModifierFlagOption, @"Media Menu Play Movie Full Size"},
+	{11, @"k", NSEventModifierFlagShift, @"Media Menu Record First Audio"},
+	{12, @"l", NSEventModifierFlagShift, @"Media Menu Record Second Audio"},
+	{13, @"d", NSEventModifierFlagShift, @"Media Menu Capture Image"},
+	{14, @"m", NSEventModifierFlagShift, @"Media Menu Record Movie"},
+};
+
+// Hands the function key behind a media command to the objects that handle F1...F4
+-(BOOL)performMediaCommandWithTag:(int)inTag
+{
+	static const unsigned short keyCodes[4] = {122, 120, 99, 118};
+	static const unichar characters[4] = {NSF1FunctionKey, NSF2FunctionKey, NSF3FunctionKey, NSF4FunctionKey};
+	int key = (inTag > 10 ? inTag - 10 : inTag == 5 ? 4 : inTag) - 1;
+	if (key < 0 || key > 3)
+		return NO;
+	// Command means "record", unless the NoShiftRecord preference swaps the two (see ProVocInspector)
+	BOOL record = inTag > 10;
+	NSEventModifierFlags flags = NSEventModifierFlagFunction;
+	if (record != [[NSUserDefaults standardUserDefaults] boolForKey:@"NoShiftRecord"])
+		flags |= NSEventModifierFlagCommand;
+	if (inTag == 5)
+		flags |= NSEventModifierFlagOption;
+	NSString *string = [NSString stringWithCharacters:&characters[key] length:1];
+	NSEvent *event = [NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:flags timestamp:[[NSProcessInfo processInfo] systemUptime]
+								  windowNumber:[[self keyWindow] windowNumber] context:nil characters:string charactersIgnoringModifiers:string isARepeat:NO keyCode:keyCodes[key]];
+	NSEnumerator *enumerator = [[ProVocTester currentTesters] objectEnumerator];
+	ProVocTester *tester;
+	while (tester = [enumerator nextObject])
+		if ([tester handleKeyDownEvent:event])
+			return YES;
+	return [[ProVocInspector sharedInspector] handleKeyDownEvent:event];
+}
+
+-(IBAction)performMediaCommand:(id)inSender
+{
+	[self performMediaCommandWithTag:[inSender tag]];
+}
+
+-(BOOL)validateMenuItem:(NSMenuItem *)inItem
+{
+	if ([inItem action] == @selector(performMediaCommand:))
+		return [[self orderedDocuments] count] > 0;
+	return [super validateMenuItem:inItem];
+}
+
+// The shortcuts of the Media menu must also work while a test runs as a modal panel,
+// when menu commands are not available: they are recognized here.
+-(BOOL)performMediaCommandForKeyDownEvent:(NSEvent *)inEvent
+{
+	NSEventModifierFlags flags = [inEvent modifierFlags] & (NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption | NSEventModifierFlagCommand);
+	if ((flags & NSEventModifierFlagCommand) == 0 || [inEvent isARepeat])
+		return NO;
+	NSString *key = [[inEvent charactersIgnoringModifiers] lowercaseString];
+	int i;
+	for (i = 0; i < sizeof(sMediaCommands) / sizeof(sMediaCommands[0]); i++)
+		if ([key isEqualToString:sMediaCommands[i].key] && flags == (sMediaCommands[i].modifiers | NSEventModifierFlagCommand)) {
+			[self performMediaCommandWithTag:sMediaCommands[i].tag];
+			return YES;
+		}
+	return NO;
+}
+
+-(void)installMediaMenu
+{
+	NSMenu *vocabularyMenu = nil;
+	NSEnumerator *enumerator = [[[self mainMenu] itemArray] objectEnumerator];
+	NSMenuItem *item;
+	while (item = [enumerator nextObject])
+		if ([[item submenu] indexOfItemWithTarget:nil andAction:@selector(startTest:)] >= 0)
+			vocabularyMenu = [item submenu];
+	if (!vocabularyMenu || [vocabularyMenu indexOfItemWithTitle:NSLocalizedString(@"Media Menu Title", @"")] >= 0)
+		return;
+	NSMenu *mediaMenu = [[[NSMenu alloc] initWithTitle:NSLocalizedString(@"Media Menu Title", @"")] autorelease];
+	int i;
+	for (i = 0; i < sizeof(sMediaCommands) / sizeof(sMediaCommands[0]); i++) {
+		if (sMediaCommands[i].tag == 11)
+			[mediaMenu addItem:[NSMenuItem separatorItem]];
+		NSMenuItem *mediaItem = [[[NSMenuItem alloc] initWithTitle:NSLocalizedString(sMediaCommands[i].title, @"") action:@selector(performMediaCommand:) keyEquivalent:sMediaCommands[i].key] autorelease];
+		[mediaItem setKeyEquivalentModifierMask:NSEventModifierFlagCommand | sMediaCommands[i].modifiers];
+		[mediaItem setTarget:self];
+		[mediaItem setTag:sMediaCommands[i].tag];
+		[mediaMenu addItem:mediaItem];
+	}
+	[vocabularyMenu addItem:[NSMenuItem separatorItem]];
+	NSMenuItem *mediaMenuItem = [[[NSMenuItem alloc] initWithTitle:[mediaMenu title] action:NULL keyEquivalent:@""] autorelease];
+	[mediaMenuItem setSubmenu:mediaMenu];
+	[vocabularyMenu addItem:mediaMenuItem];
+}
+
 -(int)firstResponderChangeForKeyDownEvent:(NSEvent *)inEvent
 {
 	// Tab / Shift-Tab only. Every other key (dead keys, option-combinations, input
@@ -68,6 +165,9 @@
 				return;
 
 		if ([[ProVocInspector sharedInspector] handleKeyDownEvent:inEvent])
+			return;
+
+		if ([self performMediaCommandForKeyDownEvent:inEvent])
 			return;
 	}
 	[super sendEvent:inEvent];

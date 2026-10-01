@@ -183,6 +183,7 @@
 {
 	ProVocServiceProvider *serviceProvider = [[ProVocServiceProvider alloc] init];
 	[NSApp setServicesProvider:serviceProvider];
+	[(ProVocApplication *)NSApp installMediaMenu];
 }
 
 - (IBAction)showPreferences:(id)sender

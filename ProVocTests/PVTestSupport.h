@@ -79,3 +79,10 @@ typedef BOOL (^PVCondition)(void);
 NSBitmapImageRep *PVSaveWindowScreenshot(NSWindow *inWindow, NSString *inName);
 // Number of clearly different colors in a bitmap (coarse): 1 means a blank picture.
 NSUInteger PVNumberOfDistinctColors(NSBitmapImageRep *inBitmap);
+
+#pragma mark Media files made for the tests
+
+// Small media files generated once per test run: "wav", "aiff", "m4a", "mp3" (nearly
+// silent sounds), "png", "jpg" (pictures), "mov", "mp4" (one-second movies), and
+// "bad.mov" (a file that is not a movie at all).
+NSString *PVMediaFile(NSString *inKind);
