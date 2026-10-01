@@ -120,7 +120,7 @@
 #pragma mark Inspector
 
 // Command-I opens the Inspector; it follows the selection and shows the media of the word.
-// F1 / F2 (and Command-K / Command-L) play the sounds, F3 (Command-D) shows the picture in
+// F1 / F2 (and Command-K / Command-L) play the sounds, F3 (Command-B) shows the picture in
 // full size until Esc, F4 (Command-E) plays the movie, Option-F4 (Option-Command-E) in full size.
 -(void)testInspectorFollowsSelectionAndMediaKeys
 {
@@ -150,9 +150,9 @@
 		[script wait:@"the sound to end" until:^BOOL { return [self playingAudioKey] == nil; }];
 	}
 
-	// picture in full size, twice: F3 then Command-D; any key (Esc) closes it
+	// picture in full size, twice: F3 then Command-B; any key (Esc) closes it
 	for (int pass = 0; pass < 2; pass++) {
-		[script then:^{ if (pass == 0) PVPostKey(PVKeyF3, nil, NSEventModifierFlagFunction); else PVTypeCommand(@"d", 0); }];
+		[script then:^{ if (pass == 0) PVPostKey(PVKeyF3, nil, NSEventModifierFlagFunction); else PVTypeCommand(@"b", 0); }];
 		[script wait:@"the picture in full size" until:^BOOL { return [self fullSizeWindowWithViewOfClass:[NSImageView class]] != nil; }];
 		[script then:^{
 			if (pass == 0)
@@ -204,7 +204,7 @@
 
 // F1 plays the sound of the question, F2 the sound of the answer, F3 shows the picture in
 // full size, F4 plays the movie and Option-F4 plays it in full size - with their
-// Command-K / L / D / E equivalents - without the answer field losing the focus.
+// Command-K / L / B / E equivalents - without the answer field losing the focus.
 -(void)scenarioMediaKeysDuringATest
 {
 	PVScript *script = [PVScript script];
@@ -220,7 +220,7 @@
 		[script wait:@"the sound to end" until:^BOOL { return [self playingAudioKey] == nil; }];
 	}
 	for (int pass = 0; pass < 2; pass++) {
-		[script then:^{ if (pass == 0) PVPostKey(PVKeyF3, nil, NSEventModifierFlagFunction); else PVTypeCommand(@"d", 0); }];
+		[script then:^{ if (pass == 0) PVPostKey(PVKeyF3, nil, NSEventModifierFlagFunction); else PVTypeCommand(@"b", 0); }];
 		[script wait:@"the picture in full size" until:^BOOL { return [self fullSizeWindowWithViewOfClass:[NSImageView class]] != nil; }];
 		[script then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
 		[script wait:@"Esc to close the picture, the test going on" until:^BOOL { return [self fullSizeWindowWithViewOfClass:[NSImageView class]] == nil && [self showsQuestionNumber:1]; }];

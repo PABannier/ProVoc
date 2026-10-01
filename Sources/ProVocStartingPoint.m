@@ -58,8 +58,9 @@
 -(IBAction)openDocument:(id)inSender
 {
 	[self hide];
+	// The open panel no longer blocks until it is closed: the starting point comes back
+	// when the panel ends without document (see -[ProVocAppDelegate beginOpenPanelWithCompletionHandler:]).
 	[[NSDocumentController sharedDocumentController] openDocument:nil];
-	[self idle];
 }
 
 -(IBAction)downloadDocument:(id)inSender

@@ -35,12 +35,12 @@
 static struct { int tag; NSString *key; NSEventModifierFlags modifiers; NSString *title; } sMediaCommands[] = {
 	{1, @"k", 0, @"Media Menu Play First Audio"},
 	{2, @"l", 0, @"Media Menu Play Second Audio"},
-	{3, @"d", 0, @"Media Menu Show Image"},
+	{3, @"b", 0, @"Media Menu Show Image"},	// not Command-D: it answers "Don't Save" in the sheets of the system
 	{4, @"e", 0, @"Media Menu Play Movie"},
 	{5, @"e", NSEventModifierFlagOption, @"Media Menu Play Movie Full Size"},
 	{11, @"k", NSEventModifierFlagShift, @"Media Menu Record First Audio"},
 	{12, @"l", NSEventModifierFlagShift, @"Media Menu Record Second Audio"},
-	{13, @"d", NSEventModifierFlagShift, @"Media Menu Capture Image"},
+	{13, @"b", NSEventModifierFlagShift, @"Media Menu Capture Image"},
 	{14, @"m", NSEventModifierFlagShift, @"Media Menu Record Movie"},
 };
 
@@ -167,7 +167,8 @@ static struct { int tag; NSString *key; NSEventModifierFlags modifiers; NSString
 		if ([[ProVocInspector sharedInspector] handleKeyDownEvent:inEvent])
 			return;
 
-		if ([self performMediaCommandForKeyDownEvent:inEvent])
+		// (without test the menu itself handles its shortcuts, when it may)
+		if ([[ProVocTester currentTesters] count] > 0 && [self performMediaCommandForKeyDownEvent:inEvent])
 			return;
 	}
 	[super sendEvent:inEvent];

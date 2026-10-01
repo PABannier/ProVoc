@@ -224,6 +224,18 @@
 	return YES;
 }
 
+-(void)beginOpenPanelWithCompletionHandler:(void (^)(NSArray *))inCompletionHandler
+{
+	[super beginOpenPanelWithCompletionHandler:^(NSArray *inURLs) {
+		inCompletionHandler(inURLs);
+		// Back to the starting point if the panel was cancelled. (Not when documents were
+		// chosen: they are opened asynchronously, and a window that becomes key in the
+		// meantime would stay in front of theirs.)
+		if ([inURLs count] == 0)
+			[[ProVocStartingPoint defaultStartingPoint] performSelector:@selector(idle) withObject:nil afterDelay:0.0];
+	}];
+}
+
 -(id)openDocumentWithContentsOfURL:(NSURL *)inURL display:(BOOL)inDisplay error:(NSError **)outError
 {
 	id document = [super openDocumentWithContentsOfURL:inURL display:inDisplay error:outError];

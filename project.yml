@@ -96,6 +96,33 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
     dependencies:
       - target: ProVoc
+  # A library inserted into the stand-alone application (DYLD_INSERT_LIBRARIES) by
+  # scripts/e2e.py: it plays scenarios of key events from the application's own event
+  # loop. See ProVocDriver/PVDriver.m.
+  ProVocDriver:
+    type: library.dynamic
+    platform: macOS
+    sources:
+      - path: ProVocDriver
+      - path: ProVocTests/PVTestSupport.m
+      - path: ProVocTests/PVTestSupport.h
+    settings:
+      base:
+        PRODUCT_NAME: ProVocDriver
+        HEADER_SEARCH_PATHS: ["$(SRCROOT)/Sources", "$(SRCROOT)/ProVocTests"]
+        GCC_PREPROCESSOR_DEFINITIONS: ["PV_SRCROOT=$(SRCROOT)", "$(inherited)"]
+        GCC_PREFIX_HEADER: Sources/ProVoc_Prefix.pch
+        # the classes of the application are found in the process the library is inserted into
+        OTHER_LDFLAGS: ["-undefined", "dynamic_lookup"]
+        SKIP_INSTALL: YES
+    dependencies:
+      - target: ProVoc
+        link: false
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: AVFoundation.framework
+      - sdk: CoreMedia.framework
+      - sdk: CoreVideo.framework
   ProVocUITests:
     type: bundle.ui-testing
     platform: macOS
@@ -115,6 +142,7 @@ schemes:
     build:
       targets:
         ProVoc: all
+        ProVocDriver: all
         ProVocTests: [test]
         ProVocUITests: [test]
     run:

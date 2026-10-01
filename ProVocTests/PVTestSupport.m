@@ -4,6 +4,7 @@
 
 #import "PVTestSupport.h"
 #import <Carbon/Carbon.h>
+#import <objc/message.h>
 
 #define PV_STRINGIFY2(x) #x
 #define PV_STRINGIFY(x) PV_STRINGIFY2(x)
@@ -276,12 +277,37 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 	PVPostKey(keyCode, nil, modifiers | NSEventModifierFlagCommand | inExtraModifiers);
 }
 
+void PVPrepareMenu(NSMenu *inMenu)
+{
+	id <NSMenuDelegate> delegate = [inMenu delegate];
+	SEL updateWithEvent = NSSelectorFromString(@"updateMenu:withEvent:withFlags:");
+	if ([delegate respondsToSelector:@selector(menuNeedsUpdate:)])
+		[delegate menuNeedsUpdate:inMenu];
+	else if ([delegate respondsToSelector:updateWithEvent])
+		// AppKit's own delegate of the Open Recent menu only has this (private) variant
+		((void (*)(id, SEL, id, id, NSUInteger))objc_msgSend)(delegate, updateWithEvent, inMenu, nil, 0);
+	else if ([delegate respondsToSelector:@selector(numberOfItemsInMenu:)] && [delegate respondsToSelector:@selector(menu:updateItem:atIndex:shouldCancel:)]) {
+		NSInteger count = [delegate numberOfItemsInMenu:inMenu];
+		if (count >= 0) {
+			while ([inMenu numberOfItems] < count)
+				[inMenu addItem:[[[NSMenuItem alloc] initWithTitle:@"" action:NULL keyEquivalent:@""] autorelease]];
+			while ([inMenu numberOfItems] > count)
+				[inMenu removeItemAtIndex:[inMenu numberOfItems] - 1];
+			for (NSInteger index = 0; index < count; index++)
+				if (![delegate menu:inMenu updateItem:[inMenu itemAtIndex:index] atIndex:index shouldCancel:NO])
+					break;
+		}
+	}
+	[inMenu update];
+}
+
 @interface PVScript () {
 	NSMutableArray *mSteps;
 	NSUInteger mIndex;
 	NSDate *mStepStart;
 	NSString *mFailure;
 	BOOL mFinished;
+	void (^mCompletion)(NSString *);
 }
 @end
 
@@ -331,6 +357,21 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 // on inside modal sessions (the dimmed test panel) as well as in sheets.
 -(void)step:(NSTimer *)inTimer
 {
+	// An exception raised by a step (or by what it calls in the application) must not
+	// unwind through the timer: the timer would never fire again, and the script would
+	// hang instead of failing.
+	@try {
+		[self runSteps:inTimer];
+	} @catch (NSException *exception) {
+		NSLog(@"*** PVScript: exception in step %lu: %@", (unsigned long)mIndex, exception);
+		[self fail:[NSString stringWithFormat:@"exception in step %lu: %@", (unsigned long)mIndex, exception]];
+		mFinished = YES;
+		[self runSteps:inTimer];
+	}
+}
+
+-(void)runSteps:(NSTimer *)inTimer
+{
 	while (!mFinished) {
 		if (mIndex >= [mSteps count]) {
 			mFinished = YES;
@@ -350,7 +391,10 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 		} else if (step[@"pause"]) {
 			if (elapsed < [step[@"pause"] doubleValue])
 				return;
-		} else if (!((PVCondition)step[@"until"])()) {
+		} else if (((PVCondition)step[@"until"])()) {
+			if (mCompletion)	// the driver of the stand-alone application keeps a trace
+				NSLog(@"PVScript: %@ (%.2f s)", step[@"what"], elapsed);
+		} else {
 			if (elapsed < [step[@"timeout"] doubleValue])
 				return;
 			mFailure = [[NSString alloc] initWithFormat:@"timed out waiting for: %@ (step %lu; modal window: %@ \"%@\")", step[@"what"], (unsigned long)mIndex, [[NSApp modalWindow] className], [[NSApp modalWindow] title]];
@@ -379,9 +423,27 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 				PVPostKey(PVKeyEscape, nil, 0);
 				break;
 			}
+		if (mCompletion) {
+			mCompletion(mFailure);
+			return;
+		}
 		// wake the event loop of -run up
 		[NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined location:NSZeroPoint modifierFlags:0 timestamp:0 windowNumber:0 context:nil subtype:0 data1:0 data2:0] atStart:NO];
 	}
+}
+
+-(void)startWithCompletion:(void (^)(NSString *))inCompletion
+{
+	mCompletion = [inCompletion copy];
+	[self retain];	// until the application ends
+	NSTimer *timer = [NSTimer timerWithTimeInterval:0.01 target:self selector:@selector(step:) userInfo:nil repeats:YES];
+	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+}
+
+-(void)fail:(NSString *)inFailure
+{
+	if (!mFailure)
+		mFailure = [inFailure copy];
 }
 
 -(NSString *)run

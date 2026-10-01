@@ -62,6 +62,10 @@ void PVTypeText(NSString *inText);
 // Command-<character>, e.g. PVTypeCommand(@"r", 0); extra modifiers may be added.
 void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers);
 
+// Does what AppKit does when a menu is about to open: asks its delegate to fill it in
+// (the Open Recent menu, for instance, has no items until then), then validates the items.
+void PVPrepareMenu(NSMenu *inMenu);
+
 // A script is a list of steps run one after the other while the application's
 // event loop is spinning, including inside modal sessions and sheets.
 typedef BOOL (^PVCondition)(void);
@@ -76,6 +80,12 @@ typedef BOOL (^PVCondition)(void);
 -(void)pause:(NSTimeInterval)inDuration;
 // Runs the steps; returns nil on success, otherwise the description of the wait that timed out.
 -(NSString *)run;
+// Runs the steps from the event loop of the application and returns at once (for the
+// driver of the stand-alone application, where nothing but the application's own event
+// loop must be on the stack). The block is called at the end, with the failure or nil.
+-(void)startWithCompletion:(void (^)(NSString *inFailure))inCompletion;
+// Makes the script fail (once it has ended) without stopping it.
+-(void)fail:(NSString *)inFailure;
 @end
 
 // A real screenshot of one of our own windows, as composited on screen (Core Animation
