@@ -93,6 +93,10 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 -(void)setLocation:(NSPoint)inPoint inView:(NSView *)inView;
 @end
 
+// YES while the screen of this Mac is locked (no application can be frontmost then, and
+// the tests that send keys and clicks cannot run)
+BOOL PVScreenIsLocked(void);
+
 // Back to the factory settings (the tests have their own preferences: the Debug build
 // does not share those of the real application)
 void PVResetPreferences(void);

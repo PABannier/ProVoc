@@ -435,6 +435,12 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 
 @end
 
+BOOL PVScreenIsLocked(void)
+{
+	NSDictionary *session = [(NSDictionary *)CGSessionCopyCurrentDictionary() autorelease];
+	return [[session objectForKey:@"CGSSessionScreenIsLocked"] boolValue];
+}
+
 void PVResetPreferences(void)
 {
 	[[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
@@ -551,9 +557,9 @@ void PVPrepareMenu(NSMenu *inMenu)
 	if (![NSApp isActive] && !mFinished) {
 		if (!mInactiveSince)
 			mInactiveSince = [[NSDate alloc] init];
-		if (-[mInactiveSince timeIntervalSinceNow] < 30)
+		if (-[mInactiveSince timeIntervalSinceNow] < (PVScreenIsLocked() ? 2 : 30))
 			return;
-		[self fail:@"the application was not active for 30 s"];
+		[self fail:PVScreenIsLocked() ? @"THE SCREEN OF THIS MAC IS LOCKED: the application cannot be frontmost (unlock it, see verification/NEEDS_HUMAN.md)" : @"the application was not active for 30 s"];
 		mFinished = YES;
 	} else if (mInactiveSince) {
 		NSLog(@"PVScript: the application is active again after %.2f s", -[mInactiveSince timeIntervalSinceNow]);

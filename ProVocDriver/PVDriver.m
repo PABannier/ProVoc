@@ -89,6 +89,8 @@ static void PVWriteVerdict(BOOL inTerminated)
 		exit(2);
 	}
 	NSLog(@"PVDriver: scenario %@", name);
+	if (PVScreenIsLocked())
+		PVFail(__FILE__, __LINE__, @"THE SCREEN OF THIS MAC IS LOCKED: the application cannot be frontmost (unlock it, see verification/NEEDS_HUMAN.md)");
 	[script wait:@"the application to be active" timeout:20 until:^BOOL { return [NSApp isActive]; }];
 	[scenarios performSelector:selector withObject:script];
 	[script startWithCompletion:^(NSString *inFailure) {

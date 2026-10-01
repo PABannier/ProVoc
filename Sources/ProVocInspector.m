@@ -529,7 +529,9 @@ static BOOL sRecording = NO;
 -(IBAction)importMovie:(id)inSender
 {
 	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-	if ([openPanel runModalForTypes:[QTMovie movieUnfilteredFileTypes]] == NSOKButton) {
+	// (-runModalForTypes: no longer restricts the panel to these types: any file could be chosen)
+	[openPanel setAllowedFileTypes:[QTMovie movieUnfilteredFileTypes]];
+	if ([openPanel runModal] == NSOKButton) {
 		NSEnumerator *enumerator = [mSelectedWords objectEnumerator];
 		ProVocWord *word;
 		while (word = [enumerator nextObject])
@@ -544,7 +546,7 @@ static BOOL sRecording = NO;
 	[openPanel setPrompt:NSLocalizedString(@"Export Movie Panel Prompt", @"")];
 	[openPanel setCanChooseDirectories:YES];
 	[openPanel setCanChooseFiles:NO];
-	if ([openPanel runModalForTypes:nil] == NSOKButton) {
+	if ([openPanel runModal] == NSOKButton) {
 		NSDictionary *info = @{@"Directory": [openPanel filename], @"Document": mDocument};
 		[mSelectedWords makeObjectsPerformSelector:@selector(exportMovie:) withObject:info];
 	}

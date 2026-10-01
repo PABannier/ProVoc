@@ -260,4 +260,217 @@
 	[self runScript:script];
 }
 
+#pragma mark Adding, exporting and removing media
+
+-(id)viewOfClassNamed:(NSString *)inClassName in:(NSView *)inView index:(NSUInteger)inIndex
+{
+	NSMutableArray *found = [NSMutableArray array];
+	NSMutableArray *views = [NSMutableArray arrayWithObject:inView];
+	while ([views count] > 0) {
+		NSView *view = views[0];
+		[views removeObjectAtIndex:0];
+		if ([[view className] isEqualToString:inClassName])
+			[found addObject:view];
+		[views addObjectsFromArray:[view subviews]];
+	}
+	// top to bottom
+	[found sortUsingComparator:^NSComparisonResult(NSView *a, NSView *b) {
+		CGFloat ya = NSMaxY([a convertRect:[a bounds] toView:nil]), yb = NSMaxY([b convertRect:[b bounds] toView:nil]);
+		return ya > yb ? NSOrderedAscending : ya < yb ? NSOrderedDescending : NSOrderedSame;
+	}];
+	return inIndex < [found count] ? found[inIndex] : nil;
+}
+
+-(BOOL)dropFile:(NSString *)inFile onView:(NSView *)inView
+{
+	PVDragInfo *info = [PVDragInfo infoWithFiles:@[inFile]];
+	[info setLocation:NSMakePoint(NSMidX([inView bounds]), NSMidY([inView bounds])) inView:inView];
+	if ([(id <NSDraggingDestination>)inView draggingEntered:info] == NSDragOperationNone)
+		return NO;
+	if ([inView respondsToSelector:@selector(prepareForDragOperation:)] && ![(id <NSDraggingDestination>)inView prepareForDragOperation:info])
+		return NO;
+	BOOL performed = [(id <NSDraggingDestination>)inView performDragOperation:info];
+	if (performed && [inView respondsToSelector:@selector(concludeDragOperation:)])
+		[(id <NSDraggingDestination>)inView concludeDragOperation:info];
+	return performed;
+}
+
+-(BOOL)dropFile:(NSString *)inFile onWord:(NSString *)inSource column:(NSString *)inColumn
+{
+	NSTableView *table = [mDocument valueForKey:@"mWordTableView"];
+	NSInteger row = [[[mDocument valueForKey:@"mVisibleWords"] valueForKey:@"sourceWord"] indexOfObject:inSource];
+	NSRect cell = [table frameOfCellAtColumn:[table columnWithIdentifier:inColumn] row:row];
+	PVDragInfo *info = [PVDragInfo infoWithFiles:@[inFile]];
+	[info setLocation:NSMakePoint(NSMidX(cell), NSMidY(cell)) inView:table];
+	id <NSTableViewDataSource> source = (id <NSTableViewDataSource>)mDocument;
+	if ([source tableView:table validateDrop:info proposedRow:row proposedDropOperation:NSTableViewDropOn] == NSDragOperationNone)
+		return NO;
+	return [source tableView:table acceptDrop:info row:row dropOperation:NSTableViewDropOn];
+}
+
+// A sound, a picture or a movie file dropped on a word of the list becomes its media
+// (a sound: of the column it is dropped on); so do files dropped on the Inspector.
+-(void)testDropMediaFilesOnAWordAndOnTheInspector
+{
+	ProVocWord *dog = [self wordWithSource:@"dog"], *summer = [self wordWithSource:@"summer"];
+	XCTAssertTrue([self dropFile:PVMediaFile(@"aiff") onWord:@"dog" column:@"Source"], @"a sound dropped on a word was refused");
+	XCTAssertTrue([dog canPlayAudio:@"Source"] && ![dog canPlayAudio:@"Target"], @"the sound dropped on the first column is the sound of the word");
+	XCTAssertTrue([self dropFile:PVMediaFile(@"mp3") onWord:@"dog" column:@"Target"]);
+	XCTAssertTrue([dog canPlayAudio:@"Target"], @"the sound dropped on the second column is the sound of the translation");
+	XCTAssertTrue([self dropFile:PVMediaFile(@"jpg") onWord:@"dog" column:@"Source"], @"a picture dropped on a word was refused");
+	XCTAssertNotNil([mDocument imageOfWord:dog]);
+	XCTAssertTrue([self dropFile:PVMediaFile(@"mp4") onWord:@"dog" column:@"Target"], @"a movie dropped on a word was refused");
+	XCTAssertTrue([[mDocument movieOfWord:dog] isPlayable]);
+	NSString *text = [NSTemporaryDirectory() stringByAppendingPathComponent:@"PVNotAMedia.txt"];
+	[@"text" writeToFile:text atomically:YES encoding:NSUTF8StringEncoding error:NULL];
+	XCTAssertFalse([self dropFile:text onWord:@"dog" column:@"Source"], @"a text file was accepted as media");
+
+	// the Inspector, for the selected word
+	NSTableView *table = [mDocument valueForKey:@"mWordTableView"];
+	PVScript *script = [PVScript script];
+	[script then:^{
+		if (![[self inspector] isVisible])
+			PVTypeCommand(@"i", 0);
+		[[mDocument window] makeFirstResponder:table];
+		[table selectRowIndexes:[NSIndexSet indexSetWithIndex:[[mDocument valueForKey:@"mVisibleWords"] indexOfObject:summer]] byExtendingSelection:NO];
+	}];
+	[script wait:@"the Inspector to show the word, which has no media" until:^BOOL {
+		return [[self inspector] isVisible] && [[[self inspector] valueForKey:@"sourceText"] isEqualToString:@"summer"] && [[self inspector] valueForKey:@"image"] == nil;
+	}];
+	[self runScript:script];
+	NSView *content = [[[self inspector] window] contentView];
+	NSView *sourceSound = [self viewOfClassNamed:@"ProVocSoundDropView" in:content index:0], *targetSound = [self viewOfClassNamed:@"ProVocSoundDropView" in:content index:1];
+	NSView *imageDrop = [self viewOfClassNamed:@"ProVocImageDropView" in:content index:0], *movieDrop = [self viewOfClassNamed:@"ProVocMovieDropView" in:content index:0];
+	XCTAssertTrue(sourceSound && targetSound && imageDrop && movieDrop, @"the drop views of the Inspector: %@ %@ %@ %@", sourceSound, targetSound, imageDrop, movieDrop);
+	XCTAssertFalse([self dropFile:PVMediaFile(@"png") onView:sourceSound], @"a picture was accepted as a sound");
+	XCTAssertTrue([self dropFile:PVMediaFile(@"wav") onView:sourceSound], @"a sound dropped on the Inspector was refused");
+	XCTAssertTrue([summer canPlayAudio:@"Source"] && ![summer canPlayAudio:@"Target"]);
+	XCTAssertTrue([self dropFile:PVMediaFile(@"m4a") onView:targetSound]);
+	XCTAssertTrue([summer canPlayAudio:@"Target"]);
+	XCTAssertFalse([self dropFile:PVMediaFile(@"wav") onView:imageDrop], @"a sound was accepted as a picture");
+	XCTAssertTrue([self dropFile:PVMediaFile(@"png") onView:imageDrop], @"a picture dropped on the Inspector was refused");
+	XCTAssertNotNil([mDocument imageOfWord:summer]);
+	XCTAssertFalse([self dropFile:PVMediaFile(@"bad.mov") onView:movieDrop] && [[mDocument movieOfWord:summer] isPlayable], @"a file that is not a movie plays");
+	XCTAssertTrue([self dropFile:PVMediaFile(@"mov") onView:movieDrop], @"a movie dropped on the Inspector was refused");
+	XCTAssertTrue([[mDocument movieOfWord:summer] isPlayable]);
+	XCTAssertTrue(PVWaitUntil(5, ^BOOL { return [[self inspector] valueForKey:@"image"] != nil && [[[self inspector] valueForKey:@"movie"] isPlayable] && [[[self inspector] valueForKey:@"canPlaySourceAudio"] boolValue]; }), @"the Inspector does not show the media dropped on it");
+	PVSaveWindowScreenshot([[self inspector] window], @"windows/inspector-after-drops");
+}
+
+-(NSMenuItem *)inspectorMenuItemWithAction:(SEL)inAction
+{
+	NSMutableArray *views = [NSMutableArray arrayWithObject:[[[self inspector] window] contentView]];
+	while ([views count] > 0) {
+		NSView *view = views[0];
+		[views removeObjectAtIndex:0];
+		if ([view isKindOfClass:[NSPopUpButton class]])
+			for (NSMenuItem *item in [[(NSPopUpButton *)view menu] itemArray])
+				if ([item action] == inAction)
+					return item;
+		[views addObjectsFromArray:[view subviews]];
+	}
+	return nil;
+}
+
+// The action menus of the Inspector: Import (a panel to choose a file), Export (a panel
+// to choose a folder; the file gets the name of the word), Remove (which can be undone).
+// The panels of macOS cannot be answered from here: they are checked and cancelled, and
+// what follows their OK is called with a file or a folder.
+-(void)testInspectorImportExportAndRemoveMedia
+{
+	ProVocWord *house = [self wordWithSource:@"house"], *dog = [self wordWithSource:@"dog"];
+	NSTableView *table = [mDocument valueForKey:@"mWordTableView"];
+	PVScript *script = [PVScript script];
+	[script then:^{
+		if (![[self inspector] isVisible])
+			PVTypeCommand(@"i", 0);
+		[[mDocument window] makeFirstResponder:table];
+		[table selectRowIndexes:[NSIndexSet indexSetWithIndex:[[mDocument valueForKey:@"mVisibleWords"] indexOfObject:dog]] byExtendingSelection:NO];
+	}];
+	[script wait:@"the Inspector to show a word without media" until:^BOOL { return [[self inspector] isVisible] && [[[self inspector] valueForKey:@"sourceText"] isEqualToString:@"dog"]; }];
+	[script then:^{
+		// without media there is nothing to export or remove
+		for (NSString *action in @[@"exportImage:", @"removeImage:", @"exportMovie:", @"removeMovie:", @"exportSourceAudio:", @"removeSourceAudio:", @"exportTargetAudio:", @"removeTargetAudio:"]) {
+			NSMenuItem *item = [self inspectorMenuItemWithAction:NSSelectorFromString(action)];
+			XCTAssertNotNil(item, @"no menu item for %@", action);
+			XCTAssertFalse([[self inspector] validateMenuItem:item], @"%@ is offered for a word without media", action);
+		}
+	}];
+	// Import: an open panel for the right kind of files; Cancel changes nothing
+	for (NSString *action in @[@"importImage:", @"importMovie:", @"importSourceAudio:", @"importTargetAudio:"]) {
+		[script then:^{
+			NSMenuItem *item = [self inspectorMenuItemWithAction:NSSelectorFromString(action)];
+			XCTAssertTrue(item && [[self inspector] validateMenuItem:item], @"%@ is not offered", action);
+			// (the action runs the panel modally: it is chosen from the event loop, not from this step)
+			dispatch_async(dispatch_get_main_queue(), ^{ [[item menu] performActionForItemAtIndex:[[item menu] indexOfItem:item]]; });
+		}];
+		[script wait:[NSString stringWithFormat:@"the open panel of %@", action] timeout:15 until:^BOOL { return [[NSApp modalWindow] isKindOfClass:[NSOpenPanel class]]; }];
+		[script then:^{
+			NSOpenPanel *panel = (NSOpenPanel *)[NSApp modalWindow];
+			NSArray *types = [panel allowedFileTypes];
+			// (file name extensions, or uniform type identifiers for the sounds)
+			NSArray *expected = [action rangeOfString:@"Image"].location != NSNotFound ? @[@"png", @"jpg"] : [action rangeOfString:@"Movie"].location != NSNotFound ? @[@"mov", @"mp4"] : @[@"public.aiff-audio", @"public.mp3"];
+			for (NSString *type in expected)
+				XCTAssertTrue([types containsObject:type], @"%@ does not offer %@ files: %@", action, type, types);
+			XCTAssertFalse([types containsObject:@"txt"] || [types containsObject:@"public.plain-text"], @"%@ offers text files", action);
+			[panel cancel:nil];
+		}];
+		[script wait:@"the open panel to close" timeout:15 until:^BOOL { return [NSApp modalWindow] == nil; }];
+		[script then:^{ XCTAssertEqual([[dog mediaDictionary] count], 0u, @"cancelling %@ changed the word", action); }];
+	}
+	// a word with everything
+	[script then:^{ [table selectRowIndexes:[NSIndexSet indexSetWithIndex:[[mDocument valueForKey:@"mVisibleWords"] indexOfObject:house]] byExtendingSelection:NO]; }];
+	[script wait:@"the Inspector to show the word with media" until:^BOOL { return [[[self inspector] valueForKey:@"sourceText"] isEqualToString:@"house"] && [[self inspector] valueForKey:@"image"] != nil; }];
+	for (NSString *action in @[@"exportImage:", @"exportMovie:", @"exportSourceAudio:", @"exportTargetAudio:"]) {
+		[script then:^{
+			NSMenuItem *item = [self inspectorMenuItemWithAction:NSSelectorFromString(action)];
+			XCTAssertTrue([[self inspector] validateMenuItem:item], @"%@ is not offered for a word with media", action);
+			dispatch_async(dispatch_get_main_queue(), ^{ [[item menu] performActionForItemAtIndex:[[item menu] indexOfItem:item]]; });
+		}];
+		[script wait:[NSString stringWithFormat:@"the panel of %@, to choose a folder", action] timeout:15 until:^BOOL { return [[NSApp modalWindow] isKindOfClass:[NSOpenPanel class]]; }];
+		[script then:^{
+			NSOpenPanel *panel = (NSOpenPanel *)[NSApp modalWindow];
+			XCTAssertTrue([panel canChooseDirectories] && ![panel canChooseFiles], @"%@ should ask for a folder", action);
+			[panel cancel:nil];
+		}];
+		[script wait:@"the panel to close" timeout:15 until:^BOOL { return [NSApp modalWindow] == nil; }];
+	}
+	[self runScript:script];
+
+	// what follows the choice of a folder
+	NSString *folder = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"PVExportedMedia-%i", [[NSProcessInfo processInfo] processIdentifier]]];
+	[[NSFileManager defaultManager] removeItemAtPath:folder error:NULL];
+	[[NSFileManager defaultManager] createDirectoryAtPath:folder withIntermediateDirectories:YES attributes:nil error:NULL];
+	[house exportImage:@{@"Directory": folder, @"Document": mDocument}];
+	[house exportMovie:@{@"Directory": folder, @"Document": mDocument}];
+	[house exportAudio:@{@"Directory": folder, @"Key": @"Source", @"NameSelectorName": @"sourceWord", @"OtherNameSelectorName": @"targetWord", @"Document": mDocument}];
+	[house exportAudio:@{@"Directory": folder, @"Key": @"Target", @"NameSelectorName": @"targetWord", @"OtherNameSelectorName": @"sourceWord", @"Document": mDocument}];
+	NSArray *exported = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:folder error:NULL] sortedArrayUsingSelector:@selector(compare:)];
+	XCTAssertEqual([exported count], 4u, @"exported files: %@", exported);
+	XCTAssertTrue([exported containsObject:@"house.aiff"] && [exported containsObject:@"maison.m4a"], @"the sounds are exported with the names of the word and of its translation: %@", exported);
+	for (NSString *file in exported)
+		XCTAssertTrue([[[NSFileManager defaultManager] attributesOfItemAtPath:[folder stringByAppendingPathComponent:file] error:NULL] fileSize] > 100, @"%@ is empty", file);
+
+	// Remove, one media after the other
+	for (NSArray *removal in @[@[@"removeImage:", @"Image"], @[@"removeMovie:", @"Movie"], @[@"removeSourceAudio:", @"SourceAudio"], @[@"removeTargetAudio:", @"TargetAudio"]]) {
+		NSMenuItem *item = [self inspectorMenuItemWithAction:NSSelectorFromString(removal[0])];
+		XCTAssertTrue([[self inspector] validateMenuItem:item], @"%@ is not offered", removal[0]);
+		XCTAssertNotNil([house mediaDictionary][removal[1]]);
+		[[item menu] performActionForItemAtIndex:[[item menu] indexOfItem:item]];
+		XCTAssertNil([house mediaDictionary][removal[1]], @"%@ did not remove the media", removal[0]);
+		XCTAssertFalse([[self inspector] validateMenuItem:item], @"%@ is still offered", removal[0]);
+	}
+	XCTAssertEqual([[house mediaDictionary] count], 0u);
+	XCTAssertTrue(PVWaitUntil(5, ^BOOL { return [[self inspector] valueForKey:@"image"] == nil && ![[[self inspector] valueForKey:@"canPlaySourceAudio"] boolValue]; }), @"the Inspector still shows removed media");
+}
+
+// The methods of the open and save panels that the code of 2008 relies on are still there.
+-(void)testPanelMethodsOfTheTimeStillExist
+{
+	for (NSString *selector in @[@"filename", @"filenames", @"runModalForDirectory:file:types:", @"beginSheetForDirectory:file:types:modalForWindow:modalDelegate:didEndSelector:contextInfo:"])
+		XCTAssertTrue([NSOpenPanel instancesRespondToSelector:NSSelectorFromString(selector)], @"-[NSOpenPanel %@] is gone", selector);
+	for (NSString *selector in @[@"filename", @"setRequiredFileType:", @"beginSheetForDirectory:file:modalForWindow:modalDelegate:didEndSelector:contextInfo:"])
+		XCTAssertTrue([NSSavePanel instancesRespondToSelector:NSSelectorFromString(selector)], @"-[NSSavePanel %@] is gone", selector);
+}
+
 @end

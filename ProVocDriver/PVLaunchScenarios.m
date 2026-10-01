@@ -81,3 +81,47 @@
 }
 
 @end
+
+#import <AVFoundation/AVFoundation.h>
+
+@interface PVScenarios (Capture)
+@end
+
+@implementation PVScenarios (Capture)
+
+// scripts/request-capture-access.sh: makes macOS ask (once) whether ProVoc may use the
+// microphone and the camera, and waits for the answers. Someone has to click "Allow".
+-(void)requestCaptureAccess:(PVScript *)inScript
+{
+	__block int answers = 0;
+	[inScript then:^{
+		for (NSString *type in @[AVMediaTypeAudio, AVMediaTypeVideo]) {
+			NSLog(@"PVDriver: %@ access status %ld", type, (long)[AVCaptureDevice authorizationStatusForMediaType:type]);
+			[AVCaptureDevice requestAccessForMediaType:type completionHandler:^(BOOL inGranted) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					NSLog(@"PVDriver: %@ access %@", type, inGranted ? @"granted" : @"refused");
+					answers++;
+				});
+			}];
+		}
+	}];
+	[inScript wait:@"the answers to the two questions of macOS (microphone, camera)" timeout:110 until:^BOOL { return answers == 2; }];
+	[inScript then:^{
+		PVExpectEqual([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio], AVAuthorizationStatusAuthorized, @"the microphone is not allowed for ProVoc (System Settings > Privacy & Security > Microphone)");
+		PVExpectEqual([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo], AVAuthorizationStatusAuthorized, @"the camera is not allowed for ProVoc (System Settings > Privacy & Security > Camera)");
+	}];
+}
+
+// Only reads the two authorizations (nothing is asked)
+-(void)captureAccessStatus:(PVScript *)inScript
+{
+	[inScript then:^{
+		NSString *status = [NSString stringWithFormat:@"microphone %ld camera %ld (0 = never asked, 2 = refused, 3 = allowed); microphones %lu, cameras %lu\n",
+							(long)[AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio], (long)[AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo],
+							(unsigned long)([AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio] != nil), (unsigned long)([AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo] != nil)];
+		NSLog(@"PVDriver: %@", status);
+		[status writeToFile:[[PVScenarios workDirectory] stringByAppendingPathComponent:@"capture-status.txt"] atomically:YES encoding:NSUTF8StringEncoding error:NULL];
+	}];
+}
+
+@end

@@ -120,6 +120,8 @@ def main():
     subprocess.run(['defaults', 'write', 'com.apple.CrashReporter', 'DialogType', 'none'])
     # the application is started in the background: bring it to the front
     activator = subprocess.Popen([ACTIVATOR, APP], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # the display must not go to sleep (and lock the screen) meanwhile
+    awake = subprocess.Popen(['caffeinate', '-d', '-i', '-u', '-w', str(os.getpid())])
     failed = 0
     try:
         for name, phases in SCENARIOS.items():
@@ -141,6 +143,7 @@ def main():
             failed += bool(failures)
     finally:
         activator.terminate()
+        awake.terminate()
         if old_dialog:
             subprocess.run(['defaults', 'write', 'com.apple.CrashReporter', 'DialogType', old_dialog])
         else:
@@ -148,6 +151,14 @@ def main():
     print('%d scenario(s) failed' % failed if failed else 'all scenarios passed')
     return 1 if failed else 0
 
+
+# scripts/request-capture-access.sh: only the scenario that makes macOS ask for the microphone and the camera
+if '--request-capture-access' in sys.argv:
+    SCENARIOS = {'request-capture-access': [('requestCaptureAccess', [])]}
+    sys.argv.remove('--request-capture-access')
+if '--capture-access-status' in sys.argv:
+    SCENARIOS = {'capture-access-status': [('captureAccessStatus', [])]}
+    sys.argv.remove('--capture-access-status')
 
 # scripts/make-fixtures.sh: only the scenario that writes fixtures/generated
 if '--make-fixtures' in sys.argv:

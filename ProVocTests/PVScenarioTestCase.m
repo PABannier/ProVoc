@@ -37,7 +37,8 @@
 {
 	[NSApp activateIgnoringOtherApps:YES];
 	[NSApp activate];
-	XCTAssertTrue(PVWaitUntil(10, ^BOOL { return [NSApp isActive]; }), @"ProVoc is not the active application (frontmost: %@)", [[[NSWorkspace sharedWorkspace] frontmostApplication] bundleIdentifier]);
+	XCTAssertFalse(PVScreenIsLocked(), @"THE SCREEN OF THIS MAC IS LOCKED: the tests that send keys cannot run (unlock it, see verification/NEEDS_HUMAN.md)");
+	XCTAssertTrue(PVScreenIsLocked() || PVWaitUntil(10, ^BOOL { return [NSApp isActive]; }), @"ProVoc is not the active application (frontmost: %@)", [[[NSWorkspace sharedWorkspace] frontmostApplication] bundleIdentifier]);
 	// Factory settings for each test: a document that becomes current puts its own settings
 	// (separators, fonts, labels...) in the preferences, and one of the decks of
 	// fixtures/user-decks uses the letter m as separator of synonyms.
@@ -60,7 +61,7 @@
 	[mDocument setValue:@0 forKey:@"testDirection"];
 	[mDocument setValue:@0 forKey:@"testKind"];
 	[mDocument setValue:@3 forKey:@"numberOfRetries"];
-	XCTAssertTrue(PVWaitUntil(5, ^BOOL { return [[mDocument window] isKeyWindow]; }), @"the document window did not become key");
+	XCTAssertTrue(PVScreenIsLocked() || PVWaitUntil(5, ^BOOL { return [[mDocument window] isKeyWindow]; }), @"the document window did not become key");
 }
 
 -(void)tearDown
