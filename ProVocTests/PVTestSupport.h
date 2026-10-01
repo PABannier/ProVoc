@@ -68,3 +68,9 @@ typedef BOOL (^PVCondition)(void);
 // Runs the steps; returns nil on success, otherwise the description of the wait that timed out.
 -(NSString *)run;
 @end
+
+// A real screenshot of one of our own windows, as composited on screen (Core Animation
+// content included), into verification/screenshots/<name>.png. Returns the bitmap.
+NSBitmapImageRep *PVSaveWindowScreenshot(NSWindow *inWindow, NSString *inName);
+// Number of clearly different colors in a bitmap (coarse): 1 means a blank picture.
+NSUInteger PVNumberOfDistinctColors(NSBitmapImageRep *inBitmap);

@@ -12,10 +12,12 @@
 
 #define PVEnableBackground @"enableBackground"
 
-@class ProVocBackgroundStyle;
+@class ProVocBackgroundStyle, ProVocBackgroundScene;
 
 @interface ProVocBackground : NSWindowController {
-	IBOutlet QCView *mView;
+	IBOutlet QCView *mView;				// draws custom Quartz compositions only
+	ProVocBackgroundScene *mScene;		// draws the built-in backgrounds
+	id mRenderer;						// the one of the two in use
 	NSWindow *mWindow;
 	NSMutableArray *mInputsToTrigger;
 	BOOL mDisplayed;
@@ -62,6 +64,7 @@
 -(id)initWithCompositionAtPath:(NSString *)inPath;
 
 -(id)identifier;
+-(NSBundle *)bundle;
 -(NSString *)compositionPath;
 -(NSString *)name;
 

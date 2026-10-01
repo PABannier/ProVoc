@@ -184,6 +184,24 @@ static NSMutableArray *sCurrentTesters = nil;
 	if (![mProVocDocument isCurrentDocument])
 		return NO;
 	switch ([inEvent keyCode]) {
+		case 53: // Esc
+			if ([inEvent isARepeat])
+				break;
+			if ([mResultPanel isVisible]) {
+				// Done is the Esc button, except when it is the default (Return) button
+				// because there is nothing to repeat: Esc must still mean Done then.
+				if (([inEvent modifierFlags] & NSAlternateKeyMask) == 0 && ![self canRepeatWrongWords]) {
+					[self terminateResultPanel:nil];
+					return YES;
+				}
+			} else if (([inEvent modifierFlags] & NSAlternateKeyMask) != 0 && [[self testPanel] isVisible]) {
+				// Plain Esc is the key equivalent of the Finish button. With Option the button
+				// is "Abort", but Option-Esc never reaches it (the text field takes it for
+				// "complete").
+				[self cancelTestPanel:nil];
+				return YES;
+			}
+			break;
 		case 122: // F1
 			[self playQuestionAudio:nil];
 			return YES;
@@ -568,9 +586,13 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 
 -(void)resumeTestWithParameters:(id)inParameters
 {
-	float width = [inParameters[@"displayLabelText"] boolValue] ? 150 : 30;
+	BOOL displayLabelText = [inParameters[@"displayLabelText"] boolValue];
+	float width = displayLabelText ? 150 : 30;
 	[self setPopUp:mLabelPopUp1 width:width];
 	[self setPopUp:mLabelPopUp3 width:width];
+	// only the color swatch fits in the narrow pop-up: no clipped piece of the title next to it
+	[[mLabelPopUp1 cell] setImagePosition:displayLabelText ? NSImageLeft : NSImageOnly];
+	[[mLabelPopUp3 cell] setImagePosition:displayLabelText ? NSImageLeft : NSImageOnly];
 	
 	[self flagsChanged:[NSApp currentEvent]];
 	
@@ -1825,10 +1847,16 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	[self willChangeValueForKey:@"canRepeatWrongWords"];
 	[self didChangeValueForKey:@"canRepeatWrongWords"];
 	[mRetryButton setHidden:[mWrongWordsArray count] == 0];
-    if (![self canRepeatWrongWords]) {
-        [mRetryButton setKeyEquivalent:@""];
-        [mTerminateButton setKeyEquivalent:@"\r"];
-    }
+	// Return repeats the wrong words when there are some, otherwise it means Done. Set both
+	// ways each time: the panel is shown again after each repetition. (Esc always means
+	// Done: see -handleKeyDownEvent:.)
+	if ([self canRepeatWrongWords]) {
+		[mTerminateButton setKeyEquivalent:@"\033"];
+		[mRetryButton setKeyEquivalent:@"\r"];
+	} else {
+		[mRetryButton setKeyEquivalent:@""];
+		[mTerminateButton setKeyEquivalent:@"\r"];
+	}
     
 	if (mMode != 0)
 		mFreezeHistory = YES;

@@ -181,27 +181,29 @@ void PVPostKey(unsigned short inKeyCode, NSString *inCharacters, NSEventModifier
 	PVPostKeyRepeat(inKeyCode, inCharacters, inModifiers, NO);
 }
 
-// The key (and Shift / Option state) that types a character with the current keyboard
+// The key (and Shift / Option state) that produces a character with the current keyboard
 // layout, found by asking the layout what each key produces - whatever the layout is.
-static BOOL PVKeyForCharacter(NSString *inCharacter, unsigned short *outKeyCode, NSEventModifierFlags *outModifiers)
+// With inCommand, the layout is asked what the keys produce while Command is held (on
+// AZERTY, for instance, Command plus the unshifted top-row keys gives the digits).
+static BOOL PVKeyForCharacter(NSString *inCharacter, BOOL inCommand, unsigned short *outKeyCode, NSEventModifierFlags *outModifiers)
 {
-	static NSMutableDictionary *keys = nil;
-	if (!keys) {
-		keys = [[NSMutableDictionary alloc] init];
+	static NSMutableDictionary *tables[2] = {nil, nil};
+	if (!tables[inCommand]) {
+		NSMutableDictionary *keys = tables[inCommand] = [[NSMutableDictionary alloc] init];
 		TISInputSourceRef source = TISCopyCurrentKeyboardLayoutInputSource();
 		CFDataRef layoutData = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData);
 		NSLog(@"PVTestSupport: keyboard layout %@", TISGetInputSourceProperty(source, kTISPropertyInputSourceID));
 		if (layoutData) {
 			const UCKeyboardLayout *layout = (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
 			NSEventModifierFlags modifiers[4] = {0, NSEventModifierFlagShift, NSEventModifierFlagOption, NSEventModifierFlagShift | NSEventModifierFlagOption};
-			for (int m = 3; m >= 0; m--)	// plainest combination last, so that it wins
+			for (int m = inCommand ? 1 : 3; m >= 0; m--)	// plainest combination last, so that it wins
 				for (int keyCode = 127; keyCode >= 0; keyCode--) {
 					if (keyCode >= 65 && keyCode <= 92)
 						continue;	// keypad
 					UInt32 deadKeyState = 0;
 					UniChar characters[4];
 					UniCharCount length = 0;
-					UInt32 carbonModifiers = ((modifiers[m] & NSEventModifierFlagShift) ? shiftKey : 0) | ((modifiers[m] & NSEventModifierFlagOption) ? optionKey : 0);
+					UInt32 carbonModifiers = ((modifiers[m] & NSEventModifierFlagShift) ? shiftKey : 0) | ((modifiers[m] & NSEventModifierFlagOption) ? optionKey : 0) | (inCommand ? cmdKey : 0);
 					if (UCKeyTranslate(layout, keyCode, kUCKeyActionDown, carbonModifiers >> 8, LMGetKbdType(), 0, &deadKeyState, 4, &length, characters) == noErr
 							&& length == 1 && deadKeyState == 0 && characters[0] >= 0x20)
 						keys[[NSString stringWithCharacters:characters length:1]] = @[@(keyCode), @(modifiers[m])];
@@ -209,7 +211,7 @@ static BOOL PVKeyForCharacter(NSString *inCharacter, unsigned short *outKeyCode,
 		}
 		CFRelease(source);
 	}
-	NSArray *key = keys[inCharacter];
+	NSArray *key = tables[inCommand][inCharacter];
 	if (!key)
 		return NO;
 	*outKeyCode = [key[0] unsignedShortValue];
@@ -223,7 +225,7 @@ void PVTypeText(NSString *inText)
 		usingBlock:^(NSString *inCharacter, NSRange inRange, NSRange inEnclosingRange, BOOL *outStop) {
 			unsigned short keyCode;
 			NSEventModifierFlags modifiers;
-			if (PVKeyForCharacter(inCharacter, &keyCode, &modifiers))
+			if (PVKeyForCharacter(inCharacter, NO, &keyCode, &modifiers))
 				PVPostKey(keyCode, nil, modifiers);
 			else
 				// no single key types it on this layout: deliver the character itself
@@ -235,7 +237,7 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 {
 	unsigned short keyCode = 0;
 	NSEventModifierFlags modifiers = 0;
-	if (!PVKeyForCharacter(inCharacter, &keyCode, &modifiers))
+	if (!PVKeyForCharacter(inCharacter, YES, &keyCode, &modifiers))
 		NSLog(@"*** PVTypeCommand: no key for %@ on this keyboard layout", inCharacter);
 	PVPostKey(keyCode, nil, modifiers | NSEventModifierFlagCommand | inExtraModifiers);
 }
@@ -352,3 +354,35 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 }
 
 @end
+
+#import <dlfcn.h>
+
+NSBitmapImageRep *PVSaveWindowScreenshot(NSWindow *inWindow, NSString *inName)
+{
+	// CGWindowListCreateImage is no longer declared in the SDK but still captures the
+	// windows of the calling process without any permission.
+	CGImageRef (*createImage)(CGRect, uint32_t, uint32_t, uint32_t) = dlsym(RTLD_DEFAULT, "CGWindowListCreateImage");
+	if (!createImage)
+		return nil;
+	CGImageRef image = createImage(CGRectNull, 1 << 3 /* including window */, (uint32_t)[inWindow windowNumber], 1 << 0 /* ignore framing */);
+	if (!image)
+		return nil;
+	NSBitmapImageRep *bitmap = [[[NSBitmapImageRep alloc] initWithCGImage:image] autorelease];
+	CGImageRelease(image);
+	NSString *path = [[[PVTestSourceRoot() stringByAppendingPathComponent:@"verification/screenshots"] stringByAppendingPathComponent:inName] stringByAppendingPathExtension:@"png"];
+	[[NSFileManager defaultManager] createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:NULL];
+	[[bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}] writeToFile:path atomically:YES];
+	return bitmap;
+}
+
+NSUInteger PVNumberOfDistinctColors(NSBitmapImageRep *inBitmap)
+{
+	NSMutableSet *colors = [NSMutableSet set];
+	NSInteger width = [inBitmap pixelsWide], height = [inBitmap pixelsHigh];
+	for (NSInteger y = 0; y < height; y += MAX(1, height / 40))
+		for (NSInteger x = 0; x < width; x += MAX(1, width / 40)) {
+			NSColor *color = [[inBitmap colorAtX:x y:y] colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
+			[colors addObject:@((int)([color redComponent] * 15) << 8 | (int)([color greenComponent] * 15) << 4 | (int)([color blueComponent] * 15))];
+		}
+	return [colors count];
+}
