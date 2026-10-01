@@ -133,7 +133,7 @@
 			[words addObjectsFromArray:[page words]];
 		[words makeObjectsPerformSelector:@selector(resetIndexInFile)];
 		if (![mediaPath isEqual:[self mediaPathInBundle]] && mediaPath != [self mediaPathInBundle]) {
-			NSDictionary *info = @{@"Document": self, @"MediaPath": mediaPath};
+			NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:self, @"Document", mediaPath, @"MediaPath", nil]; // mediaPath may be nil
 			[words makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 		}
 	NS_HANDLER

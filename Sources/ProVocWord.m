@@ -80,7 +80,7 @@
 
 -(NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@ 0x%x %@ = %@>", NSStringFromClass([self class]), self, mSourceWord, mTargetWord];
+	return [NSString stringWithFormat:@"<%@ %p %@ = %@>", NSStringFromClass([self class]), self, mSourceWord, mTargetWord];
 }
 
 -(void)setSourceWord:(NSString *)inSource

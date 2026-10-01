@@ -136,7 +136,7 @@
 		[self newPage];
 		return;
 	}
-	[mCurrentWords addObject:@{@"Page Seperator": mPageTitle,
+	[mCurrentWords addObject:@{@"Page Seperator": mPageTitle ? mPageTitle : @"",
 															@"Top": @(mCurrentY + [self titleTopMargin]),
 															@"Height": @(textHeight)}];
 	mCurrentY += height + [self interWordMargin];
@@ -198,7 +198,7 @@
 	return YES;
 }
 
--(NSRect)rectForPage:(int)inPage
+-(NSRect)rectForPage:(NSInteger)inPage
 {
 	NSRect rect = NSZeroRect;
 	mCurrentPage = mPages[inPage - 1];

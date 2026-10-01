@@ -65,46 +65,21 @@
 
 +(void)initialize
 {
-
-}
-
-+(NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
-{
-    NSMutableSet *affectedValuesKeyPaths = [NSMutableSet set];
-    
-    if ([key isEqualToString:@"testDirection"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"randomTestDirection",@"testQuestionDescription",@"testAnswerDescription"]];
-    else if ([key isEqualToString:@"testDirectionProbability"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"testQuestionDescription",@"testAnswerDescription"]];
-    else if ([key isEqualToString:@"sourceLanguage"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"testQuestionDescription",@"testAnswerDescription"]];
-    else if ([key isEqualToString:@"targetLanguage"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"testQuestionDescription",@"testAnswerDescription"]];
-    else if ([key isEqualToString:@"sourceLanguage"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"sourceLanguageCaption",@"displayWithSource"]];
-    else if ([key isEqualToString:@"targetLanguage"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"targetLanguageCaption",@"displayWithTarget"]];
-    else if ([key isEqualToString:@"canResumeTest"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"startTestButtonTitle",@"canModifyTestParameters"]];
-    else if ([key isEqualToString:@"timer"])
-        [affectedValuesKeyPaths addObject:@"hideTimerDuration"];
-    else if ([key isEqualToString:@"voiceIdentifier"])
-        [affectedValuesKeyPaths addObject:@"selectedVoice"];
-    else if ([key isEqualToString:@"displayLabels"])
-        [affectedValuesKeyPaths addObject:@"labelsDisplayed"];
-    else if ([key isEqualToString:@"labelsToTest"]
-             || [key isEqualToString:@"testMarked"]
-             || [key isEqualToString:@"testWordsToReview"])
-        [affectedValuesKeyPaths addObject:@"pageSelectionTitle"];
-    else if ([key isEqualToString:@"sourceFontFamilyName"]
-             || [key isEqualToString:@"sourceFontSize"]
-             || [key isEqualToString:@"targetFontFamilyName"]
-             || [key isEqualToString:@"targetFontSize"]
-             || [key isEqualToString:@"commentFontFamilyName"]
-             || [key isEqualToString:@"commentFontSize"])
-        [affectedValuesKeyPaths addObject:@"rowHeight"];
-    
-    return affectedValuesKeyPaths;
+	[self setKeys:[NSArray arrayWithObject:@"testDirection"] triggerChangeNotificationsForDependentKey:@"randomTestDirection"];
+	NSArray *keys = [NSArray arrayWithObjects:@"testDirection", @"testDirectionProbability", @"sourceLanguage", @"targetLanguage", nil];
+	[self setKeys:keys triggerChangeNotificationsForDependentKey:@"testQuestionDescription"];
+	[self setKeys:keys triggerChangeNotificationsForDependentKey:@"testAnswerDescription"];
+	[self setKeys:[NSArray arrayWithObject:@"sourceLanguage"] triggerChangeNotificationsForDependentKey:@"sourceLanguageCaption"];
+	[self setKeys:[NSArray arrayWithObject:@"sourceLanguage"] triggerChangeNotificationsForDependentKey:@"displayWithSource"];
+	[self setKeys:[NSArray arrayWithObject:@"targetLanguage"] triggerChangeNotificationsForDependentKey:@"targetLanguageCaption"];
+	[self setKeys:[NSArray arrayWithObject:@"targetLanguage"] triggerChangeNotificationsForDependentKey:@"displayWithTarget"];
+	[self setKeys:[NSArray arrayWithObject:@"canResumeTest"] triggerChangeNotificationsForDependentKey:@"startTestButtonTitle"];
+	[self setKeys:[NSArray arrayWithObject:@"canResumeTest"] triggerChangeNotificationsForDependentKey:@"canModifyTestParameters"];
+	[self setKeys:[NSArray arrayWithObjects:@"labelsToTest", @"testMarked", @"testWordsToReview", nil] triggerChangeNotificationsForDependentKey:@"pageSelectionTitle"];
+	[self setKeys:[NSArray arrayWithObjects:@"sourceFontFamilyName", @"sourceFontSize", @"targetFontFamilyName", @"targetFontSize", @"commentFontFamilyName", @"commentFontSize", nil] triggerChangeNotificationsForDependentKey:@"rowHeight"];
+	[self setKeys:[NSArray arrayWithObject:@"timer"] triggerChangeNotificationsForDependentKey:@"hideTimerDuration"];
+	[self setKeys:[NSArray arrayWithObject:@"voiceIdentifier"] triggerChangeNotificationsForDependentKey:@"selectedVoice"];
+	[self setKeys:[NSArray arrayWithObject:@"displayLabels"] triggerChangeNotificationsForDependentKey:@"labelsDisplayed"];
 }
 
 -(id)init
@@ -350,19 +325,21 @@
 		[self getGlobalPreferencesFromDefaults];
 //    [self setDirty:NO];
 	NSSize windowSize = [[self window] frame].size;
-	id rootObject = @{@"Data": mProVocData,
-						@"Parameters": [self parameters],
-						@"Preferences": mGlobalPreferences,
-						@"WindowWidth": [NSNumber numberWithFloat:windowSize.width],
-						@"WindowHeight": [NSNumber numberWithFloat:windowSize.height],
-						@"MainSplitViewState": [mMainSplitView splitViewState],
-						@"EditingPreset": @(mEditingPreset),
-						@"WordTableColumnStates": [mWordTableView tableColumnStates][@"States"],
-						@"PageExpandedState": [mPageOutlineView expandedState],
-						@"PageSelectedRowIndexes": [mPageOutlineView selectedRowIndexes],
-						@"PresetSettings": [self presetSettings],
-						@"Histories": mHistories,
-						@"HistoryDisplay": @([mHistoryView display])};
+	// -setValue:forKey: skips nil values (no history yet, window not loaded...)
+	NSMutableDictionary *rootObject = [NSMutableDictionary dictionary];
+	[rootObject setValue:mProVocData forKey:@"Data"];
+	[rootObject setValue:[self parameters] forKey:@"Parameters"];
+	[rootObject setValue:mGlobalPreferences forKey:@"Preferences"];
+	[rootObject setValue:[NSNumber numberWithFloat:windowSize.width] forKey:@"WindowWidth"];
+	[rootObject setValue:[NSNumber numberWithFloat:windowSize.height] forKey:@"WindowHeight"];
+	[rootObject setValue:[mMainSplitView splitViewState] forKey:@"MainSplitViewState"];
+	[rootObject setValue:@(mEditingPreset) forKey:@"EditingPreset"];
+	[rootObject setValue:[mWordTableView tableColumnStates][@"States"] forKey:@"WordTableColumnStates"];
+	[rootObject setValue:[mPageOutlineView expandedState] forKey:@"PageExpandedState"];
+	[rootObject setValue:[mPageOutlineView selectedRowIndexes] forKey:@"PageSelectedRowIndexes"];
+	[rootObject setValue:[self presetSettings] forKey:@"PresetSettings"];
+	[rootObject setValue:mHistories forKey:@"Histories"];
+	[rootObject setValue:@([mHistoryView display]) forKey:@"HistoryDisplay"];
     return [NSKeyedArchiver archivedDataWithRootObject:rootObject];
 }
 
@@ -448,7 +425,7 @@
 -(NSArray *)usedLanguageSettings
 {
 	NSMutableArray *usedSettings = [NSMutableArray array];
-	NSArray *usedLanguageNames = @[[self sourceLanguage], [self targetLanguage]];
+	NSArray *usedLanguageNames = [NSArray arrayWithObjects:[self sourceLanguage], [self targetLanguage], nil];
 	NSDictionary *languages = [[NSUserDefaults standardUserDefaults] objectForKey:PVPrefsLanguages];
     NSEnumerator *enumerator = [languages[@"Languages"] objectEnumerator];
     NSDictionary *description;
@@ -473,29 +450,32 @@
 		NSSize windowSize = windowFrame.size;
 		NSPoint windowTopLeftCorner = NSMakePoint(NSMinX(windowFrame), NSMaxY(windowFrame));
 		id wordColumnStates = [mWordTableView tableColumnStates];
-		id settings = @{@"Parameters": [self parameters],
-							@"Preferences": mGlobalPreferences,
-							@"WindowWidth": [NSNumber numberWithFloat:windowSize.width],
-							@"WindowHeight": [NSNumber numberWithFloat:windowSize.height],
-							@"WindowLeft": [NSNumber numberWithFloat:windowTopLeftCorner.x],
-							@"WindowTop": [NSNumber numberWithFloat:windowTopLeftCorner.y],
-							@"MainTab": @(mMainTab),
-							@"MainSplitViewState": [mMainSplitView splitViewState],
-							@"EditingPreset": @(mEditingPreset),
-							@"WordTableColumnStatesV2": wordColumnStates,
-							@"WordTableColumnStates": wordColumnStates[@"States"],
-							@"PageExpandedState": [mPageOutlineView expandedState],
-							@"PageSelectedRowIndexes": [mPageOutlineView selectedRowIndexes],
-							@"PresetSettings": [self presetSettings],
-							@"Histories": mHistories,
-							@"HistoryDisplay": @([mHistoryView display]),
-							@"UsedLanguageSettings": [self usedLanguageSettings],
-							@"SubmissionInfo": mSubmissionInfo};
+		// -setValue:forKey: skips nil values (no history yet, no submission info...)
+		NSMutableDictionary *settings = [NSMutableDictionary dictionary];
+		[settings setValue:[self parameters] forKey:@"Parameters"];
+		[settings setValue:mGlobalPreferences forKey:@"Preferences"];
+		[settings setValue:[NSNumber numberWithFloat:windowSize.width] forKey:@"WindowWidth"];
+		[settings setValue:[NSNumber numberWithFloat:windowSize.height] forKey:@"WindowHeight"];
+		[settings setValue:[NSNumber numberWithFloat:windowTopLeftCorner.x] forKey:@"WindowLeft"];
+		[settings setValue:[NSNumber numberWithFloat:windowTopLeftCorner.y] forKey:@"WindowTop"];
+		[settings setValue:@(mMainTab) forKey:@"MainTab"];
+		[settings setValue:[mMainSplitView splitViewState] forKey:@"MainSplitViewState"];
+		[settings setValue:@(mEditingPreset) forKey:@"EditingPreset"];
+		[settings setValue:wordColumnStates forKey:@"WordTableColumnStatesV2"];
+		[settings setValue:wordColumnStates[@"States"] forKey:@"WordTableColumnStates"];
+		[settings setValue:[mPageOutlineView expandedState] forKey:@"PageExpandedState"];
+		[settings setValue:[mPageOutlineView selectedRowIndexes] forKey:@"PageSelectedRowIndexes"];
+		[settings setValue:[self presetSettings] forKey:@"PresetSettings"];
+		[settings setValue:mHistories forKey:@"Histories"];
+		[settings setValue:@([mHistoryView display]) forKey:@"HistoryDisplay"];
+		[settings setValue:[self usedLanguageSettings] forKey:@"UsedLanguageSettings"];
+		[settings setValue:mSubmissionInfo forKey:@"SubmissionInfo"];
 		NSData *settingsData = [NSKeyedArchiver archivedDataWithRootObject:settings];
-		id publicSettings = @{@"Parameters": [self parameters],
-									@"Preferences": mGlobalPreferences,
-									@"Languages": [self usedLanguageSettings],
-									@"SubmissionInfo": mSubmissionInfo};
+		NSMutableDictionary *publicSettings = [NSMutableDictionary dictionary];
+		[publicSettings setValue:[self parameters] forKey:@"Parameters"];
+		[publicSettings setValue:mGlobalPreferences forKey:@"Preferences"];
+		[publicSettings setValue:[self usedLanguageSettings] forKey:@"Languages"];
+		[publicSettings setValue:mSubmissionInfo forKey:@"SubmissionInfo"];
 		NSData *publicSettingsData = [NSKeyedArchiver archivedDataWithRootObject:publicSettings];
 
 		NSMutableDictionary *fileWrappers = [NSMutableDictionary dictionary];
@@ -504,6 +484,8 @@
 		fileWrappers[@"PublicSettings"] = [[[NSFileWrapper alloc] initRegularFileWithContents:publicSettingsData] autorelease];
 		fileWrapper = [[[NSFileWrapper alloc] initDirectoryWithFileWrappers:fileWrappers] autorelease];
 	NS_HANDLER
+		fileWrapper = nil;
+		NSLog(@"*** Exception raised during %@: %@", NSStringFromSelector(_cmd), localException);
 	NS_ENDHANDLER
 	
 //	if (fileWrapper)
@@ -551,6 +533,7 @@
 			ok = [super loadFileWrapperRepresentation:inFileWrapper ofType:inType];
 	NS_HANDLER
 		ok = NO;
+		NSLog(@"*** Exception raised during %@: %@", NSStringFromSelector(_cmd), localException);
 	NS_ENDHANDLER
 		
 	if (ok) {
@@ -1056,7 +1039,7 @@ static int sNewWordLabel = 0;
     [currentPage addWord:word];
 	[self wordsDidChange];
     
-	unsigned rowIndex = [mVisibleWords indexOfObject:word];
+	NSUInteger rowIndex = [mVisibleWords indexOfObject:word];
 	if (rowIndex != NSNotFound) {
 //		[mWordTableView selectRow:rowIndex byExtendingSelection:NO];
 		[mWordTableView scrollRowToVisible:rowIndex];
@@ -1388,20 +1371,7 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(IBAction)selectView:(id)inSender
 {
-    if (inSender == mEditViewToolbarItem)
-    {
-        [self setMainTab:1];
-    }
-    else if (inSender == mTrainingViewToolbarItem)
-    {
-        [self setMainTab:0];
-    }
-    else if (inSender == mHistoryViewToolbarItem)
-    {
-        [self setMainTab:2];
-    }
-    else
-        [self setMainTab:[inSender tag]];
+	[self setMainTab:[inSender tag]];
 }
 
 -(IBAction)startSlideshow:(id)inSender
@@ -1786,7 +1756,7 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(int)selectedVoice
 {
-	int index = [[self availableVoiceIdentifiers] indexOfObject:[self voiceIdentifier]];
+	NSUInteger index = [[self availableVoiceIdentifiers] indexOfObject:[self voiceIdentifier]];
 	if (index == NSNotFound)
 		return 0;
 	else
@@ -2648,9 +2618,10 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSData *)data
 {
-	NSDictionary *info = @{@"Data": mProVocData,
-											@"PageExpandedState": [mPageOutlineView expandedState],
-											@"SelectedPages": [mPageOutlineView selectedRowIndexes]};
+	NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:mProVocData, @"Data",
+											[mPageOutlineView expandedState], @"PageExpandedState",
+											[mPageOutlineView selectedRowIndexes], @"SelectedPages",
+											nil];
 	return [PseudoKeyedArchiver archivedDataWithRootObject:info];
 }
 
@@ -2708,8 +2679,9 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSData *)presetData
 {
-	NSDictionary *info = @{@"Presets": [self presets],
-											@"SelectedPreset": [mPresetTableView selectedRowIndexes]};
+	NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[self presets], @"Presets",
+											[mPresetTableView selectedRowIndexes], @"SelectedPreset",
+											nil];
 	return [PseudoKeyedArchiver archivedDataWithRootObject:info];
 }
 
@@ -2738,8 +2710,9 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSData *)languageData
 {
-	NSDictionary *info = @{@"SourceLanguage": [mProVocData sourceLanguage],
-											@"TargetLanguage": [mProVocData targetLanguage]};
+	NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[mProVocData sourceLanguage], @"SourceLanguage",
+											[mProVocData targetLanguage], @"TargetLanguage",
+											nil];
 	return [PseudoKeyedArchiver archivedDataWithRootObject:info];
 }
 

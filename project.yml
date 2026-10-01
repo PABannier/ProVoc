@@ -67,6 +67,7 @@ targets:
       - sdk: AVFoundation.framework
       - sdk: AVKit.framework
       - sdk: CoreMedia.framework
+      - sdk: WebKit.framework
     postBuildScripts:
       - name: Copy localized resources
         script: |
@@ -89,6 +90,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: ch.arizona-software.provoc.tests
         GENERATE_INFOPLIST_FILE: YES
         HEADER_SEARCH_PATHS: ["$(SRCROOT)/Sources"]
+        GCC_PREPROCESSOR_DEFINITIONS: ["PV_SRCROOT=$(SRCROOT)", "$(inherited)"]
         GCC_PREFIX_HEADER: Sources/ProVoc_Prefix.pch
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ProVoc.app/Contents/MacOS/ProVoc"
         BUNDLE_LOADER: "$(TEST_HOST)"

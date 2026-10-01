@@ -1,4 +1,5 @@
 #import "ExtendedCell.h"
+#import "ProVocApplication.h"
 #import "ProVocPreset.h"
 #import "StringExtensions.h"
 #import "ProVocDocument+Lists.h"
@@ -318,7 +319,7 @@ static NSImage *sRankPatternImage = nil;
     [super editWithFrame: textFrame inView: controlView editor:textObj delegate:anObject event: theEvent];
 }
 
-- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(int)selStart length:(int)selLength {
+- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(NSInteger)selStart length:(NSInteger)selLength {
     NSRect textFrame, imageFrame;
     NSDivideRect (aRect, &imageFrame, &textFrame, MARGIN + [image size].width, NSMinXEdge);
     [super selectWithFrame: textFrame inView: controlView editor:textObj delegate:anObject start:selStart length:selLength];
@@ -411,7 +412,7 @@ static NSImage *sRankPatternImage = nil;
     [super editWithFrame:[self textFrameForCellFrame:aRect] inView: controlView editor:textObj delegate:anObject event: theEvent];
 }
 
-- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(int)selStart length:(int)selLength
+- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(NSInteger)selStart length:(NSInteger)selLength
 {
     [super selectWithFrame:[self textFrameForCellFrame:aRect] inView: controlView editor:textObj delegate:anObject start:selStart length:selLength];
 }

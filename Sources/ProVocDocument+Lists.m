@@ -110,7 +110,7 @@ static NSArray *sDraggedItems = nil;
 	NSArray *words = dictionary[@"Words"];
 	[words makeObjectsPerformSelector:@selector(resetIndexInFile)];
 	if (![mediaPath isEqual:[self mediaPathInBundle]] && mediaPath != [self mediaPathInBundle]) {
-		NSDictionary *info = @{@"Document": self, @"MediaPath": mediaPath};
+		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:self, @"Document", mediaPath, @"MediaPath", nil]; // mediaPath may be nil
 		[words makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 	}
 	return words;
@@ -137,7 +137,7 @@ static NSArray *sDraggedItems = nil;
 	NSString *mediaPath = dictionary[@"MediaPath"];
 	NSArray *sources = dictionary[@"Sources"];
 	if (![mediaPath isEqual:[self mediaPathInBundle]] && mediaPath != [self mediaPathInBundle]) {
-		NSDictionary *info = @{@"Document": self, @"MediaPath": mediaPath};
+		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:self, @"Document", mediaPath, @"MediaPath", nil]; // mediaPath may be nil
 		[sources makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 	}
 	return sources;
@@ -616,7 +616,7 @@ static NSArray *sDraggedItems = nil;
 
 -(void)tableView:(NSTableView *)inTableView pasteFromPasteboard:(NSPasteboard *)inPasteboard
 {
-	unsigned row = [[inTableView selectedRowIndexes] lastIndex];
+	NSUInteger row = [[inTableView selectedRowIndexes] lastIndex];
 	if (row == NSNotFound)
 		row = [mVisibleWords count];
 	else
@@ -705,12 +705,12 @@ static NSArray *sSelectedWords = nil;
 	if (!sSelectedWords)
 		return;
 		
-	unsigned firstRow = NSNotFound, lastRow = NSNotFound;
+	NSUInteger firstRow = NSNotFound, lastRow = NSNotFound;
 	BOOL extend = NO;
 	NSEnumerator *enumerator = [sSelectedWords objectEnumerator];
 	id word;
 	while (word = [enumerator nextObject]) {
-		unsigned row = [mVisibleWords indexOfObjectIdenticalTo:word];
+		NSUInteger row = [mVisibleWords indexOfObjectIdenticalTo:word];
 		if (row != NSNotFound) {
 			[mWordTableView selectRow:row byExtendingSelection:extend];
 			lastRow = row;
@@ -1401,7 +1401,7 @@ static NSTimeInterval waitTime = 0;
 		while (encoding = *encodings++)
 			if (encoding <= 30)
 				*myEncodings++ = encoding;
-		*myEncodings = nil;
+		*myEncodings = 0;
 	}
 	return encodings;
 }

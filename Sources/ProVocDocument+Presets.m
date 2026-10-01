@@ -147,8 +147,8 @@
 
 -(id)presetSettings
 {
-	return @{@"IndexOfCurrentPresets": @(mIndexOfCurrentPresets),
-									@"Presets": [self presets]};
+	return [NSDictionary dictionaryWithObjectsAndKeys:@(mIndexOfCurrentPresets), @"IndexOfCurrentPresets",
+									[self presets], @"Presets", nil];
 }
 
 -(void)setPresetSettings:(id)inPresetSettings
@@ -177,12 +177,12 @@
 	return NO;
 }
 
--(float)splitView:(NSSplitView *)inSplitView constrainMinCoordinate:(float)inProposedMin ofSubviewAt:(int)inOffset
+-(CGFloat)splitView:(NSSplitView *)inSplitView constrainMinCoordinate:(CGFloat)inProposedMin ofSubviewAt:(NSInteger)inOffset
 {
 	return 150;
 }
 
--(float)splitView:(NSSplitView *)inSplitView constrainMaxCoordinate:(float)inProposedMin ofSubviewAt:(int)inOffset
+-(CGFloat)splitView:(NSSplitView *)inSplitView constrainMaxCoordinate:(CGFloat)inProposedMin ofSubviewAt:(NSInteger)inOffset
 {
 	return [[inSplitView window] frame].size.width - ([mPresetEditView frame].size.width + 150);
 }

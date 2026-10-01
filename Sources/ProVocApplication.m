@@ -12,6 +12,7 @@
 #import "ProVocInspector.h"
 #import "ProVocTester.h"
 #import "ProVocFontNameField.h"
+#import "ProVocHelpController.h"
 
 @implementation ProVocApplication
 
@@ -20,6 +21,12 @@
 	if (inAction == @selector(changeFont:) && [ProVocFontNameField changeFont:inSender])
 		return YES;
 	return [super sendAction:inAction to:inTarget from:inSender];
+}
+
+-(void)showHelp:(id)inSender
+{
+	// NSApplication would ask the Help Viewer, which cannot open the old help book format.
+	[[ProVocHelpController sharedController] showPage:@"index"];
 }
 
 -(int)firstResponderChangeForKeyDownEvent:(NSEvent *)inEvent

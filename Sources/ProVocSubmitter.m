@@ -7,6 +7,7 @@
 //
 
 #import "ProVocSubmitter.h"
+#import "ProVocApplication.h"
 
 #import <AddressBook/AddressBook.h>
 
@@ -244,7 +245,7 @@
 	NSArray *components = [author componentsSeparatedByString:@"/"];
 	if ([components count] > 1)
 		author = components[0];
-	NSDictionary *info = @{@"Title": [self title], @"Author": author, @"Comments": [self comments]};
+	NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[self title], @"Title", author, @"Author", [self comments], @"Comments", nil];
 	[mDelegate submitter:self updateSubmissionInfo:info];
 
 	NSString *destination = [self compressedDestination];

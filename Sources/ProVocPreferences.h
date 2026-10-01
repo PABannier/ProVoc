@@ -37,6 +37,10 @@
 	IBOutlet NSView *mFontView;
 	IBOutlet NSView *mLabelView;
 	IBOutlet NSView *mTrainingView;
+	// Still in the nibs, but these two panes are no longer offered (see ProVocObsolete.m)
+	IBOutlet NSView *miPodView;
+	IBOutlet NSOutlineView *miPodContentsOutlineView;
+	IBOutlet NSView *mUpdateView;
 	
     IBOutlet NSTableView *mLanguageTableView;
 	
@@ -70,10 +74,18 @@
 
 @end
 
+@interface ProVocPreferences (iPod)
+
+-(IBAction)deleteSelectediPodContent:(id)inSender;
+-(IBAction)deleteiPodNotes:(id)inSender;
+-(IBAction)removeUnusedAudio:(id)inSender;
+-(IBAction)updateiPodIndex:(id)inSender;
+
+@end
+
 @interface ProVocPreferences (Panes)
 
 -(void)selectPaneAtIndex:(unsigned)inIndex;
 -(void)setupToolbar;
--(NSView *)updateView;
 
 @end

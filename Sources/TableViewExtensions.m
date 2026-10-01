@@ -48,7 +48,7 @@
 	while (column = [enumerator nextObject]) {
 		id identifier = [column identifier];
 		id width = [NSNumber numberWithFloat:[column width]];
-		NSDictionary *state = @{@"Identifier": identifier, @"Width": width};
+		NSDictionary *state = [NSDictionary dictionaryWithObjectsAndKeys:identifier, @"Identifier", width, @"Width", nil];
 		[states addObject:state];
 	}
 	return @{@"Version": @1, @"States": states};

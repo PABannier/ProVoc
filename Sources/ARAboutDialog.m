@@ -171,7 +171,7 @@ again:
 
 @implementation ARAboutWindow
 
--(id)initWithContentRect:(NSRect)inContentRect styleMask:(unsigned int)inStyle 	backing:(NSBackingStoreType)inBufferingType defer:(BOOL)inFlag
+-(id)initWithContentRect:(NSRect)inContentRect styleMask:(NSWindowStyleMask)inStyle 	backing:(NSBackingStoreType)inBufferingType defer:(BOOL)inFlag
 {
     if (self = [super initWithContentRect:inContentRect styleMask:NSBorderlessWindowMask
                         backing:NSBackingStoreBuffered defer:NO]) {

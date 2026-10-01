@@ -1415,7 +1415,7 @@ error:
 	NSString *text = [self text];
 	NSAttributedString *string = [[[NSAttributedString alloc] initWithString:text attributes:[self attributes]] autorelease];
 	NSBezierPath *path = [NSBezierPath bezierPathWithRoundRectInRect:NSInsetRect([self bounds], 5, 5) radius:5];
-	const float pattern[2] = {10.0, 4.0};
+	const CGFloat pattern[2] = {10.0, 4.0};
 	[path setLineDash:pattern count:2 phase:18];
 	r = NSInsetRect(r, 10, 10);
 	r.size.height = [string heightForWidth:r.size.width];

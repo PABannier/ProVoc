@@ -7,6 +7,7 @@
 //
 
 #import "ProVocPreferences.h"
+#import "ProVocApplication.h"
 #import "ProVocDocument+Lists.h"
 #import "ProVocInspector.h"
 #import "ProVocBackground.h"
@@ -374,7 +375,7 @@
 	if ([inKey hasPrefix:@"labelColorData"])
 		return labels[index][PVLabelColorData];
 	
-	return nil;//[super valueForUndefinedKey:inKey];
+	return [super valueForUndefinedKey:inKey];
 }
 
 -(NSString *)sourceFontCaption

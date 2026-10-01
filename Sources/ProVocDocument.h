@@ -66,10 +66,6 @@
 	BOOL mHasVisibleSourceAudio;
 	BOOL mHasVisibleTargetAudio;
 	
-    IBOutlet NSToolbarItem *mEditViewToolbarItem;
-    IBOutlet NSToolbarItem *mTrainingViewToolbarItem;
-    IBOutlet NSToolbarItem *mHistoryViewToolbarItem;
-    
 	IBOutlet NSTableView *mLabelTableView;
     IBOutlet NSTableView *mWordTableView;
 	IBOutlet NSOutlineView *mPageOutlineView;
@@ -263,6 +259,18 @@
 -(void)didChangePresets;
 -(void)willChangeLanguages;
 -(void)didChangeLanguages;
+@end
+
+// iPods with the Notes feature are gone: the buttons bound to -iPodConnected stay
+// hidden and "Send to iPod…" explains what to use instead.
+@interface ProVocDocument (iPod)
+
+-(BOOL)iPodConnected;
+-(NSImage *)sendToiPodImage;
+-(IBAction)sendToiPod:(id)inSender;
+-(IBAction)displayiPodPreferences:(id)inSender;
+-(IBAction)ejectiPod:(id)inSender;
+
 @end
 
 @interface ProVocDocument (FontsAndSizes)

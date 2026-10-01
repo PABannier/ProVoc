@@ -173,7 +173,7 @@
 
 -(NSString *)description
 {
-	return [NSString stringWithFormat:@"%@ '%@' (0x%x, parent: 0x%x)", NSStringFromClass([self class]), [self title], (int)self, (int)[self parent]];
+	return [NSString stringWithFormat:@"%@ '%@' (%p, parent: %p)", NSStringFromClass([self class]), [self title], self, [self parent]];
 }
 
 @end

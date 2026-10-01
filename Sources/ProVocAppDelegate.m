@@ -7,6 +7,7 @@
 //
 
 #import "ProVocAppDelegate.h"
+#import "ProVocApplication.h"
 #import "ProVocPreferences.h"
 #import "ProVocDocument.h"
 #import "ProVocDocument+Lists.h"
@@ -21,6 +22,7 @@
 #import "ProVocStartingPoint.h"
 #import "ProVocCardController.h"
 #import "ProVocServiceProvider.h"
+#import "ProVocHelpController.h"
 
 #import "ARAboutDialog.h"
 
@@ -181,44 +183,11 @@
 {
 	ProVocServiceProvider *serviceProvider = [[ProVocServiceProvider alloc] init];
 	[NSApp setServicesProvider:serviceProvider];
-	
-	if ([NSApp systemVersion] >= 0x1040 && ![[NSFileManager defaultManager] fileExistsAtPath:[@"~/Library/Widgets/ProVoc.wdgt" stringByExpandingTildeInPath]]
-				&& ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/Widgets/ProVocs.wdgt"] && ![[NSUserDefaults standardUserDefaults] boolForKey:@"IgnoreWidgetInstall"]
-				&& [[[NSDocumentController sharedDocumentController] recentDocumentURLs] count] > 0) {
-		NSString *check = [NSString stringWithContentsOfURL:[NSURL URLWithString:NSLocalizedString(@"Install Widget Check URL", @"")]];
-		if ([check isEqual:@"OK"]) {
-			int result = NSRunAlertPanel(NSLocalizedString(@"Install Widget Title", @""), NSLocalizedString(@"Install Widget Message", @""),
-					NSLocalizedString(@"Install Widget Download Button", @""), NSLocalizedString(@"Install Widget Later Button", @""), NSLocalizedString(@"Install Widget Ignore Button", @""));
-			switch (result) {
-				case NSAlertDefaultReturn:
-					[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Widget Download URL", @"")]];
-					break;
-				case NSAlertAlternateReturn:
-					break;
-				case NSAlertOtherReturn:
-					[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"IgnoreWidgetInstall"];
-					break;
-			}
-		}
-	}
 }
 
 - (IBAction)showPreferences:(id)sender
 {
     [[ProVocPreferences sharedPreferences] showWindow:self];
-}
-
-/*
--(IBAction)showHelp:(id)inSender
-{
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://www.arizona-software.ch/provoc/help"]];
-}
-*/
-
--(IBAction)checkForUpdates:(id)inSender
-{
-    NSBeep();
-    NSLog(@"%s - this should be removed, depend on App Store update mechanism instead", __func__);
 }
 
 -(BOOL)applicationShouldOpenUntitledFile:(NSApplication *)inSender
@@ -259,26 +228,33 @@
 	return document;
 }
 
+// The Arizona Software web site is gone: these commands used to open pages of it.
+-(void)explainMissingWebSite:(NSString *)inWhat
+{
+	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+	[alert setMessageText:NSLocalizedString(@"Web Site Gone Title", @"")];
+	[alert setInformativeText:NSLocalizedString(inWhat, @"")];
+	[alert runModal];
+}
+
 -(IBAction)discoverProvoc:(id)inSender
 {
-	NSString *address = [NSString stringWithFormat:NSLocalizedString(@"Discover Features URL (v=%@)", @""), [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"]];
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:address]];
+	[[ProVocHelpController sharedController] showPage:@"quicktour"];
 }
 
 -(IBAction)visitHomepage:(id)inSender
 {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Homepage URL", @"")]];
+	[self explainMissingWebSite:@"Web Site Gone Homepage Message"];
 }
 
 -(IBAction)reportBug:(id)inSender
 {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Bug Report URL", @"")]];
+	[self explainMissingWebSite:@"Web Site Gone Feedback Message"];
 }
 
 -(IBAction)downloadDocuments:(id)inSender
 {
-	NSString *address = [NSString stringWithFormat:NSLocalizedString(@"Download Vocabulary URL (v=%@)", @""), [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"]];
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:address]];
+	[self explainMissingWebSite:@"Web Site Gone Vocabulary Message"];
 }
 
 -(void)submitDocument:(id)inSender
