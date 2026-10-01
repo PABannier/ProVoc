@@ -336,6 +336,11 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 
 @end
 
+void PVResetPreferences(void)
+{
+	[[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
+}
+
 void PVPrepareMenu(NSMenu *inMenu)
 {
 	id <NSMenuDelegate> delegate = [inMenu delegate];
@@ -366,6 +371,7 @@ void PVPrepareMenu(NSMenu *inMenu)
 	NSDate *mStepStart;
 	NSString *mFailure;
 	BOOL mFinished;
+	NSDate *mInactiveSince;
 	void (^mCompletion)(NSString *);
 }
 @end
@@ -431,6 +437,33 @@ void PVPrepareMenu(NSMenu *inMenu)
 
 -(void)runSteps:(NSTimer *)inTimer
 {
+	// Keys and clicks only mean something for the frontmost application. If something
+	// else on this Mac takes the front (its user, a notification...), the script waits
+	// until the application is active again, and the time spent does not count.
+	static BOOL observing = NO;
+	if (!observing) {
+		observing = YES;
+		[[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidResignActiveNotification object:nil queue:nil usingBlock:^(NSNotification *inNotification) {
+			NSLog(@"PVScript: the application is no longer active (frontmost: %@)", [[[NSWorkspace sharedWorkspace] frontmostApplication] bundleIdentifier]);
+		}];
+	}
+	if (![NSApp isActive] && !mFinished) {
+		if (!mInactiveSince)
+			mInactiveSince = [[NSDate alloc] init];
+		if (-[mInactiveSince timeIntervalSinceNow] < 30)
+			return;
+		[self fail:@"the application was not active for 30 s"];
+		mFinished = YES;
+	} else if (mInactiveSince) {
+		NSLog(@"PVScript: the application is active again after %.2f s", -[mInactiveSince timeIntervalSinceNow]);
+		if (mStepStart) {
+			NSDate *shifted = [[mStepStart dateByAddingTimeInterval:-[mInactiveSince timeIntervalSinceNow]] retain];
+			[mStepStart release];
+			mStepStart = shifted;
+		}
+		[mInactiveSince release];
+		mInactiveSince = nil;
+	}
 	while (!mFinished) {
 		if (mIndex >= [mSteps count]) {
 			mFinished = YES;

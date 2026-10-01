@@ -38,6 +38,10 @@
 	[NSApp activateIgnoringOtherApps:YES];
 	[NSApp activate];
 	XCTAssertTrue(PVWaitUntil(10, ^BOOL { return [NSApp isActive]; }), @"ProVoc is not the active application (frontmost: %@)", [[[NSWorkspace sharedWorkspace] frontmostApplication] bundleIdentifier]);
+	// Factory settings for each test: a document that becomes current puts its own settings
+	// (separators, fonts, labels...) in the preferences, and one of the decks of
+	// fixtures/user-decks uses the letter m as separator of synonyms.
+	PVResetPreferences();
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	[defaults setBool:NO forKey:PVDimTestBackground];
 	[defaults setBool:NO forKey:PVSlideShowWithWrongWords];
@@ -61,6 +65,8 @@
 
 -(void)tearDown
 {
+	// a test still registered here would get the key events of the next tests
+	XCTAssertEqual([[ProVocTester currentTesters] count], 0u, @"a test (of words) is still running at the end of %@", [self name]);
 	PVCloseDocument(mDocument);
 	[mDocument release];
 	mDocument = nil;
@@ -238,16 +244,23 @@
 -(void)runScript:(PVScript *)inScript
 {
 	NSString *failure = [inScript run];
+	if (failure)	// what the document window looked like
+		PVSaveWindowScreenshot([mDocument window], [@"failures/" stringByAppendingString:[[[self name] componentsSeparatedByCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@"-"]]);
 	XCTAssertNil(failure, @"%@ — question \"%@\", typed \"%@\", progress %i, test panel visible %i, focus %i, result panel visible %i; app active %i, key window %@ (first responder %@), main window %@, modal window %@; default button %@ enabled %i hidden %i, typed %@", failure,
 				 [self question], [self typedAnswer], [self progress], [[self testPanel] isVisible], [self answerFieldHasFocus], [[self resultPanel] isVisible],
 				 [NSApp isActive], [[NSApp keyWindow] title], [[[NSApp keyWindow] firstResponder] className], [[NSApp mainWindow] title], [[NSApp modalWindow] title],
 				 [[[self testPanel] defaultButtonCell] title], [[[self testPanel] defaultButtonCell] isEnabled], [[[[self testPanel] defaultButtonCell] controlView] isHiddenOrHasHiddenAncestor],
 				 [[[self typedAnswer] dataUsingEncoding:NSUTF8StringEncoding] description]);
-	// never leave a modal session or a sheet behind for the next test
+	// never leave a modal session, a sheet or a running test behind for the next test
 	if ([self tester])
 		[[self tester] performSelector:@selector(closePanelWithCode:) withObject:nil];
 	if ([NSApp modalWindow])
 		[NSApp abortModal];
+	// (a modal test panel that was aborted has not ended its test)
+	for (ProVocTester *tester in [NSArray arrayWithArray:[ProVocTester currentTesters]]) {
+		[[tester performSelector:@selector(testPanel)] orderOut:nil];
+		((void (*)(id, SEL, BOOL))objc_msgSend)(tester, NSSelectorFromString(@"terminateTest:"), YES);
+	}
 }
 
 -(void)answerCorrectlyIn:(PVScript *)inScript withReturnKeyCode:(unsigned short)inReturnKeyCode

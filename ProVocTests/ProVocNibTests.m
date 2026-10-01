@@ -190,7 +190,16 @@ static Class PVProbeClass(NSString *inOwnerClassName, NSSet *inOutlets)
 		if (!data)
 			data = [NSData dataWithContentsOfFile:inPath];
 		NSNib *nib = [[[NSNib alloc] initWithNibData:data bundle:[NSBundle mainBundle]] autorelease];
+		// (a MainMenu nib makes its menu the main menu of the application: put ours back)
+		NSMenu *mainMenu = [[[NSApp mainMenu] retain] autorelease];
+		NSMenu *windowsMenu = [[[NSApp windowsMenu] retain] autorelease];
+		NSMenu *servicesMenu = [[[NSApp servicesMenu] retain] autorelease];
 		loaded = [nib instantiateWithOwner:owner topLevelObjects:&topLevelObjects];
+		if ([NSApp mainMenu] != mainMenu) {
+			[NSApp setMainMenu:mainMenu];
+			[NSApp setWindowsMenu:windowsMenu];
+			[NSApp setServicesMenu:servicesMenu];
+		}
 	} @catch (NSException *exception) {
 		XCTFail(@"%@ raised %@", what, exception);
 	} @finally {

@@ -316,7 +316,12 @@ static NSMutableArray *sCurrentTesters = nil;
 	[mSpeechSynthesizer release];
 	[mLearnedWords release];
 	[mLearnedWordsInfo release];
+	// The windows of the nib are top-level objects: they come with a reference that their
+	// owner has to release. It was never released: each training left its four panels
+	// behind, invisible, until the application quit.
+	NSArray *panels = [NSArray arrayWithObjects:mTestPanel, mMCQTestPanel, mResultPanel, mNotePanel, nil];
     [super dealloc];
+	[panels makeObjectsPerformSelector:@selector(release)];
 }
 
 -(void)setLanguageSettings:(NSDictionary *)inSettings forDirection:(int)inDirection

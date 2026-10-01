@@ -328,6 +328,12 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 
 	// The preset table is only in the window while the Training tab is shown
 	id firstResponder = mLoadedParameters && [mPresetTableView window] == mMainWindow ? mPresetTableView : [mMainWindow initialFirstResponder];
+	// ... and the initial first responder of the window (a field of the Editing view) only
+	// while the Editing tab is shown: AppKit, which selects it when the window appears,
+	// logs an error if it is not in the window.
+	if ([firstResponder isKindOfClass:[NSView class]] && [(NSView *)firstResponder window] != mMainWindow)
+		firstResponder = nil;
+	[mMainWindow setInitialFirstResponder:firstResponder];
 	[mMainWindow performSelector:@selector(makeFirstResponder:) withObject:firstResponder afterDelay:0.0];
 	
 	[[self undoManager] setLevelsOfUndo:20];
@@ -828,9 +834,13 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 		if (!mGlobalPreferences[key])
 			[defaults setObject:globalDefaults[key] forKey:key];
 	
-	enumerator = [mGlobalPreferences keyEnumerator];
+	// A copy is enumerated: setting a default notifies its observers, which may set the
+	// corresponding preference of this document again. (Changing a dictionary while it
+	// is enumerated now raises an exception: some documents could not be opened.)
+	NSDictionary *preferences = [[mGlobalPreferences copy] autorelease];
+	enumerator = [preferences keyEnumerator];
 	while (key = [enumerator nextObject])
-		[defaults setObject:[key hasSuffix:@"FontFamilyName"] ? PVUsableFontFamilyName(mGlobalPreferences[key]) : mGlobalPreferences[key] forKey:key];
+		[defaults setObject:[key hasSuffix:@"FontFamilyName"] ? PVUsableFontFamilyName(preferences[key]) : preferences[key] forKey:key];
 	[[NSUserDefaults standardUserDefaults] upgrade];
 }
 
@@ -1774,13 +1784,19 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSArray *)availableVoices
 {
-	NSMutableArray *voices = [NSMutableArray array];
-	[voices addObject:NSLocalizedString(@"Default Voice", @"")];
-	NSEnumerator *enumerator = [[self availableVoiceIdentifiers] objectEnumerator];
-	NSString *voiceIdentifier;
-	while (voiceIdentifier = [enumerator nextObject])
-		[voices addObject:[NSSpeechSynthesizer attributesForVoice:voiceIdentifier][NSVoiceName]];
-	return voices;
+	// asked once: each call of +attributesForVoice: for each of the many voices of
+	// today is slow, and fills the log with messages of the speech framework
+	static NSArray *names = nil;
+	if (!names) {
+		NSMutableArray *voices = [NSMutableArray array];
+		[voices addObject:NSLocalizedString(@"Default Voice", @"")];
+		NSEnumerator *enumerator = [[self availableVoiceIdentifiers] objectEnumerator];
+		NSString *voiceIdentifier;
+		while (voiceIdentifier = [enumerator nextObject])
+			[voices addObject:[NSSpeechSynthesizer attributesForVoice:voiceIdentifier][NSVoiceName]];
+		names = [voices copy];
+	}
+	return names;
 }
 
 -(int)selectedVoice

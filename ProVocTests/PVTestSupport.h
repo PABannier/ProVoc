@@ -81,6 +81,10 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 -(void)setLocation:(NSPoint)inPoint inView:(NSView *)inView;
 @end
 
+// Back to the factory settings (the tests have their own preferences: the Debug build
+// does not share those of the real application)
+void PVResetPreferences(void);
+
 // Does what AppKit does when a menu is about to open: asks its delegate to fill it in
 // (the Open Recent menu, for instance, has no items until then), then validates the items.
 void PVPrepareMenu(NSMenu *inMenu);

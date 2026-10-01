@@ -68,6 +68,9 @@ static void sReleaseShadingInfo(void *info)
 
 -(void)fillWithAngleInDegrees:(float)inDegrees info:(void *)inInfo callback:(CGFunctionEvaluateCallback)inCallback
 {
+	// nothing to fill (a view without size): Core Graphics complains in the log about clipping to an empty path
+	if ([self isEmpty] || NSIsEmptyRect([self bounds]))
+		return;
     float alpha = inDegrees / 180.0 * M_PI;
     float dx = cos(alpha);
     float dy = sin(alpha);

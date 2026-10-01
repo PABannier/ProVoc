@@ -95,6 +95,7 @@
 		for (NSString *key in expected)
 			XCTAssertEqualObjects(parameters[key], expected[key], @"%@ of %@", key, defaultNames[1]);
 		XCTAssertNotNil(newButton(), @"no + button");
+		NSLog(@"PVDEBUG button %@ enabled %i frame %@ canModify %@ canResume %@ testers %lu target %@ window key %i", newButton(), [newButton() isEnabled], NSStringFromRect([newButton() convertRect:[newButton() bounds] toView:nil]), [mDocument valueForKey:@"canModifyTestParameters"], [mDocument valueForKey:@"canResumeTest"], (unsigned long)[[ProVocTester currentTesters] count], [newButton() target], [[mDocument window] isKeyWindow]);
 		PVClickView(newButton(), 1, 0);
 	}];
 	[script wait:@"a new training mode, selected, its settings displayed" until:^BOOL {
