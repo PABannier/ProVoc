@@ -93,7 +93,7 @@
 -(float)scaleFactor
 {
 	if ([NSApp systemVersion] >= 0x1040)
-		return [[self window] userSpaceScaleFactor];
+		return 1.0;
 	else
 		return 1.0;
 }
@@ -876,6 +876,8 @@ error:
 -(NSString *)mediaPathInBundle:(NSString *)inPath
 {
 	NSString *path = [inPath ? inPath : [self fileName] stringByAppendingPathComponent:@"Media"];
+	if (!path)
+		return nil;	// document never saved
 	BOOL isDir;
 	if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir || [[NSFileManager defaultManager] createDirectoryAtPath:path attributes:nil])
 		return path;
@@ -913,6 +915,8 @@ error:
 -(NSString *)pathForMediaFile:(NSString *)inName
 {
 	NSString *path;
+	if (!inName)
+		return nil;
 	path = [[self mediaPathInBundle:nil] stringByAppendingPathComponent:inName];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:path])
 		return path;
@@ -1066,6 +1070,8 @@ error:
 
 -(NSImage *)imageForMedia:(NSString *)inMedia
 {
+	if (!inMedia)
+		return nil;
 	NSString *file = [self pathForMediaFile:inMedia];
 	return [[[NSImage alloc] initWithContentsOfFile:file] autorelease];
 }
@@ -1100,11 +1106,10 @@ error:
 
 -(id)movieForMedia:(NSString *)inMedia
 {
-	if ([NSApp hasQTKit]) {
-		NSString *file = [self pathForMediaFile:inMedia];
-		return [QTMovie movieWithFile:file error:nil];
-	} else
+	if (!inMedia)
 		return nil;
+	NSString *file = [self pathForMediaFile:inMedia];
+	return [QTMovie movieWithFile:file error:nil];
 }
 
 -(id)movieOfWord:(ProVocWord *)inWord
@@ -1154,6 +1159,8 @@ error:
 
 -(NSSound *)audioForMedia:(NSString *)inMedia
 {
+	if (!inMedia)
+		return nil;
 	NSString *file = [self pathForMediaFile:inMedia];
 	return [[[NSSound alloc] initWithContentsOfFile:file byReference:YES] autorelease];
 }

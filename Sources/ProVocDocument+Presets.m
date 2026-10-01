@@ -140,7 +140,7 @@
 {
 	[self willChangeValueForKey:@"presetName"];
 	[mPresetTableView reloadData];
-	[mPresetTableView selectRow:mIndexOfCurrentPresets byExtendingSelection:NO];
+	[mPresetTableView selectRowAtIndex:mIndexOfCurrentPresets byExtendingSelection:NO];
 	[self didChangeValueForKey:@"presetName"];
 	[self setParameters:[mPresets[mIndexOfCurrentPresets] parameters]];
 }

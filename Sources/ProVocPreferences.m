@@ -174,7 +174,7 @@
     description[PVSpaceSensitive] = @YES;
 	[self addLanguage:description];
 	int row = [mLanguageTableView numberOfRows] - 1;
-    [mLanguageTableView selectRow:row byExtendingSelection:NO];
+    [mLanguageTableView selectRowAtIndex:row byExtendingSelection:NO];
 	[mLanguageTableView scrollRowToVisible:row];
 	[mLanguageTableView editColumn:0 row:row withEvent:nil select:YES];
 }
@@ -219,7 +219,7 @@
 {
     if(inTableView == mLanguageTableView) {
         NSMutableArray *languagesToDelete = [NSMutableArray array];
-        NSEnumerator *enumerator = [mLanguageTableView selectedRowEnumerator];
+        NSEnumerator *enumerator = [mLanguageTableView selectedRowNumberEnumerator];
         NSNumber *row;
         while (row = [enumerator nextObject])
             [languagesToDelete addObject:[self languages][[row intValue]]];
@@ -267,7 +267,7 @@
 
 	float factor = 1.0;
 	if ([NSApp systemVersion] >= 0x1040)
-		factor = [window userSpaceScaleFactor];
+		factor = 1.0;
 	NSView *paneView = mPaneViews[inIndex];
 	NSView *view = [window contentView];
 	float deltaHeight = [paneView frame].size.height - [view frame].size.height;

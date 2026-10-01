@@ -211,7 +211,7 @@ static NSArray *sDraggedItems = nil;
 	id item;
 	int row = -1;
 	while (item = [enumerator nextObject]) {
-		[mPageOutlineView selectRow:row = [mPageOutlineView rowForItem:item] byExtendingSelection:extend];
+		[mPageOutlineView selectRowAtIndex:row = [mPageOutlineView rowForItem:item] byExtendingSelection:extend];
 		extend = YES;
 	}
 	[mPageOutlineView scrollRowToVisible:row];
@@ -283,7 +283,7 @@ static NSArray *sDraggedItems = nil;
 				[self pagesDidChange];
 				[mPageOutlineView expandItem:page];
 				int row = [mPageOutlineView rowForItem:page];
-				[mPageOutlineView selectRow:row byExtendingSelection:NO];
+				[mPageOutlineView selectRowAtIndex:row byExtendingSelection:NO];
 				[mPageOutlineView scrollRowToVisible:row];
 			}
 			[page addWords:draggedItems];
@@ -537,7 +537,7 @@ static NSArray *sDraggedItems = nil;
 	int row = -1;
 	ProVocWord *word;
 	while (word = [enumerator nextObject]) {
-		[mWordTableView selectRow:row = [mVisibleWords indexOfObjectIdenticalTo:word] byExtendingSelection:extend];
+		[mWordTableView selectRowAtIndex:row = [mVisibleWords indexOfObjectIdenticalTo:word] byExtendingSelection:extend];
 		extend = YES;
 	}
 	[mWordTableView scrollRowToVisible:row];
@@ -674,7 +674,7 @@ static NSArray *sDraggedItems = nil;
 {
 	int row = [inTableView rowAtPoint:[inTableView convertPoint:[inEvent locationInWindow] fromView:nil]];
 	if (row >= 0 && row < [mVisibleWords count] && ![[inTableView selectedRowIndexes] containsIndex:row])
-		[inTableView selectRow:row byExtendingSelection:([inEvent modifierFlags] & NSShiftKeyMask) != 0];
+		[inTableView selectRowAtIndex:row byExtendingSelection:([inEvent modifierFlags] & NSShiftKeyMask) != 0];
 	NSMenu *menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 	[menu addItemWithTitle:NSLocalizedString(@"Start Speaking", @"") action:@selector(startSpeaking:) keyEquivalent:@""];
 	[menu addItemWithTitle:NSLocalizedString(@"Stop Speaking", @"") action:@selector(stopSpeaking:) keyEquivalent:@""];
@@ -712,7 +712,7 @@ static NSArray *sSelectedWords = nil;
 	while (word = [enumerator nextObject]) {
 		NSUInteger row = [mVisibleWords indexOfObjectIdenticalTo:word];
 		if (row != NSNotFound) {
-			[mWordTableView selectRow:row byExtendingSelection:extend];
+			[mWordTableView selectRowAtIndex:row byExtendingSelection:extend];
 			lastRow = row;
 			if (!extend) {
 				firstRow = row;
@@ -791,7 +791,7 @@ static NSArray *sSelectedWords = nil;
 	else
 		[words removeAllObjects];
 		
-	NSEnumerator *enumerator = [mWordTableView selectedRowEnumerator];
+	NSEnumerator *enumerator = [mWordTableView selectedRowNumberEnumerator];
 	id row;
 	while (row = [enumerator nextObject]) {
 		int index = [row intValue];
@@ -881,7 +881,7 @@ static NSArray *sSelectedWords = nil;
 	[[self allPages] makeObjectsPerformSelector:@selector(removeWords:) withObject:inWords];
 	[self wordsDidChange];
 	if ([mWordTableView selectedRow] >= [mVisibleWords count])
-		[mWordTableView selectRow:[mVisibleWords count] - 1 byExtendingSelection:NO];
+		[mWordTableView selectRowAtIndex:[mVisibleWords count] - 1 byExtendingSelection:NO];
 	[self selectedWordsDidChange:nil];
 	[self didChangeData];
 }
@@ -1171,7 +1171,7 @@ static NSTimeInterval waitTime = 0;
 -(void)selectedPagesDidChange
 {
 	[mSelectedPages removeAllObjects];
-	NSEnumerator *enumerator = [mPageOutlineView selectedRowEnumerator];
+	NSEnumerator *enumerator = [mPageOutlineView selectedRowNumberEnumerator];
 	id row;
 	while (row = [enumerator nextObject]) {
 		id page = [mPageOutlineView itemAtRow:[row intValue]];
@@ -1194,7 +1194,7 @@ static NSTimeInterval waitTime = 0;
 -(NSArray *)selectedSourceAncestors
 {
 	NSMutableArray *ancestors = [NSMutableArray array];
-	NSEnumerator *enumerator = [mPageOutlineView selectedRowEnumerator];
+	NSEnumerator *enumerator = [mPageOutlineView selectedRowNumberEnumerator];
 	id row;
 	while (row = [enumerator nextObject]) {
 		id source = [mPageOutlineView itemAtRow:[row intValue]];

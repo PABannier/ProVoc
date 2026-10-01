@@ -173,7 +173,7 @@
 	NSRect frame = [window frame];
 	float dy = (maxY - minY + 35) - [[window contentView] frame].size.height;
 	if ([NSApp systemVersion] >= 0x1040)
-		dy *= [window userSpaceScaleFactor];
+		dy *= 1.0;
 	frame.size.height += dy;
 	frame.origin.y -= dy;
 	[window setFrame:frame display:YES animate:[window isVisible]];

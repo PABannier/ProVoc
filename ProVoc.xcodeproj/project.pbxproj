@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01D573A7EA9A164DEC1D2BFA /* ipodsettings.tif in Resources */ = {isa = PBXBuildFile; fileRef = 73931953A395F98527E9D137 /* ipodsettings.tif */; };
+		0A7C012DF0917F393EFD1824 /* ProVocDeckTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */; };
 		0B06AEB04C119D34B41217DB /* iPodLinxCharacters.xml in Resources */ = {isa = PBXBuildFile; fileRef = E2AAC293D63CCD9722D769C7 /* iPodLinxCharacters.xml */; };
 		0B2AD4B03093675FCF38DFE9 /* ProVocData.m in Sources */ = {isa = PBXBuildFile; fileRef = C69E243E05B84FDF68E699A3 /* ProVocData.m */; };
 		0D537AF78EE3F1DB208223E2 /* ARDisclosureArrowDown.tif in Resources */ = {isa = PBXBuildFile; fileRef = 01F351FA0AAEA50936B0331B /* ARDisclosureArrowDown.tif */; };
@@ -130,6 +131,7 @@
 		D881E6546E4A9C27C0494C5F /* OpenDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B4636EBB6668A3BE4D5AF76 /* OpenDocument.png */; };
 		D8F7DD45291FF405F3560CA8 /* flagged.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 4C1A0ADA346CB7BE36506AF0 /* flagged.tiff */; };
 		D988E2881C245C0326580630 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 61494296EB4A223FD694D88F /* main.m */; };
+		DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */; };
 		DA2150E610A419BC581D22EE /* DateExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = F244851059BC1208F5BAC68F /* DateExtensions.m */; };
 		DE5FE17B1C983BD4E29C6C9A /* Hourglass.png in Resources */ = {isa = PBXBuildFile; fileRef = A3C1F1AA079902DB0A657D13 /* Hourglass.png */; };
 		E2544214161ED9CC0284537D /* ProVocAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 080324E2421DA827C8322037 /* ProVocAppTests.m */; };
@@ -298,6 +300,7 @@
 		A2AA65B39AC960C954DE7E60 /* WindowExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WindowExtensions.m; sourceTree = "<group>"; };
 		A2F14B4CE172F0AD08E4FD88 /* ProVocStartingPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocStartingPoint.m; sourceTree = "<group>"; };
 		A3471D649972C5CB75DE7F3C /* ProVocDocument+Lists.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ProVocDocument+Lists.h"; sourceTree = "<group>"; };
+		A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocDeckTests.m; sourceTree = "<group>"; };
 		A3C1F1AA079902DB0A657D13 /* Hourglass.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Hourglass.png; sourceTree = "<group>"; };
 		A605E47C1595000E67244AAE /* SplitViewExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SplitViewExtensions.h; sourceTree = "<group>"; };
 		A79731ED47B976074E41DAEE /* ProVocAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocAppDelegate.h; sourceTree = "<group>"; };
@@ -361,6 +364,7 @@
 		E999EA413057806843257E05 /* ProVocCardsView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocCardsView.h; sourceTree = "<group>"; };
 		EA3ADFDA9237BF6A2723C726 /* ArchiverExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArchiverExtensions.h; sourceTree = "<group>"; };
 		EA7741EC25D9D52C49A5EB78 /* ProVocChapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocChapter.h; sourceTree = "<group>"; };
+		EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocInterrogationTests.m; sourceTree = "<group>"; };
 		EA7827CA7AD1FDF613808C83 /* Video.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Video.png; sourceTree = "<group>"; };
 		EB5514C72ACF1E2E6382ABA2 /* ProVoc_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVoc_Prefix.pch; sourceTree = "<group>"; };
 		EC5857671CE54D80632B28EB /* ProVocMovieView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocMovieView.m; sourceTree = "<group>"; };
@@ -445,6 +449,8 @@
 			isa = PBXGroup;
 			children = (
 				080324E2421DA827C8322037 /* ProVocAppTests.m */,
+				A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */,
+				EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */,
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
 				4C29C9DAA6C46DFEFA99EE37 /* PVTestSupport.h */,
 				71DF1D8055CDDB3BCF8CB70F /* PVTestSupport.m */,
@@ -882,6 +888,8 @@
 			files = (
 				1A5D70F781DA1E87EB883F8B /* PVTestSupport.m in Sources */,
 				E2544214161ED9CC0284537D /* ProVocAppTests.m in Sources */,
+				0A7C012DF0917F393EFD1824 /* ProVocDeckTests.m in Sources */,
+				DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */,
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

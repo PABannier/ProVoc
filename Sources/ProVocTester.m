@@ -1432,11 +1432,11 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 -(BOOL)ignoreRebound
 {
-	static NSTimeInterval lastTime = 0;
-	NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-	BOOL ignore = now - lastTime < 0.2;
-	lastTime = now;
-	return ignore;
+	// A key held down must not rush through several words. (This used to drop every
+	// call made within 0.2 s of the previous one, which also swallowed the second of
+	// two deliberate, quick Returns: "check", then "next word".)
+	NSEvent *event = [NSApp currentEvent];
+	return [event type] == NSEventTypeKeyDown && [event isARepeat];
 }
 
 -(IBAction)verifyTestPanel:(id)sender

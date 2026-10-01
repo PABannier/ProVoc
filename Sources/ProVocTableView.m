@@ -41,7 +41,7 @@
 -(void)copy:(id)inSender
 {
     if ([self numberOfSelectedRows] > 0 && [[self dataSource] respondsToSelector:@selector(tableView:writeRows:toPasteboard:)])
-		[[self dataSource] tableView:self writeRows:[[self selectedRowEnumerator] allObjects] toPasteboard:[NSPasteboard generalPasteboard]];
+		[[self dataSource] tableView:self writeRows:[[self selectedRowNumberEnumerator] allObjects] toPasteboard:[NSPasteboard generalPasteboard]];
 }
 
 -(void)paste:(id)inSender
@@ -132,7 +132,7 @@
 	
 	id dataSource = [self dataSource];
 	NSMutableString *text = [NSMutableString string];
-	NSEnumerator *rowEnumerator = [self selectedRowEnumerator];
+	NSEnumerator *rowEnumerator = [self selectedRowNumberEnumerator];
 	id row;
 	while (row = [rowEnumerator nextObject]) {
 		int rowIndex = [row intValue];
@@ -188,7 +188,7 @@
 {
     if ([self numberOfSelectedRows] > 0 && [[self dataSource] respondsToSelector:@selector(outlineView:writeItems:toPasteboard:)]) {
 		NSMutableArray *items = [NSMutableArray array];
-		NSEnumerator *enumerator = [self selectedRowEnumerator];
+		NSEnumerator *enumerator = [self selectedRowNumberEnumerator];
 		NSNumber *row;
 		while (row = [enumerator nextObject])
 			[items addObject:[self itemAtRow:[row intValue]]];

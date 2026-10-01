@@ -143,7 +143,7 @@
 
 -(float)scaleFactor
 {
-	return [[self window] userSpaceScaleFactor];
+	return 1.0;
 }
 
 -(void)setHeight:(float)inHeight animate:(BOOL)inAnimate

@@ -14,3 +14,57 @@ NSString *PVEndCapturingStderr(void);
 
 // Renders a window into verification/screenshots/<name>.png (light) and <name>-dark.png.
 void PVSaveWindowSnapshot(NSWindow *inWindow, NSString *inName);
+
+// Spins the main run loop (default mode) until the condition holds; NO on timeout.
+BOOL PVWaitUntil(NSTimeInterval inTimeout, BOOL (^inCondition)(void));
+
+// Copies a deck into a fresh temporary folder and returns the copy's path.
+NSString *PVTemporaryCopyOfDeck(NSString *inPath);
+
+// Opens a deck (never the original: a temporary copy) and returns its document.
+@class ProVocDocument;
+ProVocDocument *PVOpenCopyOfDeck(NSString *inPath);
+void PVCloseDocument(NSDocument *inDocument);
+
+#pragma mark Decks built in code
+
+@class ProVocPage, ProVocWord;
+
+// A new untitled document shown in a window, with one lesson holding the given
+// words: an array of @[source, target] or @[source, target, comment].
+ProVocDocument *PVNewDocumentWithWords(NSArray *inWords);
+ProVocPage *PVAddPage(ProVocDocument *inDocument, NSString *inTitle, NSArray *inWords);
+
+#pragma mark Driving the application with key events
+
+// Key codes (ANSI positions) used by the tests
+enum {
+	PVKeyReturn = 36, PVKeyTab = 48, PVKeySpace = 49, PVKeyDelete = 51, PVKeyEscape = 53, PVKeyKeypadEnter = 76,
+	PVKeyLeft = 123, PVKeyRight = 124, PVKeyDown = 125, PVKeyUp = 126,
+	PVKeyF1 = 122, PVKeyF2 = 120, PVKeyF3 = 99, PVKeyF4 = 118
+};
+
+// Posts a key down / key up pair to the application's event queue, exactly as if
+// it came from the window server: it goes through -[NSApplication sendEvent:].
+void PVPostKey(unsigned short inKeyCode, NSString *inCharacters, NSEventModifierFlags inModifiers);
+void PVPostKeyRepeat(unsigned short inKeyCode, NSString *inCharacters, NSEventModifierFlags inModifiers, BOOL inIsRepeat);
+// One key event per character.
+void PVTypeText(NSString *inText);
+// Command-<character>, e.g. PVTypeCommand(@"r", 0); extra modifiers may be added.
+void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers);
+
+// A script is a list of steps run one after the other while the application's
+// event loop is spinning, including inside modal sessions and sheets.
+typedef BOOL (^PVCondition)(void);
+@interface PVScript : NSObject
++(PVScript *)script;
+// Runs the block once.
+-(void)then:(void (^)(void))inBlock;
+// Waits (up to 5 s) until the condition holds; the script fails otherwise.
+-(void)wait:(NSString *)inDescription until:(PVCondition)inCondition;
+-(void)wait:(NSString *)inDescription timeout:(NSTimeInterval)inTimeout until:(PVCondition)inCondition;
+// Lets the event loop run for a while (to prove that something does NOT happen).
+-(void)pause:(NSTimeInterval)inDuration;
+// Runs the steps; returns nil on success, otherwise the description of the wait that timed out.
+-(NSString *)run;
+@end

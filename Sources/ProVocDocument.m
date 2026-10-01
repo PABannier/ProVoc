@@ -61,6 +61,16 @@
 
 @end
 
+// Documents written on other systems may name that system's private UI font family
+// (".Helvetica Neue DeskInterface", ".Lucida Grande UI"...), which no longer exists.
+static NSString *PVUsableFontFamilyName(NSString *inName)
+{
+	NSString *systemFamilyName = [[NSFont systemFontOfSize:0] familyName];
+	if (!inName || ([inName hasPrefix:@"."] && ![inName isEqualToString:systemFamilyName]))
+		return systemFamilyName;
+	return inName;
+}
+
 @implementation ProVocDocument
 
 +(void)initialize
@@ -305,7 +315,9 @@
 		[mHistoryView setDisplay:[state intValue]];
 	[mHistoryView reloadData];
 
-	[mMainWindow performSelector:@selector(makeFirstResponder:) withObject:mLoadedParameters ? mPresetTableView : [mMainWindow initialFirstResponder] afterDelay:0.0];
+	// The preset table is only in the window while the Training tab is shown
+	id firstResponder = mLoadedParameters && [mPresetTableView window] == mMainWindow ? mPresetTableView : [mMainWindow initialFirstResponder];
+	[mMainWindow performSelector:@selector(makeFirstResponder:) withObject:firstResponder afterDelay:0.0];
 	
 	[[self undoManager] setLevelsOfUndo:20];
 	if ([NSApp systemVersion] < 0x1040)
@@ -801,7 +813,7 @@
 	
 	enumerator = [mGlobalPreferences keyEnumerator];
 	while (key = [enumerator nextObject])
-		[defaults setObject:mGlobalPreferences[key] forKey:key];
+		[defaults setObject:[key hasSuffix:@"FontFamilyName"] ? PVUsableFontFamilyName(mGlobalPreferences[key]) : mGlobalPreferences[key] forKey:key];
 	[[NSUserDefaults standardUserDefaults] upgrade];
 }
 
@@ -1041,7 +1053,7 @@ static int sNewWordLabel = 0;
     
 	NSUInteger rowIndex = [mVisibleWords indexOfObject:word];
 	if (rowIndex != NSNotFound) {
-//		[mWordTableView selectRow:rowIndex byExtendingSelection:NO];
+//		[mWordTableView selectRowAtIndex:rowIndex byExtendingSelection:NO];
 		[mWordTableView scrollRowToVisible:rowIndex];
 	}
 	[self selectedWordsDidChange:nil];
@@ -1216,7 +1228,7 @@ static int sNewWordLabel = 0;
 		BOOL extend = NO;
 		int row = 0;
 		while (word = [enumerator nextObject]) {
-			[mWordTableView selectRow:row = [mVisibleWords indexOfObjectIdenticalTo:word] byExtendingSelection:extend];
+			[mWordTableView selectRowAtIndex:row = [mVisibleWords indexOfObjectIdenticalTo:word] byExtendingSelection:extend];
 			extend = YES;
 		}
 		[mWordTableView scrollRowToVisible:row];
@@ -2203,11 +2215,7 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSString *)sourceFontFamilyName
 {
-	NSString *name = mGlobalPreferences[@"sourceFontFamilyName"];
-	if (name)
-		return name;
-	else
-		return [[NSFont systemFontOfSize:0] familyName];
+	return PVUsableFontFamilyName(mGlobalPreferences[@"sourceFontFamilyName"]);
 }
 
 -(void)setSourceFontFamilyName:(NSString *)inName
@@ -2270,11 +2278,7 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSString *)targetFontFamilyName
 {
-	NSString *name = mGlobalPreferences[@"targetFontFamilyName"];
-	if (name)
-		return name;
-	else
-		return [[NSFont systemFontOfSize:0] familyName];
+	return PVUsableFontFamilyName(mGlobalPreferences[@"targetFontFamilyName"]);
 }
 
 -(void)setTargetFontFamilyName:(NSString *)inName
@@ -2337,11 +2341,7 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(NSString *)commentFontFamilyName
 {
-	NSString *name = mGlobalPreferences[@"commentFontFamilyName"];
-	if (name)
-		return name;
-	else
-		return [[NSFont systemFontOfSize:0] familyName];
+	return PVUsableFontFamilyName(mGlobalPreferences[@"commentFontFamilyName"]);
 }
 
 -(void)setCommentFontFamilyName:(NSString *)inName
@@ -2404,7 +2404,7 @@ NSInteger SORT_BY_DIFFICULT(id left, id right, void *info)
 
 -(float)rowHeightForFontFamilyName:(NSString *)inFamilyName size:(float)inSize
 {
-	NSFont *font = [[NSFontManager sharedFontManager] fontWithFamily:inFamilyName traits:0 weight:0 size:inSize];
+	NSFont *font = [[NSFontManager sharedFontManager] fontWithFamily:inFamilyName traits:0 weight:5 size:inSize];
 	if ([NSApp systemVersion] >= 0x1040) {
 		NSString *text = @"WQpgjhl";
 		NSDictionary *attributes = [[NSDictionary alloc] initWithObjectsAndKeys:font, NSFontAttributeName, nil];

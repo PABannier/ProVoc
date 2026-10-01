@@ -61,6 +61,11 @@ static void sGetAquaShadingComponents(void *info, const CGFloat *inData, CGFloat
 
 static CGFloat sRanges[8] = {0, 1, 0, 1, 0, 1, 0, 1};
 
+static void sReleaseShadingInfo(void *info)
+{
+	[(id)info release];
+}
+
 -(void)fillWithAngleInDegrees:(float)inDegrees info:(void *)inInfo callback:(CGFunctionEvaluateCallback)inCallback
 {
     float alpha = inDegrees / 180.0 * M_PI;
@@ -90,11 +95,13 @@ static CGFloat sRanges[8] = {0, 1, 0, 1, 0, 1, 0, 1};
 	CGPoint start = CGPointMake(dmin * dx, dmin * dy);
 	CGPoint end = CGPointMake(dmax * dx, dmax * dy);
     
+    // The shading may be evaluated after this method returns (drawing is recorded
+    // and replayed later), so the function keeps its colors alive itself.
     CGFunctionCallbacks callbacks;
     callbacks.version = 0;
     callbacks.evaluate = inCallback;
-    callbacks.releaseInfo = nil;
-    CGFunctionRef function = CGFunctionCreate(inInfo, 1, sRanges, 4, sRanges, &callbacks);
+    callbacks.releaseInfo = &sReleaseShadingInfo;
+    CGFunctionRef function = CGFunctionCreate([(id)inInfo retain], 1, sRanges, 4, sRanges, &callbacks);
 
     CGShadingRef shading = CGShadingCreateAxial(colorSpace, start, end, function, YES, YES);
     
