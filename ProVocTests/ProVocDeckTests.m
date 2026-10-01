@@ -37,9 +37,39 @@
 	return signature;
 }
 
+// The decks written by scripts/make-fixtures.sh, among them one in the old flat format
+-(NSArray *)generatedDecks
+{
+	NSString *directory = [PVTestSourceRoot() stringByAppendingPathComponent:@"fixtures/generated"];
+	NSMutableArray *decks = [NSMutableArray array];
+	for (NSString *name in [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:directory error:NULL] sortedArrayUsingSelector:@selector(compare:)])
+		if ([@[@"pvoc", @"provoc"] containsObject:[[name pathExtension] lowercaseString]])
+			[decks addObject:[directory stringByAppendingPathComponent:name]];
+	return decks;
+}
+
+-(void)testGeneratedDecksOpenWithEverything
+{
+	NSArray *decks = [self generatedDecks];
+	XCTAssertEqualObjects([decks valueForKey:@"lastPathComponent"], (@[@"Accents.pvoc", @"Old format.provoc", @"Plain.pvoc", @"Rich.pvoc"]));
+	NSDictionary *counts = @{@"Accents.pvoc": @15, @"Old format.provoc": @3, @"Plain.pvoc": @5, @"Rich.pvoc": @10};
+	for (NSString *deck in decks) {
+		ProVocDocument *document = PVOpenCopyOfDeck(deck);
+		XCTAssertNotNil(document, @"%@ did not open", [deck lastPathComponent]);
+		XCTAssertEqualObjects(@([[document allWords] count]), counts[[deck lastPathComponent]], @"words of %@", [deck lastPathComponent]);
+		if ([[deck lastPathComponent] isEqualToString:@"Accents.pvoc"]) {
+			NSArray *targets = [[document allWords] valueForKey:@"targetWord"];
+			for (NSString *word in @[@"été", @"garçon", @"naïve", @"cœur", @"où", @"niño", @"¿qué?", @"Straße", @"ελληνικά", @"日本語"])
+				XCTAssertTrue([targets containsObject:word], @"%@ is not in Accents.pvoc: %@", word, targets);
+		}
+		PVCloseDocument(document);
+	}
+}
+
 -(void)testUserDecksOpenSaveAndReopenIdentically
 {
-	for (NSString *deck in [self userDecks]) {
+	XCTAssertTrue([[self userDecks] count] > 0, @"no deck in fixtures/user-decks");
+	for (NSString *deck in [[self userDecks] arrayByAddingObjectsFromArray:[[self generatedDecks] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension == 'pvoc'"]]]) {
 		NSString *name = [deck lastPathComponent];
 		ProVocDocument *document = PVOpenCopyOfDeck(deck);
 		XCTAssertNotNil(document, @"%@ did not open", name);
