@@ -15,6 +15,7 @@
 		0D537AF78EE3F1DB208223E2 /* ARDisclosureArrowDown.tif in Resources */ = {isa = PBXBuildFile; fileRef = 01F351FA0AAEA50936B0331B /* ARDisclosureArrowDown.tif */; };
 		0D6C1AF8CED192BFF9D20690 /* PlugIns in Resources */ = {isa = PBXBuildFile; fileRef = 576907EFD328F2FD5406E8E2 /* PlugIns */; };
 		0D6DD6A22F165DF6F3EA8892 /* TextFieldExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = AEED1A72D8B56D4103FA8E7D /* TextFieldExtensions.m */; };
+		0E141AB1216B3298015AA4E6 /* schema.xml in Resources */ = {isa = PBXBuildFile; fileRef = DA1AE5AB0F31110A565D2C64 /* schema.xml */; };
 		0F5DB4FDC920B700AE8D9E85 /* ProVoc.scriptSuite in Resources */ = {isa = PBXBuildFile; fileRef = 1FD6EFC6F0076F61090FC672 /* ProVoc.scriptSuite */; };
 		1075AFAFA5FDD8CEC2CC8D6C /* SplitViewExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7374AFD14A131E45FC9724 /* SplitViewExtensions.m */; };
 		10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B9E76677603488A055E9E23 /* ProVocMCQTests.m */; };
@@ -45,10 +46,12 @@
 		2906E13943D6F721D0F11558 /* PVDocumentScenarios.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D8F29CDB49EAEDC4637C6CD /* PVDocumentScenarios.m */; };
 		29883923B9FDE6C66A8982DE /* Theme.tif in Resources */ = {isa = PBXBuildFile; fileRef = 4CBFB63EBC726B210B19A91E /* Theme.tif */; };
 		2CE169947121C9CDC8B5B2E1 /* ExtendedCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C80E0F77362EB9C2490599CC /* ExtendedCell.m */; };
+		2EFCFAA8E4837A05544309A2 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E1F29CA9396FC9D02F45461 /* GetMetadataForFile.m */; };
 		2F32768D6176CF01776C6C69 /* ProVocDocument+Lists.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0BAEE03C5BA99E2188015D /* ProVocDocument+Lists.m */; };
 		2FFD44618122D6A49C9345DA /* CameraPressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 0F397885DDDE303C04FE4B95 /* CameraPressed.png */; };
 		3007E5B24EC570C218515A6B /* Accents.xml in Resources */ = {isa = PBXBuildFile; fileRef = 3138521B89704158F6C23D32 /* Accents.xml */; };
 		30A6CB978F083CA66BE9F7A4 /* Mic.png in Resources */ = {isa = PBXBuildFile; fileRef = B5E11BF6F3807311DD11DDB3 /* Mic.png */; };
+		30F20E350CF448C509A59AFA /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 290D8389CAC03E656653822C /* main.c */; };
 		32C5710A9185212BE735F61F /* ProVocCardController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6A4B3470B8CFF3BABD7B3A /* ProVocCardController.m */; };
 		330AA15EBF06EB0D01A0A689 /* ProVocInspector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2ADEE09A1D4A72E6D084C832 /* ProVocInspector.m */; };
 		3534DBA2A6995853F8E3B5D8 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A644791198E2ACF99E1599E /* Carbon.framework */; };
@@ -69,6 +72,7 @@
 		457EDD00EA086DCA0DE1195B /* page.tif in Resources */ = {isa = PBXBuildFile; fileRef = 47579481EEA24762EF76CFD7 /* page.tif */; };
 		4872D856FB9AE8FB6B8A6F1B /* PVScenarioTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D65671105E74F43BA783A292 /* PVScenarioTestCase.m */; };
 		4CE64535E1180E873F033808 /* send.tif in Resources */ = {isa = PBXBuildFile; fileRef = F81FC1A8A61C15F54C628475 /* send.tif */; };
+		4DB7461CD8E8C48477CDCD2A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ACD0119ACF06FC11DF08F44 /* Foundation.framework */; };
 		4DC29E02CE164D16A9CB7C19 /* ProVocBackgroundScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DA6A12C9B39B3830D680A33 /* ProVocBackgroundScene.m */; };
 		4E46C0DE424549B6E045C937 /* ARInspector.m in Sources */ = {isa = PBXBuildFile; fileRef = 701D25193003B5C94B4DC69B /* ARInspector.m */; };
 		5038E2FEA9FE435799CCF397 /* ARAboutDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = BC874E005526E2788C03424C /* ARAboutDialog.m */; };
@@ -95,6 +99,7 @@
 		6CDDA1ABCB1B481C4A455778 /* SpeechSynthesizerExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 7133EE0AAD24B207CADAD367 /* SpeechSynthesizerExtensions.m */; };
 		6FAE75ADCBCB243F4AC053C5 /* ProVocBackground.m in Sources */ = {isa = PBXBuildFile; fileRef = FD2F3CB823B981C278CBFF01 /* ProVocBackground.m */; };
 		70E39C162F67AE3DC9444E50 /* ProVocDocument+Slideshow.m in Sources */ = {isa = PBXBuildFile; fileRef = 448659810FA3B308BCBB8E8F /* ProVocDocument+Slideshow.m */; };
+		7264DA4E3EC710A1FB7A2DE3 /* ProVocImporterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BC0303024C6E8E7DE3B92CA /* ProVocImporterTests.m */; };
 		73308A30FF3A4B54A0FD65F9 /* ProVocObsolete.m in Sources */ = {isa = PBXBuildFile; fileRef = 5202F3FD2770FCD8C709F302 /* ProVocObsolete.m */; };
 		75A1AA84242763A20040A6F2 /* ProVocTimerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 64EED6D63B77CA222FF31312 /* ProVocTimerView.m */; };
 		7649204C4108735F5ECBE0C7 /* ProVocHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE847358AF0B022F5C11C45 /* ProVocHistory.m */; };
@@ -113,12 +118,14 @@
 		948D8183280372E7D2019905 /* SpeakerOff.png in Resources */ = {isa = PBXBuildFile; fileRef = F8CDD9669BD6BB2DC237F2CB /* SpeakerOff.png */; };
 		9499F2F7CB150C71FC993B93 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A1D02BF62739B4D079394 /* AVFoundation.framework */; };
 		96C21167EBE2B562A7911E94 /* TableViewExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 507128D935DCBFAB5043D660 /* TableViewExtensions.m */; };
+		9A12AC94224E9E4935A7F863 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59883E61F9B7142CDC8E7C4E /* CoreServices.framework */; };
 		9B038725B02BE6BF38225F5B /* PVEditingScenarios.m in Sources */ = {isa = PBXBuildFile; fileRef = 5430B7A23099A0A461BFDE5E /* PVEditingScenarios.m */; };
 		9C86BCEF5D9073BD0CF9D214 /* action.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 38B5FC2FD049CC3A04717AE7 /* action.tiff */; };
 		9D1E3BA75A8C2B644858967B /* ProVocHelpController.m in Sources */ = {isa = PBXBuildFile; fileRef = D64F6FC1BC6A1A9692DC00B6 /* ProVocHelpController.m */; };
 		9D766CF74CD4447267B33419 /* ZIPCompresser.m in Sources */ = {isa = PBXBuildFile; fileRef = D20A7F5B2487D72480B00CBC /* ZIPCompresser.m */; };
 		9E4E4345487968C3EAFB0456 /* ProVoc.icns in Resources */ = {isa = PBXBuildFile; fileRef = BAFF167C39542192AB4F77DC /* ProVoc.icns */; };
 		A0E69E719BD370C1C6FF677B /* QTKitCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = F08D08F8D70919F5828CCDAA /* QTKitCompat.m */; };
+		A1836132937B3B2F0179B305 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 13AF1DCBB93FB201123CA168 /* InfoPlist.strings */; };
 		A1D8061CF850D7FE0457C3B8 /* PVTestSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C29C9DAA6C46DFEFA99EE37 /* PVTestSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A269F603A5638F991E9F943A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EAEFA4A3FB4B2C9AEF032B9 /* WebKit.framework */; };
 		A763BD317853AE670E9CD792 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DF7E3E611F60498B1F16CECB /* CoreVideo.framework */; };
@@ -135,6 +142,7 @@
 		B86E2619C5C579119682B185 /* ProVocFontNameField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EA579E4178F09874912B5BE /* ProVocFontNameField.m */; };
 		B8CE04CACEAA5EC9D0999CB0 /* SoundRecorderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C451582D8D6D183DC9905D3 /* SoundRecorderController.m */; };
 		BB99EAE7022BB35D7C304309 /* ProVocHistoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DCB6BFA85431253D8895704 /* ProVocHistoryView.m */; };
+		BC1F18F92774E191445863A3 /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = D0F7CB009FD6FB6461D5C36A /* schema.strings */; };
 		BD0741BD51B2ACB4C68752EB /* UpdatePreferences.tiff in Resources */ = {isa = PBXBuildFile; fileRef = F3DF7EA5388FA989E301BE2C /* UpdatePreferences.tiff */; };
 		C1E222AB48F76B79E0F5ED3B /* BezierPathExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 129769EB2FD4B64ACF350AD6 /* BezierPathExtensions.m */; };
 		C2A0967122EFA9DB66F2ED6A /* SmallBlank.tif in Resources */ = {isa = PBXBuildFile; fileRef = 31933E0529F5E19F9C5E398F /* SmallBlank.tif */; };
@@ -155,6 +163,7 @@
 		D988E2881C245C0326580630 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 61494296EB4A223FD694D88F /* main.m */; };
 		DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */; };
 		DA2150E610A419BC581D22EE /* DateExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = F244851059BC1208F5BAC68F /* DateExtensions.m */; };
+		DBF4A7492CD75FE7DDB7B95D /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = E7FB38A913CB149919E4C3AB /* schema.strings */; };
 		DE5FE17B1C983BD4E29C6C9A /* Hourglass.png in Resources */ = {isa = PBXBuildFile; fileRef = A3C1F1AA079902DB0A657D13 /* Hourglass.png */; };
 		E01C4F8FA3501B9C2D77BD94 /* ProVocTestOptionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F2D50FB350CAE24A4731DB /* ProVocTestOptionsTests.m */; };
 		E0341A527C151E19A4F073C2 /* PVLaunchScenarios.m in Sources */ = {isa = PBXBuildFile; fileRef = ED71EA8005BCD066F36CF68D /* PVLaunchScenarios.m */; };
@@ -163,14 +172,17 @@
 		E5D49C2EE52E1BE3DB93F907 /* ProVocSlideshowControlView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FEA51B09043A031DA730C93 /* ProVocSlideshowControlView.m */; };
 		E85B2657267FCAFAC9854932 /* ProVocPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 93E5EC313B23F7E55B24DD6A /* ProVocPreferences.m */; };
 		E9D0CE70BC7AE74EB93BC8BC /* SmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E379ABCC9D6F656E658C7B1A /* SmokeUITests.swift */; };
+		E9E08DF72FA6D4C52952A6F7 /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6F6F419241FDC200EBD18738 /* schema.strings */; };
 		EB011509B1B2B719473542C1 /* SmallSpeaker.tif in Resources */ = {isa = PBXBuildFile; fileRef = 6E6FD9CD167EB93F6186E7BF /* SmallSpeaker.tif */; };
 		EFE3473BC1ED6F2030C4498A /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FE67FDE9B7D599DAA41EBF6 /* Quartz.framework */; };
 		F050C1D16FC401A6062CDE67 /* MenuExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D188223731491D4C4BFAA444 /* MenuExtensions.m */; };
+		F0DDE53E55DA803022E54345 /* ProVocImporter.bundle in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = F83BD6D999D5F23EAAEA995F /* ProVocImporter.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F0EF28EC7C6055C2C557CB3D /* ProVocEditingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D1FFD4D4162465984951956A /* ProVocEditingTests.m */; };
 		F0F81B61CD7593929AC0F9B9 /* iPodNoteCharacters.xml in Resources */ = {isa = PBXBuildFile; fileRef = 08E462CBEC7A04BE43AEDCB5 /* iPodNoteCharacters.xml */; };
 		F3C88137E13E8D82AEACE5DD /* ProVocDocument+Columns.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A232E76FC7190003D675448 /* ProVocDocument+Columns.m */; };
 		F47F1E65E08C629E8738310B /* ProVocActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C6C506669146EC6000B41E /* ProVocActionController.m */; };
 		F5A85620C8B85F2F276A0B47 /* ProVocSubmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = C498FE8D624DF024DC017F47 /* ProVocSubmitter.m */; };
+		F69998949937FD5F5E6D707B /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = 288F2F8A3D71714EF651CE26 /* schema.strings */; };
 		F7ADC2684A617BF01DD84FB1 /* ProVocWord.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8ED6E9110D34A3D3039D3 /* ProVocWord.m */; };
 		F970196CE27082222AF9AC66 /* Question.tif in Resources */ = {isa = PBXBuildFile; fileRef = F035E24684E0D09F85309065 /* Question.tif */; };
 		F9FC8628724F459C12551817 /* ProVocUserDeckTrainingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 352B4245262FAED1B040FEF1 /* ProVocUserDeckTrainingTests.m */; };
@@ -200,7 +212,28 @@
 			remoteGlobalIDString = DCF381F6820DBB37B1AD7C02;
 			remoteInfo = ProVoc;
 		};
+		FADCFB5BEA638E1B4FB56C04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F3A4F7CF6ABE0161F51C91A8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4C27FB784845B491DE334FD;
+			remoteInfo = ProVocImporter;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4B6B4FAF75E8606054947E10 /* Embed Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/Spotlight;
+			dstSubfolderSpec = 1;
+			files = (
+				F0DDE53E55DA803022E54345 /* ProVocImporter.bundle in Embed Dependencies */,
+			);
+			name = "Embed Dependencies";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		01A01314B557439DE30BC707 /* MCQ.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = MCQ.tif; sourceTree = "<group>"; };
@@ -224,6 +257,7 @@
 		11D053F5CC864A3C586E3D0E /* Play.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Play.tiff; sourceTree = "<group>"; };
 		122EFE1CA7F35A87D64E9D14 /* ProVocMCQView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocMCQView.h; sourceTree = "<group>"; };
 		129769EB2FD4B64ACF350AD6 /* BezierPathExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BezierPathExtensions.m; sourceTree = "<group>"; };
+		13AF1DCBB93FB201123CA168 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		153507AC6DEADE950764DFE1 /* PVDriver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVDriver.m; sourceTree = "<group>"; };
 		15930057263266A477A834DD /* ProVocSilentTester.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocSilentTester.m; sourceTree = "<group>"; };
 		18A3B6D8321237E16A1B403F /* PlayDown.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = PlayDown.tiff; sourceTree = "<group>"; };
@@ -235,6 +269,8 @@
 		236F5BB3658F34F026E61DA7 /* ARInspector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ARInspector.h; sourceTree = "<group>"; };
 		23C618ACAB6344FA1210535D /* ProVocDocument+WidgetLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ProVocDocument+WidgetLog.m"; sourceTree = "<group>"; };
 		24387940206D8C9918F4DF2F /* iPodPreferences.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = iPodPreferences.tif; sourceTree = "<group>"; };
+		288F2F8A3D71714EF651CE26 /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = English.lproj/schema.strings; sourceTree = "<group>"; };
+		290D8389CAC03E656653822C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		292C43FDFE47B47530ECC31E /* Both.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Both.tif; sourceTree = "<group>"; };
 		2A900C25A4CEF881AA8C5D15 /* ProVocData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocData.h; sourceTree = "<group>"; };
 		2ACA018464B0751344EE34F7 /* SpeakerOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SpeakerOn.png; sourceTree = "<group>"; };
@@ -290,11 +326,13 @@
 		5572018BF6E5F26DD19FF69B /* ProVocSpotlighter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocSpotlighter.m; sourceTree = "<group>"; };
 		576907EFD328F2FD5406E8E2 /* PlugIns */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PlugIns; sourceTree = SOURCE_ROOT; };
 		5943F8522ADA93E92E29FB05 /* ProVocTableColumns.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocTableColumns.m; sourceTree = "<group>"; };
+		59883E61F9B7142CDC8E7C4E /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		5B15685A7A812AC16458B893 /* ProVocDocument+Slideshow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ProVocDocument+Slideshow.h"; sourceTree = "<group>"; };
 		5B69161914AD9EA67B4BE74F /* ProVocCardsView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocCardsView.m; sourceTree = "<group>"; };
 		5B9E76677603488A055E9E23 /* ProVocMCQTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocMCQTests.m; sourceTree = "<group>"; };
 		5BE3E5D50CD2BEFD549F5A8C /* ProVocPrintView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocPrintView.h; sourceTree = "<group>"; };
 		5D8F29CDB49EAEDC4637C6CD /* PVDocumentScenarios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVDocumentScenarios.m; sourceTree = "<group>"; };
+		5E1F29CA9396FC9D02F45461 /* GetMetadataForFile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GetMetadataForFile.m; sourceTree = "<group>"; };
 		5F6A4B3470B8CFF3BABD7B3A /* ProVocCardController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocCardController.m; sourceTree = "<group>"; };
 		61494296EB4A223FD694D88F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		61F5072B2D0CF35833253424 /* SmallImage.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = SmallImage.tif; sourceTree = "<group>"; };
@@ -306,6 +344,7 @@
 		6DA6A12C9B39B3830D680A33 /* ProVocBackgroundScene.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocBackgroundScene.m; sourceTree = "<group>"; };
 		6DCB6BFA85431253D8895704 /* ProVocHistoryView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocHistoryView.m; sourceTree = "<group>"; };
 		6E6FD9CD167EB93F6186E7BF /* SmallSpeaker.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = SmallSpeaker.tif; sourceTree = "<group>"; };
+		6F6F419241FDC200EBD18738 /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = French.lproj/schema.strings; sourceTree = "<group>"; };
 		701D25193003B5C94B4DC69B /* ARInspector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ARInspector.m; sourceTree = "<group>"; };
 		70671005174CF76A02220D04 /* Preferences.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Preferences.tiff; sourceTree = "<group>"; };
 		70843A61EAD08BF53E09AB23 /* ProVocBackgroundScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocBackgroundScene.h; sourceTree = "<group>"; };
@@ -341,7 +380,9 @@
 		96A4707AE737A9C73DE051B8 /* ProVocFontNameField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocFontNameField.h; sourceTree = "<group>"; };
 		97A1AD0756ACB125F1E51971 /* ParameterBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParameterBox.h; sourceTree = "<group>"; };
 		9A644791198E2ACF99E1599E /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		9ACD0119ACF06FC11DF08F44 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		9B312062ACF2804209618DC9 /* ProVocAppleScriptSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocAppleScriptSupport.h; sourceTree = "<group>"; };
+		9BC0303024C6E8E7DE3B92CA /* ProVocImporterTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocImporterTests.m; sourceTree = "<group>"; };
 		9C9A4FAE34988A6BE9B88356 /* ProVocHistory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocHistory.h; sourceTree = "<group>"; };
 		9CC171E001853109D943966F /* ProVocMCQTester.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocMCQTester.m; sourceTree = "<group>"; };
 		9DF31766B01B0167EAF2FA04 /* ScannerExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScannerExtensions.m; sourceTree = "<group>"; };
@@ -389,6 +430,7 @@
 		CDC8367EC5EEA8A51CE37B7A /* ProVocTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocTimer.h; sourceTree = "<group>"; };
 		CDE574EE496C00B6BFE37E41 /* TransformerExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TransformerExtensions.m; sourceTree = "<group>"; };
 		CF4B07875FB41C5ECDC21A4F /* ProVoc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProVoc.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0F7CB009FD6FB6461D5C36A /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = German.lproj/schema.strings; sourceTree = "<group>"; };
 		D188223731491D4C4BFAA444 /* MenuExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MenuExtensions.m; sourceTree = "<group>"; };
 		D1FFD4D4162465984951956A /* ProVocEditingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocEditingTests.m; sourceTree = "<group>"; };
 		D20A7F5B2487D72480B00CBC /* ZIPCompresser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZIPCompresser.m; sourceTree = "<group>"; };
@@ -400,6 +442,7 @@
 		D65671105E74F43BA783A292 /* PVScenarioTestCase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVScenarioTestCase.m; sourceTree = "<group>"; };
 		D6B35FEDC12B0382A382D956 /* Version.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Version.tif; sourceTree = "<group>"; };
 		D8C3FC7D3982BF66CDF71E77 /* SpeechSynthesizerExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeechSynthesizerExtensions.h; sourceTree = "<group>"; };
+		DA1AE5AB0F31110A565D2C64 /* schema.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = schema.xml; sourceTree = "<group>"; };
 		DC15F70325BB8EE14F9D0139 /* ProVocTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocTimer.m; sourceTree = "<group>"; };
 		DF7E3E611F60498B1F16CECB /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		DFA8C4390D37BE613657D62D /* settings.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = settings.tif; sourceTree = "<group>"; };
@@ -415,6 +458,7 @@
 		E7D1BA60B70E69AB6DCF00C4 /* ARAbout.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = ARAbout.nib; sourceTree = "<group>"; };
 		E7DB3C5553D19794E98830C1 /* FTPUploader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FTPUploader.h; sourceTree = "<group>"; };
 		E7F8B16B72EAE0449BCF6863 /* BezierPathExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BezierPathExtensions.h; sourceTree = "<group>"; };
+		E7FB38A913CB149919E4C3AB /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = Italian.lproj/schema.strings; sourceTree = "<group>"; };
 		E81652C279236651DEAB73ED /* ProVocServiceProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocServiceProvider.h; sourceTree = "<group>"; };
 		E999EA413057806843257E05 /* ProVocCardsView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocCardsView.h; sourceTree = "<group>"; };
 		EA3ADFDA9237BF6A2723C726 /* ArchiverExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArchiverExtensions.h; sourceTree = "<group>"; };
@@ -440,6 +484,7 @@
 		F5D0E4961AFAE7A610998D8F /* ProVocInspector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocInspector.h; sourceTree = "<group>"; };
 		F66BF1DBFD0D2D5109D325FD /* ejectipod.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ejectipod.tif; sourceTree = "<group>"; };
 		F81FC1A8A61C15F54C628475 /* send.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = send.tif; sourceTree = "<group>"; };
+		F83BD6D999D5F23EAAEA995F /* ProVocImporter.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProVocImporter.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8CDD9669BD6BB2DC237F2CB /* SpeakerOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SpeakerOff.png; sourceTree = "<group>"; };
 		F9C0084DF24CB27B1B1B6545 /* ProVocPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocPage.h; sourceTree = "<group>"; };
 		FD2F3CB823B981C278CBFF01 /* ProVocBackground.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocBackground.m; sourceTree = "<group>"; };
@@ -447,6 +492,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		17F52B2A3CB9504F13C436A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DB7461CD8E8C48477CDCD2A /* Foundation.framework in Frameworks */,
+				9A12AC94224E9E4935A7F863 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		21F0B7B5D91B037A170C5BED /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -483,7 +537,9 @@
 				9A644791198E2ACF99E1599E /* Carbon.framework */,
 				AFC891376C4C014AD355F654 /* Cocoa.framework */,
 				93153A51B2E16D90F78E96EA /* CoreMedia.framework */,
+				59883E61F9B7142CDC8E7C4E /* CoreServices.framework */,
 				DF7E3E611F60498B1F16CECB /* CoreVideo.framework */,
+				9ACD0119ACF06FC11DF08F44 /* Foundation.framework */,
 				1FE67FDE9B7D599DAA41EBF6 /* Quartz.framework */,
 				4EAEFA4A3FB4B2C9AEF032B9 /* WebKit.framework */,
 			);
@@ -508,6 +564,21 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		460A86420DCFA19479FF1E0A /* Importer */ = {
+			isa = PBXGroup;
+			children = (
+				5E1F29CA9396FC9D02F45461 /* GetMetadataForFile.m */,
+				13AF1DCBB93FB201123CA168 /* InfoPlist.strings */,
+				290D8389CAC03E656653822C /* main.c */,
+				288F2F8A3D71714EF651CE26 /* schema.strings */,
+				6F6F419241FDC200EBD18738 /* schema.strings */,
+				D0F7CB009FD6FB6461D5C36A /* schema.strings */,
+				E7FB38A913CB149919E4C3AB /* schema.strings */,
+				DA1AE5AB0F31110A565D2C64 /* schema.xml */,
+			);
+			path = Importer;
+			sourceTree = "<group>";
+		};
 		4E048566D28E400C5EC0406C /* ProVocUITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -525,6 +596,7 @@
 				A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */,
 				71F5D8BF95BE8840E85CB8E7 /* ProVocDocumentFeatureTests.m */,
 				D1FFD4D4162465984951956A /* ProVocEditingTests.m */,
+				9BC0303024C6E8E7DE3B92CA /* ProVocImporterTests.m */,
 				EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */,
 				5B9E76677603488A055E9E23 /* ProVocMCQTests.m */,
 				790F806BCA9939C03FC84B9B /* ProVocMediaTests.m */,
@@ -546,6 +618,7 @@
 			isa = PBXGroup;
 			children = (
 				576907EFD328F2FD5406E8E2 /* PlugIns */,
+				460A86420DCFA19479FF1E0A /* Importer */,
 				AF332A9C5847DB1699D30AA7 /* ProVocDriver */,
 				530A9C1ADF0D15B1C02BB6C6 /* ProVocTests */,
 				4E048566D28E400C5EC0406C /* ProVocUITests */,
@@ -780,6 +853,7 @@
 			children = (
 				CF4B07875FB41C5ECDC21A4F /* ProVoc.app */,
 				0823228A6435B9819F4C1DA0 /* ProVocDriver.dylib */,
+				F83BD6D999D5F23EAAEA995F /* ProVocImporter.bundle */,
 				4079CF625D7E37F2074B7BA2 /* ProVocTests.xctest */,
 				0A6E6BAAD7727EEB662826C6 /* ProVocUITests.xctest */,
 			);
@@ -821,6 +895,25 @@
 			productReference = 0823228A6435B9819F4C1DA0 /* ProVocDriver.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		D4C27FB784845B491DE334FD /* ProVocImporter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8ED9A653E64DD2F9A061D4BA /* Build configuration list for PBXNativeTarget "ProVocImporter" */;
+			buildPhases = (
+				6F0FF9724A624FE42FFA6460 /* Sources */,
+				BF5CB91D2547B7E5BA09E439 /* Resources */,
+				17F52B2A3CB9504F13C436A4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ProVocImporter;
+			packageProductDependencies = (
+			);
+			productName = ProVocImporter;
+			productReference = F83BD6D999D5F23EAAEA995F /* ProVocImporter.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
 		DCF381F6820DBB37B1AD7C02 /* ProVoc */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 57951FD3480AA34E0F47EDEF /* Build configuration list for PBXNativeTarget "ProVoc" */;
@@ -828,11 +921,13 @@
 				BCAA6DB092F2F8BC46029C48 /* Sources */,
 				7443EA2488C3028F14A7F464 /* Resources */,
 				E5D3D2714F688C56FED9DC67 /* Frameworks */,
+				4B6B4FAF75E8606054947E10 /* Embed Dependencies */,
 				9B6D7939615505DAE25B8BC3 /* Copy localized resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				613CF0084C7EB06B8809A615 /* PBXTargetDependency */,
 			);
 			name = ProVoc;
 			packageProductDependencies = (
@@ -890,6 +985,10 @@
 						DevelopmentTeam = "";
 						ProvisioningStyle = Manual;
 					};
+					D4C27FB784845B491DE334FD = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
 					DCF381F6820DBB37B1AD7C02 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Manual;
@@ -910,6 +1009,10 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
+				English,
+				French,
+				German,
+				Italian,
 				en,
 			);
 			mainGroup = 6525BA9C53F62ACEAFCA36EA;
@@ -921,6 +1024,7 @@
 			targets = (
 				DCF381F6820DBB37B1AD7C02 /* ProVoc */,
 				0EFF2E1A41C566104399A5ED /* ProVocDriver */,
+				D4C27FB784845B491DE334FD /* ProVocImporter */,
 				FC097F7F8F4FC84A0B58CA69 /* ProVocTests */,
 				F1C3ED9AC3FA8586D2B35C07 /* ProVocUITests */,
 			);
@@ -995,6 +1099,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BF5CB91D2547B7E5BA09E439 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1836132937B3B2F0179B305 /* InfoPlist.strings in Resources */,
+				F69998949937FD5F5E6D707B /* schema.strings in Resources */,
+				BC1F18F92774E191445863A3 /* schema.strings in Resources */,
+				E9E08DF72FA6D4C52952A6F7 /* schema.strings in Resources */,
+				DBF4A7492CD75FE7DDB7B95D /* schema.strings in Resources */,
+				0E141AB1216B3298015AA4E6 /* schema.xml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -1032,6 +1149,7 @@
 				0A7C012DF0917F393EFD1824 /* ProVocDeckTests.m in Sources */,
 				3E28AE76E8E6F886EFCD9BF0 /* ProVocDocumentFeatureTests.m in Sources */,
 				F0EF28EC7C6055C2C557CB3D /* ProVocEditingTests.m in Sources */,
+				7264DA4E3EC710A1FB7A2DE3 /* ProVocImporterTests.m in Sources */,
 				DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */,
 				10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */,
 				938AA2FD5E1EAF39B51DE40B /* ProVocMediaTests.m in Sources */,
@@ -1041,6 +1159,15 @@
 				CF155AFEC923EB1831829837 /* ProVocTrainingTests.m in Sources */,
 				F9FC8628724F459C12551817 /* ProVocUserDeckTrainingTests.m in Sources */,
 				1869A17BAE9A329013A74684 /* ProVocVisualTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F0FF9724A624FE42FFA6460 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2EFCFAA8E4837A05544309A2 /* GetMetadataForFile.m in Sources */,
+				30F20E350CF448C509A59AFA /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1151,6 +1278,11 @@
 			isa = PBXTargetDependency;
 			target = DCF381F6820DBB37B1AD7C02 /* ProVoc */;
 			targetProxy = 8450668717FA0D82F9FD2D5F /* PBXContainerItemProxy */;
+		};
+		613CF0084C7EB06B8809A615 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4C27FB784845B491DE334FD /* ProVocImporter */;
+			targetProxy = FADCFB5BEA638E1B4FB56C04 /* PBXContainerItemProxy */;
 		};
 		6D4AF542369C0B101402962F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1386,6 +1518,42 @@
 			};
 			name = Release;
 		};
+		8D7BAD51C551BF4D5C34F366 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Importer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "ch.arizona-software.provoc.importer";
+				PRODUCT_NAME = ProVoc;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = mdimporter;
+			};
+			name = Debug;
+		};
+		B928A244AF34DE574F2C2B0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Importer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "ch.arizona-software.provoc.importer";
+				PRODUCT_NAME = ProVoc;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = mdimporter;
+			};
+			name = Release;
+		};
 		CB2D5026C8B59405D59C1124 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1497,6 +1665,15 @@
 			buildConfigurations = (
 				0A2A500231A2368CEC68178D /* Debug */,
 				896126EEF27B56AF70A28E62 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8ED9A653E64DD2F9A061D4BA /* Build configuration list for PBXNativeTarget "ProVocImporter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D7BAD51C551BF4D5C34F366 /* Debug */,
+				B928A244AF34DE574F2C2B0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

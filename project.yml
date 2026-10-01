@@ -68,6 +68,12 @@ targets:
       - sdk: AVKit.framework
       - sdk: CoreMedia.framework
       - sdk: WebKit.framework
+      - target: ProVocImporter
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Library/Spotlight
     postBuildScripts:
       - name: Copy localized resources
         script: |
@@ -96,6 +102,25 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
     dependencies:
       - target: ProVoc
+  # The Spotlight importer of .pvoc documents, in the application at
+  # Contents/Library/Spotlight (it replaces the PowerPC / i386 one of the original).
+  ProVocImporter:
+    type: bundle
+    platform: macOS
+    sources:
+      - path: Importer
+        excludes: [Info.plist]
+    settings:
+      base:
+        PRODUCT_NAME: ProVoc
+        WRAPPER_EXTENSION: mdimporter
+        PRODUCT_BUNDLE_IDENTIFIER: ch.arizona-software.provoc.importer
+        INFOPLIST_FILE: Importer/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+    dependencies:
+      - sdk: Foundation.framework
+      - sdk: CoreServices.framework
   # A library inserted into the stand-alone application (DYLD_INSERT_LIBRARIES) by
   # scripts/e2e.py: it plays scenarios of key events from the application's own event
   # loop. See ProVocDriver/PVDriver.m.

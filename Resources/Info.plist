@@ -113,7 +113,7 @@
 	<array>
 		<dict>
 			<key>UTTypeIdentifier</key>
-			<string>ch.arizona-software.provoc.package</string>
+			<string>ch.arizona-software.provoc.vocabulary</string>
 			<key>UTTypeDescription</key>
 			<string>ProVoc Document</string>
 			<key>UTTypeIconFile</key>
