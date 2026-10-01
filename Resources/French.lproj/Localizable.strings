@@ -327,3 +327,18 @@ de deux fois";
 "Leopard Only Feature Message" = "Cette version de ProVoc est optimizée pour Mac OS X 10.5 Leopard, et n'offre pas d'enregistremetn sonore pour les versions antérieurs du système.";
 "Leopard Only Feature Download Button" = "Télécharger ProVoc pour la version actuelle du système";
 "Leopard Only Feature Download URL" = "http://www.arizona-software.ch/provoc/download/?target=tiger";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"iPod Obsolete Title" = "Les notes ne peuvent plus être envoyées sur un iPod";
+"iPod Obsolete Message" = "Les iPod dotés de la fonction Notes ne sont plus pris en charge par macOS. Vous pouvez exporter votre vocabulaire dans un fichier à la place.";
+"iPod Obsolete Export Button" = "Exporter…";
+"iPod Obsolete Cancel Button" = "Annuler";
+"Updates Obsolete Title" = "ProVoc ne peut plus rechercher de mises à jour";
+"Updates Obsolete Message (v=%@)" = "Arizona Software ne publie plus ProVoc. Ceci est la version %@, recompilée à partir de son code source pour les Mac actuels.";
+"Web Site Gone Title" = "Le site web d’Arizona Software n’existe plus";
+"Web Site Gone Homepage Message" = "ProVoc a été publié par Arizona Software jusqu’en 2008. Son code source est public ; cette copie a été recompilée à partir de celui-ci.";
+"Web Site Gone Feedback Message" = "Plus personne chez Arizona Software ne reçoit les rapports de bogue ni les commentaires.";
+"Web Site Gone Vocabulary Message" = "La bibliothèque de vocabulaires était hébergée sur ce site. Vous pouvez toujours importer du vocabulaire depuis des fichiers texte avec Fichier > Importer…";
+"Help Window Title" = "Aide ProVoc";
+"Movie Unsupported Format Message" = "Cette séquence ne peut pas être lue : son format n’est pas pris en charge par cette version de macOS.";
+"System Font Caption" = "Police système";

@@ -292,6 +292,8 @@
     [toolbar setDelegate:self];
     
     [[self window] setToolbar:toolbar];
+	// the classic preferences look: the pane icons centered under the title, never in an overflow menu
+	[[self window] setToolbarStyle:NSWindowToolbarStylePreference];
 }
 
 -(NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)inToolbar
@@ -378,19 +380,25 @@
 	return [super valueForUndefinedKey:inKey];
 }
 
+-(NSString *)captionForFontFamilyName:(NSString *)inName
+{
+	// the system font has a private family name (".AppleSystemUIFont")
+	return [inName hasPrefix:@"."] ? NSLocalizedString(@"System Font Caption", @"") : inName;
+}
+
 -(NSString *)sourceFontCaption
 {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:@"sourceFontFamilyName"];
+	return [self captionForFontFamilyName:[[NSUserDefaults standardUserDefaults] objectForKey:@"sourceFontFamilyName"]];
 }
 
 -(NSString *)targetFontCaption
 {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:@"targetFontFamilyName"];
+	return [self captionForFontFamilyName:[[NSUserDefaults standardUserDefaults] objectForKey:@"targetFontFamilyName"]];
 }
 
 -(NSString *)commentFontCaption
 {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:@"commentFontFamilyName"];
+	return [self captionForFontFamilyName:[[NSUserDefaults standardUserDefaults] objectForKey:@"commentFontFamilyName"]];
 }
 
 -(void)observeValueForKeyPath:(NSString *)inKeyPath ofObject:(id)inObject change:(NSDictionary *)inChange context:(void *)inContext

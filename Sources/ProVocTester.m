@@ -1061,7 +1061,8 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	static NSMutableString *answer = nil;
 	if (!answer)
 		answer = [[NSMutableString alloc] initWithCapacity:0];
-	[answer setString:inAnswer];
+	// accented letters typed with a dead key are composed, pasted or imported ones may not be
+	[answer setString:[inAnswer precomposedStringWithCanonicalMapping]];
 	
 	[answer replaceOccurrencesOfString:[NSString stringWithFormat:@"%C", 0x00A0] withString:@" " options:0 range:NSMakeRange(0, [answer length])];
 	[answer replaceOccurrencesOfString:[NSString stringWithFormat:@"%C", 0x2026] withString:@"..." options:0 range:NSMakeRange(0, [answer length])];

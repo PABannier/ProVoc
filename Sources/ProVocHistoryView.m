@@ -133,7 +133,7 @@
 -(void)drawRect:(NSRect)inRect
 {
 	[[NSColor whiteColor] set];
-	NSRectFill(inRect);
+	NSRectFill(NSIntersectionRect(inRect, [self bounds]));	// the dirty rect may exceed the bounds (macOS 14+)
 	[[NSColor darkGrayColor] set];
 	NSFrameRect([self bounds]);
 

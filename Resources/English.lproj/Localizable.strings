@@ -321,3 +321,18 @@ Than Twice";
 "Leopard Only Feature Message" = "This version of ProVoc is optimized for Mac OS X 10.5 Leopard, and does not offer sound recording for earlier versions of the system.";
 "Leopard Only Feature Download Button" = "Download ProVoc for the current system";
 "Leopard Only Feature Download URL" = "http://www.arizona-software.ch/provoc/download/?target=tiger";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"iPod Obsolete Title" = "Notes can no longer be sent to an iPod";
+"iPod Obsolete Message" = "iPods with the Notes feature are no longer supported by macOS. You can export your vocabulary to a file instead.";
+"iPod Obsolete Export Button" = "Export…";
+"iPod Obsolete Cancel Button" = "Cancel";
+"Updates Obsolete Title" = "ProVoc can no longer check for updates";
+"Updates Obsolete Message (v=%@)" = "Arizona Software no longer publishes ProVoc. This is version %@, rebuilt from its source code for current Macs.";
+"Web Site Gone Title" = "The Arizona Software web site no longer exists";
+"Web Site Gone Homepage Message" = "ProVoc was published by Arizona Software until 2008. Its source code is public; this copy was rebuilt from it.";
+"Web Site Gone Feedback Message" = "Nobody at Arizona Software receives bug reports or feedback any more.";
+"Web Site Gone Vocabulary Message" = "The vocabulary library was hosted on that site. You can still import vocabulary from text files with File > Import…";
+"Help Window Title" = "ProVoc Help";
+"Movie Unsupported Format Message" = "This movie cannot be played: its format is not supported by this version of macOS.";
+"System Font Caption" = "System Font";
