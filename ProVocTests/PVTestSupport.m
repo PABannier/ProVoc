@@ -199,6 +199,13 @@ void PVClickView(NSView *inView, NSInteger inClickCount, NSEventModifierFlags in
 	PVClickAtPoint(inView, NSMakePoint(NSMidX(bounds), NSMidY(bounds)), inClickCount, inModifiers);
 }
 
+void PVPressAlertButton(NSButton *inButton)
+{
+	[inButton performClick:nil];
+	// the modal loop of the alert only notices that it was stopped when an event comes
+	[NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined location:NSZeroPoint modifierFlags:0 timestamp:0 windowNumber:0 context:nil subtype:0 data1:0 data2:0] atStart:NO];
+}
+
 void PVPostFlagsChanged(NSEventModifierFlags inModifiers)
 {
 	CGEventRef cgEvent = CGEventCreateKeyboardEvent(NULL, 58 /* left Option */, inModifiers != 0);
@@ -346,7 +353,9 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 		} else if (!((PVCondition)step[@"until"])()) {
 			if (elapsed < [step[@"timeout"] doubleValue])
 				return;
-			mFailure = [[NSString alloc] initWithFormat:@"timed out waiting for: %@ (step %lu)", step[@"what"], (unsigned long)mIndex];
+			mFailure = [[NSString alloc] initWithFormat:@"timed out waiting for: %@ (step %lu; modal window: %@ \"%@\")", step[@"what"], (unsigned long)mIndex, [[NSApp modalWindow] className], [[NSApp modalWindow] title]];
+			if ([NSApp modalWindow])
+				PVSaveWindowScreenshot([NSApp modalWindow], @"failures/modal-window-at-timeout");
 			mFinished = YES;
 			break;
 		}
@@ -356,9 +365,12 @@ void PVTypeCommand(NSString *inCharacter, NSEventModifierFlags inExtraModifiers)
 	}
 	if (mFinished) {
 		[inTimer invalidate];
-		// A failed script may leave the modal test panel up: -run could never return.
-		if (mFailure && [NSApp modalWindow])
+		// A script may leave the modal test panel up: -run could never return.
+		if ([NSApp modalWindow]) {
+			if (!mFailure)
+				mFailure = [[NSString alloc] initWithFormat:@"the script ended with a modal window still open: %@", [[NSApp modalWindow] title]];
 			[NSApp abortModal];
+		}
 		// wake the event loop of -run up
 		[NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined location:NSZeroPoint modifierFlags:0 timestamp:0 windowNumber:0 context:nil subtype:0 data1:0 data2:0] atStart:NO];
 	}

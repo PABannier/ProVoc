@@ -31,6 +31,11 @@
 + (void)initialize
 {
 	unsigned seed = time(nil) % 32000;
+#ifdef DEBUG
+	// Test hook: "-PVRandomSeed 42" makes the order of the questions reproducible.
+	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"PVRandomSeed"])
+		seed = (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"PVRandomSeed"];
+#endif
 	srand(seed);
 
 	[NSValueTransformer setValueTransformer:[[[PercentTransformer alloc] init] autorelease] forName:@"PercentTransformer"];

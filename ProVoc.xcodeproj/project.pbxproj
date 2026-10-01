@@ -142,6 +142,7 @@
 		DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */; };
 		DA2150E610A419BC581D22EE /* DateExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = F244851059BC1208F5BAC68F /* DateExtensions.m */; };
 		DE5FE17B1C983BD4E29C6C9A /* Hourglass.png in Resources */ = {isa = PBXBuildFile; fileRef = A3C1F1AA079902DB0A657D13 /* Hourglass.png */; };
+		E01C4F8FA3501B9C2D77BD94 /* ProVocTestOptionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F2D50FB350CAE24A4731DB /* ProVocTestOptionsTests.m */; };
 		E2544214161ED9CC0284537D /* ProVocAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 080324E2421DA827C8322037 /* ProVocAppTests.m */; };
 		E4F5D76D2111FF3C166B8F72 /* ProVocCardsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B69161914AD9EA67B4BE74F /* ProVocCardsView.m */; };
 		E5D49C2EE52E1BE3DB93F907 /* ProVocSlideshowControlView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FEA51B09043A031DA730C93 /* ProVocSlideshowControlView.m */; };
@@ -318,6 +319,7 @@
 		A3471D649972C5CB75DE7F3C /* ProVocDocument+Lists.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ProVocDocument+Lists.h"; sourceTree = "<group>"; };
 		A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocDeckTests.m; sourceTree = "<group>"; };
 		A3C1F1AA079902DB0A657D13 /* Hourglass.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Hourglass.png; sourceTree = "<group>"; };
+		A3F2D50FB350CAE24A4731DB /* ProVocTestOptionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocTestOptionsTests.m; sourceTree = "<group>"; };
 		A605E47C1595000E67244AAE /* SplitViewExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SplitViewExtensions.h; sourceTree = "<group>"; };
 		A79731ED47B976074E41DAEE /* ProVocAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocAppDelegate.h; sourceTree = "<group>"; };
 		A8252097EFA162CCDFCD7EAD /* ProVocSilentTester.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocSilentTester.h; sourceTree = "<group>"; };
@@ -478,6 +480,7 @@
 				790F806BCA9939C03FC84B9B /* ProVocMediaTests.m */,
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
 				039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */,
+				A3F2D50FB350CAE24A4731DB /* ProVocTestOptionsTests.m */,
 				09630A8F6BD5A88F55E8E3FC /* ProVocVisualTests.m */,
 				D5A5208E7DDE5D7182516705 /* PVScenarioTestCase.h */,
 				D65671105E74F43BA783A292 /* PVScenarioTestCase.m */,
@@ -929,6 +932,7 @@
 				938AA2FD5E1EAF39B51DE40B /* ProVocMediaTests.m in Sources */,
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,
 				8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */,
+				E01C4F8FA3501B9C2D77BD94 /* ProVocTestOptionsTests.m in Sources */,
 				1869A17BAE9A329013A74684 /* ProVocVisualTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

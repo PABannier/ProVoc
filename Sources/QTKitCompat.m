@@ -128,8 +128,8 @@
 	mControllerVisible = YES;
 	mPlayerView = [[AVPlayerView alloc] initWithFrame:[self bounds]];
 	[mPlayerView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	[mPlayerView setControlsStyle:AVPlayerViewControlsStyleInline];
 	[mPlayerView setVideoGravity:AVLayerVideoGravityResizeAspect];
+	[self updateControlsStyle];
 	[mPlayerView setHidden:YES];
 	[self addSubview:mPlayerView];
 
@@ -208,10 +208,49 @@
 	[[mMovie player] seekToTime:kCMTimeZero];
 }
 
+// The inline controls of AVKit need about 200 points: in a narrower view they are left
+// out (they would not fit, and Auto Layout says so in the log at every layout), and a
+// click on the picture plays or pauses.
+-(BOOL)showsControls
+{
+	return mControllerVisible && NSWidth([self bounds]) >= 200;
+}
+
+-(void)updateControlsStyle
+{
+	AVPlayerViewControlsStyle style = [self showsControls] ? AVPlayerViewControlsStyleInline : AVPlayerViewControlsStyleNone;
+	if ([mPlayerView controlsStyle] != style)
+		[mPlayerView setControlsStyle:style];
+}
+
 -(void)setControllerVisible:(BOOL)inVisible
 {
 	mControllerVisible = inVisible;
-	[mPlayerView setControlsStyle:inVisible ? AVPlayerViewControlsStyleInline : AVPlayerViewControlsStyleNone];
+	[self updateControlsStyle];
+}
+
+-(void)setFrameSize:(NSSize)inSize
+{
+	[super setFrameSize:inSize];
+	[self updateControlsStyle];
+}
+
+-(NSView *)hitTest:(NSPoint)inPoint
+{
+	// without controls the player view has nothing to click: the clicks are for this view
+	NSView *view = [super hitTest:inPoint];
+	return view && ![self showsControls] ? self : view;
+}
+
+-(void)mouseDown:(NSEvent *)inEvent
+{
+	if (![self showsControls] && [inEvent clickCount] == 1 && [mMovie isPlayable]) {
+		if ([self isPlaying])
+			[self pause:nil];
+		else
+			[self play:nil];
+	} else
+		[super mouseDown:inEvent];
 }
 
 -(void)setPreservesAspectRatio:(BOOL)inPreserve
@@ -232,7 +271,9 @@
 
 -(BOOL)acceptsFirstResponder
 {
-	return YES;
+	// Only when the movie is alone in its window (full size). Next to the answer field of
+	// a test, a click on the movie must not take the keyboard away from the field.
+	return [[self window] contentView] == self;
 }
 
 -(NSMenu *)menuForEvent:(NSEvent *)inEvent

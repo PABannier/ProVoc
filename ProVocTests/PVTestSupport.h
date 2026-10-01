@@ -53,6 +53,10 @@ void PVClickView(NSView *inView, NSInteger inClickCount, NSEventModifierFlags in
 void PVClickAtPoint(NSView *inView, NSPoint inPoint, NSInteger inClickCount, NSEventModifierFlags inModifiers);
 // A modifier key going down (or up, with no flag): windows get -flagsChanged:
 void PVPostFlagsChanged(NSEventModifierFlags inModifiers);
+// Presses a button of a system alert. (The buttons of the alerts of macOS 26 track the
+// real mouse: they ignore mouse events posted to the event queue. This is what
+// VoiceOver or "full keyboard access" do.)
+void PVPressAlertButton(NSButton *inButton);
 // One key event per character.
 void PVTypeText(NSString *inText);
 // Command-<character>, e.g. PVTypeCommand(@"r", 0); extra modifiers may be added.

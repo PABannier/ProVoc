@@ -239,6 +239,15 @@
 		[script then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
 		[script wait:@"Esc to close the movie, the test going on" until:^BOOL { return [self fullSizeWindowWithViewOfClass:[ProVocMovieView class]] == nil && [self showsQuestionNumber:1]; }];
 	}
+	// a click on the movie plays it, a triple click shows it in full size
+	[script then:^{ PVClickView([self movieViewIn:[[self testPanel] contentView]], 1, 0); }];
+	[script wait:@"a click to play the movie" until:^BOOL { return [[self movieViewIn:[[self testPanel] contentView]] isPlaying]; }];
+	[script then:^{ PVClickView([self movieViewIn:[[self testPanel] contentView]], 1, 0); }];
+	[script wait:@"another click to pause it" until:^BOOL { return ![[self movieViewIn:[[self testPanel] contentView]] isPlaying]; }];
+	[script then:^{ PVClickView([self movieViewIn:[[self testPanel] contentView]], 3, 0); }];
+	[script wait:@"a triple click to show the movie in full size" until:^BOOL { return [self fullSizeWindowWithViewOfClass:[ProVocMovieView class]] != nil; }];
+	[script then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
+	[script wait:@"Esc to close the movie" until:^BOOL { return [self fullSizeWindowWithViewOfClass:[ProVocMovieView class]] == nil && [self testPanelIsReady]; }];
 	// the answer still goes into the field
 	[self answerCorrectlyIn:script];
 	[script wait:@"question 2 (cat: a sound for the question only)" until:^BOOL { return [self showsQuestionNumber:2]; }];

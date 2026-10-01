@@ -648,7 +648,11 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 
 -(void)timerDidElapse:(NSNotification *)inNotification
 {
-	if ([self waitForAnswerBeforeTimerElapse] && [self canGiveAnswer]) {
+	// While an answer is being typed the alert waits until that answer has been verified:
+	// -verifyTestPanel: then calls again, without notification. (It used to wait here in
+	// that case too: after a correct answer the next question was already there, and the
+	// alert never came as long as the answers were right.)
+	if (inNotification && [self waitForAnswerBeforeTimerElapse] && [self canGiveAnswer]) {
 		mTimerDidElapse = YES;
 		return;
 	}
@@ -1545,7 +1549,8 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	[self historySetRepetition:repetition ofWord:currentWord];
 	if (mTimerDidElapse) {
 		mTimerDidElapse = NO;
-		[self timerDidElapse:nil];
+		if ([[self testPanel] isVisible])	// not if that answer was the last one
+			[self timerDidElapse:nil];
 	}
 }
 
