@@ -21,7 +21,7 @@
 -(void)keyDown:(NSEvent *)inEvent
 {
     NSString *keyString = [inEvent charactersIgnoringModifiers];
-    unichar keyChar = [keyString characterAtIndex:0];
+    unichar keyChar = [keyString length] > 0 ? [keyString characterAtIndex:0] : 0;	// a dead key has no character
 
     switch (keyChar) {
         case 0177: // Delete Key
@@ -217,7 +217,7 @@
 -(void)keyDown:(NSEvent *)inEvent
 {
     NSString *keyString = [inEvent charactersIgnoringModifiers];
-    unichar keyChar = [keyString characterAtIndex:0];
+    unichar keyChar = [keyString length] > 0 ? [keyString characterAtIndex:0] : 0;	// a dead key has no character
 
     switch (keyChar) {
         case 0177: // Delete Key

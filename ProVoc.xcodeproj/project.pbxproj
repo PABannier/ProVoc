@@ -149,6 +149,7 @@
 		EB011509B1B2B719473542C1 /* SmallSpeaker.tif in Resources */ = {isa = PBXBuildFile; fileRef = 6E6FD9CD167EB93F6186E7BF /* SmallSpeaker.tif */; };
 		EFE3473BC1ED6F2030C4498A /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FE67FDE9B7D599DAA41EBF6 /* Quartz.framework */; };
 		F050C1D16FC401A6062CDE67 /* MenuExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D188223731491D4C4BFAA444 /* MenuExtensions.m */; };
+		F0EF28EC7C6055C2C557CB3D /* ProVocEditingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D1FFD4D4162465984951956A /* ProVocEditingTests.m */; };
 		F0F81B61CD7593929AC0F9B9 /* iPodNoteCharacters.xml in Resources */ = {isa = PBXBuildFile; fileRef = 08E462CBEC7A04BE43AEDCB5 /* iPodNoteCharacters.xml */; };
 		F3C88137E13E8D82AEACE5DD /* ProVocDocument+Columns.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A232E76FC7190003D675448 /* ProVocDocument+Columns.m */; };
 		F47F1E65E08C629E8738310B /* ProVocActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C6C506669146EC6000B41E /* ProVocActionController.m */; };
@@ -352,6 +353,7 @@
 		CDE574EE496C00B6BFE37E41 /* TransformerExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TransformerExtensions.m; sourceTree = "<group>"; };
 		CF4B07875FB41C5ECDC21A4F /* ProVoc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProVoc.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D188223731491D4C4BFAA444 /* MenuExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MenuExtensions.m; sourceTree = "<group>"; };
+		D1FFD4D4162465984951956A /* ProVocEditingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocEditingTests.m; sourceTree = "<group>"; };
 		D20A7F5B2487D72480B00CBC /* ZIPCompresser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZIPCompresser.m; sourceTree = "<group>"; };
 		D29BE8E0DD51024D89536196 /* ArchiverExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchiverExtensions.m; sourceTree = "<group>"; };
 		D3264050335C0629A49C87C0 /* ProVocMovieView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocMovieView.h; sourceTree = "<group>"; };
@@ -468,6 +470,7 @@
 				080324E2421DA827C8322037 /* ProVocAppTests.m */,
 				EEB39A1436B3C35BE848DA9F /* ProVocBackgroundTests.m */,
 				A36AF8014E09406D74BCB4AF /* ProVocDeckTests.m */,
+				D1FFD4D4162465984951956A /* ProVocEditingTests.m */,
 				EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */,
 				5B9E76677603488A055E9E23 /* ProVocMCQTests.m */,
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
@@ -917,6 +920,7 @@
 				E2544214161ED9CC0284537D /* ProVocAppTests.m in Sources */,
 				C69685B8D7718EED8B398A01 /* ProVocBackgroundTests.m in Sources */,
 				0A7C012DF0917F393EFD1824 /* ProVocDeckTests.m in Sources */,
+				F0EF28EC7C6055C2C557CB3D /* ProVocEditingTests.m in Sources */,
 				DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */,
 				10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */,
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,

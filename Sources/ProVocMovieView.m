@@ -71,7 +71,7 @@ static BOOL sRunningFullscreen = NO;
 
 -(void)keyDown:(NSEvent *)inEvent
 {
-	unichar c = [[inEvent characters] characterAtIndex:0];
+	unichar c = [[inEvent characters] length] > 0 ? [[inEvent characters] characterAtIndex:0] : 0;	// a dead key has no character
 	if (sRunningFullscreen && c == 27)
 		[self cancelOperation:nil];
 	else

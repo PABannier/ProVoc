@@ -441,6 +441,16 @@ static NSArray *sDraggedItems = nil;
 	}
 }
 
+-(BOOL)tableView:(NSTableView *)inTableView writeRowsWithIndexes:(NSIndexSet *)inRowIndexes toPasteboard:(NSPasteboard *)inPasteboard
+{
+	// what NSTableView asks when a drag starts; -tableView:writeRows:toPasteboard: is its long deprecated ancestor
+	NSMutableArray *rows = [NSMutableArray array];
+	[inRowIndexes enumerateIndexesUsingBlock:^(NSUInteger inRow, BOOL *outStop) {
+		[rows addObject:@(inRow)];
+	}];
+	return [self tableView:inTableView writeRows:rows toPasteboard:inPasteboard];
+}
+
 -(BOOL)tableView:(NSTableView *)inTableView writeRows:(NSArray *)inRows toPasteboard:(NSPasteboard *)inPasteboard
 {
 	if (inTableView == mPresetTableView) {
