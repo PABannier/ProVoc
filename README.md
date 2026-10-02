@@ -5,9 +5,9 @@
 ![Platform](https://img.shields.io/badge/macOS%2013%2B-Apple%20Silicon-blue)
 [![License](https://img.shields.io/badge/license-BSD-green)](LICENSE)
 
-**The Mac vocabulary trainer from 2008, rebuilt to run natively on Apple Silicon.**
+**The Mac vocabulary trainer, rebuilt to run natively on Apple Silicon.**
 
-ProVoc was written by Arizona Software between 2005 and 2008. This repository is an
+ProVoc was written by Arizona Software. This repository is an
 unofficial revival: their source code, repaired and recompiled for arm64, so that the
 application runs on the Macs sold today. I did not write ProVoc and I am not selling
 anything. I wanted my vocabulary trainer back.
