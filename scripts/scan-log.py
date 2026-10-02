@@ -12,7 +12,7 @@ import re, sys
 FORBIDDEN = re.compile(r'unrecognized selector|[Ee]xception|Could not load NIB|failed to load|nil outlet|Could not connect|Unknown class|'
                        r'Unable to simultaneously satisfy constraints|was deallocated while key value observers|excessive live window count|\*\*\* ')
 # lines that are not about ProVoc
-ALLOWED = re.compile(r"^Test (Case|Suite) |^\*\* TEST|^\s+Executed \d+ tests|AUCrashHandler|temporary-exception|CoreAnalytics|TCC|com\.apple\.|IDETestOperationsObserverDebug")
+ALLOWED = re.compile(r"^Test (Case|Suite) |^\*\* TEST|^\s+Executed \d+ tests|AUCrashHandler|temporary-exception|CoreAnalytics|TCC|com\.apple\.|IDETestOperationsObserverDebug|RegisterExecutionPolicyException")
 # tests that make the application log an exception on purpose (and check that it does)
 EXPECTED = {'testCorruptDeckIsRefusedAndTheExceptionIsLogged'}
 

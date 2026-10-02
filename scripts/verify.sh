@@ -18,6 +18,8 @@
 # The tests type and click in the application: the screen must be unlocked and the Mac
 # left alone meanwhile (about half an hour). In a fresh checkout the copies of the real
 # decks are missing (fixtures/user-decks is not in git): PV_USER_DECKS=<folder> copies them.
+# PV_SIGN_XCCONFIG=<file> (default: sign.local.xcconfig, if there) signs the Debug build
+# with a certificate, so that the microphone / camera permission survives rebuilds.
 
 cd "$(dirname "$0")/.." || exit 1
 ROOT=$PWD
@@ -55,6 +57,15 @@ if ioreg -n Root -d1 | grep -q '"CGSSessionScreenIsLocked"=Yes'; then
 	record FAIL verify/screen-unlocked "THE SCREEN IS LOCKED: the tests that type and click cannot run (see $V/NEEDS_HUMAN.md)"
 else
 	record PASS verify/screen-unlocked
+fi
+
+# An optional xcconfig, local to a Mac, that signs the Debug build with a certificate
+# (see NEEDS_HUMAN / the report: the permissions macOS gives to an ad hoc build are
+# lost each time its binary changes).
+SIGN_XCCONFIG=${PV_SIGN_XCCONFIG:-$ROOT/sign.local.xcconfig}
+if [ -f "$SIGN_XCCONFIG" ]; then
+	export XCODE_XCCONFIG_FILE=$SIGN_XCCONFIG
+	echo "signing settings of $SIGN_XCCONFIG are used"
 fi
 
 if [ -n "$PV_USER_DECKS" ] && [ ! -d fixtures/user-decks ]; then
