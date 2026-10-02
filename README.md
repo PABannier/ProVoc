@@ -5,6 +5,18 @@ A vocabulary trainer for Mac OS X, originally written by Arizona Software (http:
 
 *Please be aware that this project is currently unstable as I am modernising a large legacy codebase.*
 
+## Building on Apple Silicon (branch `arm64-revival`)
+
+ProVoc 4.2.3 builds and runs natively on arm64 (macOS 13 or later, Xcode 16 or later,
+`brew install xcodegen`):
+
+    scripts/verify.sh      # clean builds, every test, dist/ProVoc.app, verification/report.md
+    scripts/install.sh     # copies dist/ProVoc.app to /Applications
+
+`verification/report.md` says what was broken and how it was fixed, lists the shortcuts
+added and what replaces the features that cannot exist any more, and gives the verdict
+of each line of `FEATURES.md`.
+
 ##Screenshots:
 ![alt tag](https://raw.github.com/mikecsh/provoc/master/Screenshots/1.png)
 ![alt tag](https://raw.github.com/mikecsh/provoc/master/Screenshots/2.png)

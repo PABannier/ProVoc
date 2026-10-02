@@ -77,14 +77,16 @@ build() {     # build Configuration action...
 check verify/build-release build Release clean build
 check verify/build-debug build Debug clean build-for-testing
 
-# every Mach-O file of an application is arm64, and nothing else
+# Every Mach-O file of an application is arm64, and nothing else. (Contents/Frameworks is
+# left out: ProVoc has none; in the Debug build that hosts the tests, Xcode puts its own
+# universal XCTest frameworks there. The application made for dist/ must not have it.)
 arm64_only() {
 	local bad=0 file
 	while IFS= read -r file; do
 		if file -b "$file" | grep -q "Mach-O"; then
 			[ "$(lipo -archs "$file")" = "arm64" ] || { echo "$file: $(lipo -archs "$file")"; bad=1; }
 		fi
-	done < <(find "$1" -type f)
+	done < <(find "$1" -type f ! -path "*/Contents/Frameworks/*")
 	[ "$(lipo -archs "$1/Contents/MacOS/ProVoc")" = "arm64" ] || bad=1
 	return $bad
 }
@@ -98,6 +100,7 @@ make_dist() {
 	codesign --force --deep -s - dist/ProVoc.app || return 1
 	codesign --verify --deep --strict dist/ProVoc.app || return 1
 	arm64_only dist/ProVoc.app || return 1
+	[ ! -e dist/ProVoc.app/Contents/Frameworks ] || { echo "dist/ProVoc.app has embedded frameworks"; return 1; }
 	# the importer of 2008 (PowerPC / i386) is not shipped; the new one is
 	[ ! -e dist/ProVoc.app/Contents/Resources/ProVoc.mdimporter ] && [ -d dist/ProVoc.app/Contents/Library/Spotlight/ProVoc.mdimporter ]
 }
@@ -166,13 +169,10 @@ say "Logs"
 # the scan must fail when the application logs an exception: one is raised on purpose
 python3 scripts/e2e.py --self-test-exception --logs $V/logs/self-test > $V/logs/self-test.log 2>&1
 if [ $? -ne 0 ] && grep -q "log: .*\*\*\* Exception: PVSelfTestException" $V/logs/self-test.log; then record PASS verify/log-scan-self-test; else record FAIL verify/log-scan-self-test "an exception raised on purpose was not caught by the log scan"; fi
-# (the logs of the scenarios were scanned by scripts/e2e.py; here, what the application wrote during the hosted tests)
-FORBIDDEN='unrecognized selector|Could not load NIB|failed to load|nil outlet|Could not connect|Unknown class|Unable to simultaneously satisfy constraints|was deallocated while key value observers|\*\*\* |[Ee]xception'
-# ... except the lines of the tools themselves (xcodebuild, XCTest) and the compiler options
-ALLOWED='^Test (Case|Suite)|^\*\* TEST|^\*\*\* DISABLED|XCTest|xctest|AUCrashHandler|temporary-exception|objc-exceptions|fexceptions|IDETestOperationsObserverDebug|com\.apple\.|Exception(s)?(Tests|Is)|testCorruptDeck|CoreAnalytics|TCC'
+# (the logs of the scenarios were scanned by scripts/e2e.py; here, what the application wrote during the hosted tests: scripts/scan-log.py)
 for run in 1 2; do
-	grep -E "$FORBIDDEN" $V/logs/hosted-run$run.log | grep -Ev "$ALLOWED" | cut -c1-400 > $V/results/log-scan-hosted-run$run.txt
-	if [ -s $V/logs/hosted-run$run.log ] && [ ! -s $V/results/log-scan-hosted-run$run.txt ]; then record PASS verify/log-scan-hosted-run$run; else record FAIL verify/log-scan-hosted-run$run "$(grep -c . $V/results/log-scan-hosted-run$run.txt) forbidden lines, see $V/results/log-scan-hosted-run$run.txt"; fi
+	python3 scripts/scan-log.py $V/logs/hosted-run$run.log > $V/results/log-scan-hosted-run$run.txt 2>&1
+	if [ $? -eq 0 ]; then record PASS verify/log-scan-hosted-run$run; else record FAIL verify/log-scan-hosted-run$run "$(grep -c . $V/results/log-scan-hosted-run$run.txt) forbidden lines, see $V/results/log-scan-hosted-run$run.txt"; fi
 done
 
 say "Report"

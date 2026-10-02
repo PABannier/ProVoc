@@ -130,12 +130,13 @@
 	NSArray *decks = [self decks];
 	XCTAssertTrue([decks count] >= 4, @"decks: %@", decks);
 	NSString *variant = [self variant];
-	for (NSString *deck in decks) {
-		// each deck starts from the factory settings (a deck brings its own separators, fonts and labels)
-		PVResetPreferences();
-		[[NSUserDefaults standardUserDefaults] setBool:[variant isEqualToString:@"-dimmed"] forKey:PVDimTestBackground];
-		[self trainWithKeyboardOnDeck:deck variant:variant];
-	}
+	for (NSString *deck in decks)
+		@autoreleasepool {	// (the documents of a deck go away before the next one: some twenty decks are opened twice each)
+			// each deck starts from the factory settings (a deck brings its own separators, fonts and labels)
+			PVResetPreferences();
+			[[NSUserDefaults standardUserDefaults] setBool:[variant isEqualToString:@"-dimmed"] forKey:PVDimTestBackground];
+			[self trainWithKeyboardOnDeck:deck variant:variant];
+		}
 }
 
 @end

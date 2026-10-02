@@ -7,3 +7,5 @@ fixtures/user-decks/
 verification/logs/
 verification/results/
 verification/screenshots/
+verification/LAST_RUN_PASSED
+verification/NEEDS_HUMAN.md

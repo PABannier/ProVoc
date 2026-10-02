@@ -98,6 +98,8 @@ def run_phase(name, method, arguments, workdir, logs, timeout=120):
     verdict = open(result).read().splitlines() if os.path.exists(result) else ['NO VERDICT']
     if verdict[:1] != ['PASS']:
         failures += verdict
+    if os.path.getsize(log_path) == 0:
+        failures.append('the application wrote no log (%s): nothing to scan' % log_path)
     for line in open(log_path, errors='replace'):
         if FORBIDDEN.search(line) and not ALLOWED.search(line) and 'PVDriver: FAILED' not in line:
             failures.append('log: ' + line.strip()[:300])
@@ -114,7 +116,8 @@ def main():
         only = arguments[arguments.index('--only') + 1].split(',')
     logs = os.path.join(ROOT, 'verification/logs')
     if '--logs' in arguments:
-        logs = arguments[arguments.index('--logs') + 1]
+        # (absolute: the application is started from its work directory, and writes its log by this path)
+        logs = os.path.abspath(arguments[arguments.index('--logs') + 1])
     os.makedirs(logs, exist_ok=True)
     for path in (APP, DRIVER, ACTIVATOR):
         if not os.path.exists(path):

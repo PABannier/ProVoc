@@ -6,6 +6,33 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 
+// ProVoc opens its most recent document when it starts. The tests begin without any
+// document - whatever the previous run (or a crash) left in the Open Recent menu - and
+// leave none behind.
+@interface PVSuiteObserver : NSObject <XCTestObservation>
+@end
+
+@implementation PVSuiteObserver
+
++(void)load
+{
+	[[XCTestObservationCenter sharedTestObservationCenter] addTestObserver:[[self alloc] init]];
+}
+
+-(void)testBundleWillStart:(NSBundle *)inBundle
+{
+	for (NSDocument *document in [NSArray arrayWithArray:[[NSDocumentController sharedDocumentController] documents]])
+		PVCloseDocument(document);
+	[[NSDocumentController sharedDocumentController] clearRecentDocuments:nil];
+}
+
+-(void)testBundleDidFinish:(NSBundle *)inBundle
+{
+	[[NSDocumentController sharedDocumentController] clearRecentDocuments:nil];
+}
+
+@end
+
 @implementation PVScenarioTestCase
 
 
