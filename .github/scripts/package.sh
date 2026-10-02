@@ -28,6 +28,10 @@ elif [ -n "$TAG" ]; then
 	VERSION=$TAG
 fi
 
+# the licence of Arizona Software goes with the application (its second condition:
+# the notice is reproduced in what is provided with a binary distribution)
+cp LICENSE "$APP/Contents/Resources/LICENSE.txt"
+
 codesign --force --deep -s - "$APP"
 codesign --verify --deep --strict "$APP"
 # arm64, and nothing else, in every binary of the application
@@ -48,6 +52,7 @@ codesign --verify --deep --strict "$MOUNT/ProVoc.app"
 [ "$(lipo -archs "$MOUNT/ProVoc.app/Contents/MacOS/ProVoc")" = "arm64" ]
 [ "$(readlink "$MOUNT/Applications")" = "/Applications" ]
 [ -f "$MOUNT/.DS_Store" ] || { echo "the image has no window layout"; exit 1; }
+grep -q "Arizona Software" "$MOUNT/ProVoc.app/Contents/Resources/LICENSE.txt"
 echo "in the image: $(ls "$MOUNT" | tr '\n' ' ')— ProVoc $(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$MOUNT/ProVoc.app/Contents/Info.plist")"
 hdiutil detach "$MOUNT" > /dev/null
 trap - EXIT

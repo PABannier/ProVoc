@@ -1,131 +1,196 @@
-ProVoc
-===========
-
-A vocabulary trainer for Mac OS X, originally written by Arizona Software (http://www.arizona-software.ch).
-
-*Please be aware that this project is currently unstable as I am modernising a large legacy codebase.*
+# ProVoc
 
 [![CI](https://github.com/PABannier/ProVoc/actions/workflows/ci.yml/badge.svg)](https://github.com/PABannier/ProVoc/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/PABannier/ProVoc)](https://github.com/PABannier/ProVoc/releases/latest)
+![Platform](https://img.shields.io/badge/macOS%2013%2B-Apple%20Silicon-blue)
+[![License](https://img.shields.io/badge/license-BSD-green)](LICENSE)
+
+**The Mac vocabulary trainer from 2008, rebuilt to run natively on Apple Silicon.**
+
+ProVoc was written by Arizona Software between 2005 and 2008. This repository is an
+unofficial revival: their source code, repaired and recompiled for arm64, so that the
+application runs on the Macs sold today. I did not write ProVoc and I am not selling
+anything. I wanted my vocabulary trainer back.
+
+[Download](#download) · [Why it had to be rebuilt](#why-it-had-to-be-rebuilt) · [Why I prefer it to Anki](#why-i-prefer-it-to-anki) · [Licence and disclaimer](#licence-and-disclaimer)
+
+<p align="center">
+  <img src="Screenshots/test.png" width="560" alt="A written test: the English word is shown, the French translation is being typed">
+</p>
+
+## Why it had to be rebuilt
+
+The last version of ProVoc, 4.2.3, was compiled for PowerPC and 32-bit Intel
+processors. No current Mac can run it:
+
+- macOS 10.15 (2019) removed support for 32-bit applications.
+- Apple Silicon Macs (2020 and later) run arm64 code, and Rosetta 2 only translates
+  64-bit Intel code. There is nothing left that can execute the 2008 binary.
+
+Arizona Software published the source when they stopped working on ProVoc, but the
+source did not build either. It depended on QuickTime and QTKit, on Carbon calls and on
+two prebuilt frameworks, none of which exist for arm64, and it assumed a 32-bit world
+throughout. A fork from 2013 had started to modernise the code and left it, by its own
+description, unstable: saving, undo and copy and paste raised exceptions, and parts of
+the interface no longer refreshed.
+
+So the application was rebuilt. The aim was restoration, not redesign:
+
+- **Same application.** The original Interface Builder nibs, the original shortcuts,
+  the original file format. Existing decks open as they are, including the old flat
+  `.provoc` files.
+- **Native arm64**, for macOS 13 and later. QuickTime became AVFoundation, the sound
+  recorder and the camera were rewritten, the Spotlight importer too.
+- **The keyboard flow works again.** Type the answer, Return checks it, Return moves
+  on. The answer field never loses the focus, dead keys compose (`^` then `e` gives
+  `ê`), and no keystroke is lost when you type ahead.
+- **Bugs that only show on a current macOS are fixed**: crashes while drawing or
+  printing, labels cut short by the new system font, a corrupt deck that opened as an
+  empty document ready to be saved over the file.
+
+[`verification/report.md`](verification/report.md) lists everything that was broken,
+why, and what was done about it.
+
+## Why I prefer it to Anki
+
+Anki is the obvious alternative, and it is excellent software. For learning the
+vocabulary of a language I still prefer ProVoc, for four reasons.
+
+**It makes me type the answer, and it checks it.** In Anki you recall the answer, flip
+the card and grade yourself; a card can ask you to type, but you still decide whether
+you were right. ProVoc decides. It knows that `the stairs / the staircase` are two
+accepted answers and that a part in parentheses is optional, and each language says
+whether case, accents, punctuation and spaces count. A wrong answer shakes the window
+and you type again; after the allowed tries it shows the solution.
+
+**It is driven entirely from the keyboard.** Type, Return, type, Return. No mouse, no
+grading buttons, nothing to aim at. A session of fifty words is fifty answers and fifty
+Returns.
+
+**It follows lessons, not a queue.** Words live in lessons and chapters, like the
+textbook they come from, and I choose what to train and how: a first contact with
+multiple choice, a written test, a timed quick test, a review of the words that are
+due, or a mode of my own (direction, number of tries, until learned, only the flagged
+words). Anki's scheduler decides each day what I see; here I decide.
+
+**It is a small, native Mac application.** One document per vocabulary, with its words,
+sounds and pictures inside. No account, no sync service, no add-ons to configure.
+
+This is a preference, not a verdict. If you want your cards on your phone, shared decks,
+or to learn anything other than vocabulary, Anki is the better tool.
+
+<table>
+  <tr>
+    <td><img src="Screenshots/editing.png" alt="The Editing view: lessons on the left, words and their translations on the right"></td>
+    <td><img src="Screenshots/training.png" alt="The Training view with its four training modes"></td>
+  </tr>
+  <tr>
+    <td align="center">Lessons and words</td>
+    <td align="center">Training modes</td>
+  </tr>
+  <tr>
+    <td><img src="Screenshots/solution.png" alt="After two wrong tries the solution is shown in red under the typed answer"></td>
+    <td><img src="Screenshots/results.png" alt="The result panel: correct, wrong and untested words, and a button to repeat the incorrect words"></td>
+  </tr>
+  <tr>
+    <td align="center">A wrong answer, and the solution</td>
+    <td align="center">Results, and "Repeat Incorrect Words"</td>
+  </tr>
+</table>
 
 ## Download
 
-The [latest release](https://github.com/PABannier/ProVoc/releases/latest) has
-`ProVoc-<version>-arm64.dmg` for Apple Silicon Macs (macOS 13 or later): open it and
-drag ProVoc onto the Applications folder.
+Get `ProVoc-<version>-arm64.dmg` from the
+[latest release](https://github.com/PABannier/ProVoc/releases/latest), open it and drag
+ProVoc onto the Applications folder. It needs an Apple Silicon Mac and macOS 13 or later.
 
-The application is not notarized by Apple (it is signed "ad hoc"). The first time, macOS
-therefore refuses to open it: open System Settings > Privacy & Security, scroll down to
-the message about ProVoc and click **Open Anyway** — or run
-`xattr -dr com.apple.quarantine /Applications/ProVoc.app` in Terminal.
+The application is not notarized by Apple (it is signed "ad hoc"), so macOS refuses to
+open it the first time. Open System Settings > Privacy & Security, scroll down to the
+message about ProVoc and click **Open Anyway**. Or, in Terminal:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/ProVoc.app
+```
+
+## A test with the keyboard only
+
+| Key | What it does |
+|---|---|
+| ⌥⌘2, then ↑ / ↓ | Show the Training view and choose a training mode |
+| ⌘R | Start the test; the answer field has the focus |
+| Return | Check the answer. Right: next word. Wrong: the window shakes, type again |
+| Y / N | Once the solution is shown: count the answer right after all, or wrong |
+| ⌘G, ⌘A | Give the solution, accept my answer |
+| ⇧⌘F, ⌘0…⌘9 | Flag the word, label it |
+| ⌘K, ⌘L, ⌘B, ⌘E | Sound of the question, sound of the answer, picture, movie (also F1…F4) |
+| ⌘P, ⌘R | Pause, resume |
+| Esc, ⌥Esc | Finish and show the results, abort at once |
+| 1…9, ↑ / ↓, Return | Multiple choice: choose, move, verify |
+| ⇧⌘R | Slideshow (→ next, ← previous, Space play / pause, Esc exit) |
+
+## Building from source
+
+The Xcode project in the repository is enough. It is built and tested with Xcode 26:
+
+```bash
+git clone https://github.com/PABannier/ProVoc.git
+cd ProVoc
+xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath build/DerivedData build
+open build/DerivedData/Build/Products/Release/ProVoc.app
+```
+
+`ProVoc.xcodeproj` is generated from `project.yml` by [XcodeGen](https://github.com/yonaskolb/XcodeGen);
+regenerate it with `xcodegen generate` after adding or removing files. The code is still
+manual reference counting, as in 2008.
 
 A release is made by publishing it on GitHub: the Release workflow builds the tag and
 attaches the disk image. A tag that is a version number (`v4.3`) becomes the version of
 the application.
 
-## Building on Apple Silicon
+## How it was checked
 
-ProVoc 4.2.3 builds and runs natively on arm64 (macOS 13 or later, Xcode 16 or later,
-`brew install xcodegen`):
+[`FEATURES.md`](FEATURES.md) lists 157 features, each with the automated test that
+covers it. The tests drive the real application: 143 run inside it and post key and
+mouse events to its event queue, 22 scenarios launch it the way the Finder does, and
+two scripts drive it from outside, one through AppleScript and one with keys pressed by
+macOS itself. `scripts/verify.sh` runs the suites twice, builds `dist/ProVoc.app` and
+writes the report:
 
-    scripts/verify.sh      # clean builds, every test, dist/ProVoc.app, verification/report.md
-    scripts/install.sh     # copies dist/ProVoc.app to /Applications
+```bash
+scripts/verify.sh
+```
 
-To only build the application, the Xcode project in the repository is enough:
+It types and clicks in the application for about forty minutes and needs three things a
+person has to grant once: the microphone and the camera for ProVoc, and the Accessibility
+permission for the terminal. It also trains on copies of real decks, which are not in
+this repository: put a few `.pvoc` documents in `fixtures/user-decks/`, or run
+`PV_USER_DECKS=<folder of decks> scripts/verify.sh`. The CI on GitHub builds the
+application and runs the tests that need neither the keyboard nor a permission.
 
-    xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath build/DerivedData build
+## Limits
 
-(`ProVoc.xcodeproj` is generated from `project.yml` by XcodeGen; `scripts/verify.sh`
-regenerates it.) The verification also trains on copies of real decks, which are not in
-the repository: put a few `.pvoc` documents in `fixtures/user-decks/`, or run
-`PV_USER_DECKS=<folder of decks> scripts/verify.sh`. It types and clicks in the
-application for about forty minutes, and needs the permissions described in the report.
+- Apple Silicon only. It is built for macOS 13 and later, and tested on macOS 26.
+- Light appearance only: the interface of 2008 stays light when the system is dark.
+- Some features lost what they depended on and say so instead of failing: sending notes
+  to an iPod, checking for updates, the vocabulary sharing site of Arizona Software, the
+  Dashboard widget. The report says what replaces each one.
+- No iPhone application and no sync.
+- The Spotlight importer was rewritten and is tested by loading it directly; I have not
+  yet seen Spotlight itself index a deck with it.
 
-`verification/report.md` says what was broken and how it was fixed, lists the shortcuts
-added and what replaces the features that cannot exist any more, and gives the verdict
-of each line of `FEATURES.md`.
+## Licence and disclaimer
 
-##Screenshots:
-![alt tag](https://raw.github.com/mikecsh/provoc/master/Screenshots/1.png)
-![alt tag](https://raw.github.com/mikecsh/provoc/master/Screenshots/2.png)
-![alt tag](https://raw.github.com/mikecsh/provoc/master/Screenshots/3.png)
+ProVoc is © 2008 Arizona Software. They released its source code under the BSD licence
+reproduced in [`LICENSE`](LICENSE); their original note to developers is in
+[`IMPORTANT README.txt`](IMPORTANT%20README.txt).
 
-##Current abilities:
-* As displayed on http://www.arizona-software.ch
-	
-##WRoadmap:
-* Updating the interface
-* Modernizing the code
-* ARC Compatibility
-* QTKit or AVFoundation to replace Quickdraw
-* CoreData to replace custom file format (with converter??) to allow better performance and less code
-* First App Store deployment to renew user base
-* Re-introduce sharing of decks
-* More stats
-* iOS port?
-* iCloud syncing?
+I hold no rights over the original code. This project is not affiliated with, endorsed
+by or supported by Arizona Software, and the name ProVoc and its artwork remain theirs.
+The changes made in this fork are published under the same BSD licence. The software is
+provided as is, without warranty of any kind; see the licence.
 
+## Credits
 
-##Contributors:
-
-* Arizona Software (Original authors - http://www.arizona-software.ch)
-* Mike Holman (http://github.com/mikecsh/)
-
-Contributions via pull requests or issues are very welcome.
-
-## Original Readme that Accompanied Source Code When Released By Arizona Software
-
-
-Thank you for downloading the source code of ProVoc! Please take a moment
-to read the following lines:
-
-- This source code is available under the BSD license (see below)
-- This code base is really, really old... Please keep in mind that this
-    software has grown from a simple vocabulary training app that we've
-    written (probably like many of you out there) "just for our own needs".
-- Be thus accordingly indulgent! We known that the overall structure,
-    the design patterns used, well... almost everything could have been
-    much clearer and much better -- if only we had the same knowledge
-    at that time as today.
-- If you want to rewrite this app, think seriously about adopting some
-    up-to-date technology (CoreData is beyond any question, so as
-    QTCapture and all sorts of other things)
-- This code should primarly serve as a reference for those of you
-    who want to write some "importers" for ProVoc vocabulary files.
-- Please understand that we don't have time anymore to provide support
-    of any kind, or answer questions about the code.
-
-Having said that, enjoy developing for Mac OS X -- we can assure you that
-it's really a fun and inspiring experience!
-
--- Arizona Software
-
-
-## License
-
-The "BSD licence":
-
- Copyright (c) 2008 Arizona Software
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 
- 1. Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
- notice, this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products
- derived from this software without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- **Arizona Software** wrote ProVoc and published its source.
+- **Mike Holman** started the 2013 fork ([mikecsh/ProVoc](https://github.com/mikecsh/ProVoc)) that this one continues.
+- The arm64 revival was done in 2026 by Pierre-Antoine Bannier with [Claude Code](https://claude.com/claude-code).
