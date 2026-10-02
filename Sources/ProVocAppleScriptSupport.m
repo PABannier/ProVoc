@@ -122,3 +122,19 @@
 
 @end
 
+@implementation ProVocStartTestCommand
+
+-(id)performDefaultImplementation
+{
+	ProVocDocument *document = [ProVocDocument currentDocument];
+	if (!document) {
+		[self setScriptErrorNumber:errAENoSuchObject];
+		[self setScriptErrorString:@"There is no document to test."];
+		return nil;
+	}
+	// once the reply is sent: the test panel may run as a modal window
+	[document performSelector:@selector(startTest:) withObject:nil afterDelay:0.0];
+	return nil;
+}
+
+@end

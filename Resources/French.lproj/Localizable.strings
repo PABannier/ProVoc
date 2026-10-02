@@ -376,3 +376,8 @@ de deux fois";
 "No Microphone Message" = "Aucun microphone n’a été trouvé.";
 "No Camera Message" = "Aucune caméra n’a été trouvée.";
 "Open System Settings Button" = "Ouvrir Réglages Système";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"Submit Obsolete Title" = "Les documents ne peuvent plus être soumis";
+"Submit Obsolete Message" = "Le serveur de vocabulaires d’Arizona Software n’existe plus. Pour partager ce vocabulaire, enregistrez le document et envoyez son fichier : il contient les mots et leurs médias.";
+"Submit Obsolete Reveal Button" = "Afficher dans le Finder";

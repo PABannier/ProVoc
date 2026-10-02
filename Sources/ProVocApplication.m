@@ -13,6 +13,7 @@
 #import "ProVocTester.h"
 #import "ProVocFontNameField.h"
 #import "ProVocHelpController.h"
+#import "ARAboutDialog.h"
 
 @implementation ProVocApplication
 
@@ -21,6 +22,14 @@
 	if (inAction == @selector(changeFont:) && [ProVocFontNameField changeFont:inSender])
 		return YES;
 	return [super sendAction:inAction to:inTarget from:inSender];
+}
+
+// (This was a category of NSApplication in ProVocAppDelegate.m. A category cannot be
+// relied upon to replace a method that AppKit implements itself: About ProVoc opened
+// the standard About panel of macOS.)
+-(void)orderFrontStandardAboutPanel:(id)inSender
+{
+	[[ARAboutDialog sharedAboutDialog] showAboutWindow];
 }
 
 -(void)showHelp:(id)inSender

@@ -691,6 +691,21 @@ void PVPrepareMenu(NSMenu *inMenu)
 
 #import <dlfcn.h>
 
+NSString *PVTextOfWindow(NSWindow *inWindow)
+{
+	NSMutableArray *texts = [NSMutableArray array];
+	NSMutableArray *views = [NSMutableArray arrayWithObject:[[inWindow contentView] superview] ?: [inWindow contentView]];
+	while ([views count] > 0) {
+		NSView *view = [views objectAtIndex:0];
+		[views removeObjectAtIndex:0];
+		NSString *text = [view isKindOfClass:[NSButton class]] ? [(NSButton *)view title] : [view isKindOfClass:[NSTextField class]] ? [(NSTextField *)view stringValue] : nil;
+		if ([text length] > 0 && ![view isHiddenOrHasHiddenAncestor])
+			[texts addObject:text];
+		[views addObjectsFromArray:[view subviews]];
+	}
+	return [texts componentsJoinedByString:@"\n"];
+}
+
 NSBitmapImageRep *PVSaveWindowScreenshot(NSWindow *inWindow, NSString *inName)
 {
 	// CGWindowListCreateImage is no longer declared in the SDK but still captures the

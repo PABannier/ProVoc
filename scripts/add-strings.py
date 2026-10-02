@@ -27,6 +27,21 @@ STRINGS = {
         'iPods med Noter-funktionen understøttes ikke længere af macOS. Du kan i stedet eksportere dit ordforråd til et arkiv.'),
     'iPod Obsolete Export Button': ('Export…', 'Exporter…', 'Exportieren…', 'Esporta…', 'Exportar…', 'Eksporter…'),
     'iPod Obsolete Cancel Button': ('Cancel', 'Annuler', 'Abbrechen', 'Annulla', 'Cancelar', 'Annuller'),
+    'Submit Obsolete Title': (
+        'Documents can no longer be submitted',
+        'Les documents ne peuvent plus être soumis',
+        'Dokumente können nicht mehr eingereicht werden',
+        'Non è più possibile inviare documenti',
+        'Ya no se pueden enviar documentos',
+        'Dokumenter kan ikke længere indsendes'),
+    'Submit Obsolete Message': (
+        'The vocabulary server of Arizona Software no longer exists. To share this vocabulary, save the document and send its file: it contains the words and their media.',
+        'Le serveur de vocabulaires d’Arizona Software n’existe plus. Pour partager ce vocabulaire, enregistrez le document et envoyez son fichier : il contient les mots et leurs médias.',
+        'Der Vokabel-Server von Arizona Software existiert nicht mehr. Um dieses Vokabular weiterzugeben, sichern Sie das Dokument und senden Sie seine Datei: Sie enthält die Wörter und ihre Medien.',
+        'Il server dei vocabolari di Arizona Software non esiste più. Per condividere questo vocabolario, salva il documento e invia il suo file: contiene le parole e i loro media.',
+        'El servidor de vocabularios de Arizona Software ya no existe. Para compartir este vocabulario, guarde el documento y envíe su archivo: contiene las palabras y sus medios.',
+        'Arizona Softwares ordforrådsserver findes ikke længere. Gem dokumentet og send dets arkiv for at dele ordforrådet: det indeholder ordene og deres medier.'),
+    'Submit Obsolete Reveal Button': ('Show in Finder', 'Afficher dans le Finder', 'Im Finder zeigen', 'Mostra nel Finder', 'Mostrar en el Finder', 'Vis i Finder'),
     'Updates Obsolete Title': (
         'ProVoc can no longer check for updates',
         'ProVoc ne peut plus rechercher de mises à jour',

@@ -38,6 +38,13 @@
 			<key>Name</key>
 			<string>import</string>
 		</dict>
+		<key>StartTest</key>
+		<dict>
+			<key>Description</key>
+			<string>Avvia il test del documento in primo piano con la modalità di allenamento corrente.</string>
+			<key>Name</key>
+			<string>start test</string>
+		</dict>
 		<key>ImportText</key>
 		<dict>
 			<key>UnnamedArgument</key>

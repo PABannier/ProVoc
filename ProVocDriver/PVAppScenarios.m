@@ -685,6 +685,39 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 // The application in the language given by PV_LANGUAGE (launched with -AppleLanguages):
 // the starting point, a new document, two words, the first training mode (slideshow of
 // the new words, then multiple choice), the written test, Preferences, the Inspector.
+// A screenshot of a window of the smoke test, named after the language - or after the
+// appearance of the system when the scenario runs for it (PV_APPEARANCE is Light or
+// Dark, and so is the system for this process: -AppleInterfaceStyle). ProVoc is drawn
+// for the light appearance and keeps it (NSRequiresAquaSystemAppearance): whatever the
+// system, its windows are light, with dark text.
+-(void)shoot:(NSWindow *)inWindow as:(NSString *)inName
+{
+	NSString *language = [NSString stringWithUTF8String:getenv("PV_LANGUAGE") ?: "English"];
+	const char *appearance = getenv("PV_APPEARANCE");
+	NSBitmapImageRep *bitmap = PVSaveWindowScreenshot(inWindow, appearance ? [NSString stringWithFormat:@"appearance/%s-%@", appearance, inName] : [NSString stringWithFormat:@"localizations/%@-%@", language, inName]);
+	if (!appearance)
+		return;
+	PVExpect(bitmap != nil, @"no screenshot of %@", inName);
+	PVExpectEqualObjects([[inWindow effectiveAppearance] bestMatchFromAppearancesWithNames:(@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua])], NSAppearanceNameAqua, @"the appearance of %@", inName);
+	// light pixels (the background) and dark pixels (the text) are both there, and light dominates
+	NSUInteger light = 0, dark = 0, total = 0;
+	NSInteger width = [bitmap pixelsWide], height = [bitmap pixelsHigh];
+	for (NSInteger y = 0; y < height; y += 3)
+		for (NSInteger x = 0; x < width; x += 3) {
+			NSColor *color = [[bitmap colorAtX:x y:y] colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
+			if ([color alphaComponent] < 0.5)
+				continue;
+			CGFloat luminance = 0.2126 * [color redComponent] + 0.7152 * [color greenComponent] + 0.0722 * [color blueComponent];
+			total++;
+			if (luminance > 0.7)
+				light++;
+			else if (luminance < 0.35)
+				dark++;
+		}
+	PVExpect(total > 0 && light > total / 2, @"%@ is not light with the %s appearance of the system (%lu light pixels of %lu)", inName, appearance, (unsigned long)light, (unsigned long)total);
+	PVExpect(dark > 0 && dark < light, @"%@ has no dark text on its light background with the %s appearance (%lu dark, %lu light of %lu)", inName, appearance, (unsigned long)dark, (unsigned long)light, (unsigned long)total);
+}
+
 -(void)localizedSmoke:(PVScript *)inScript
 {
 	NSString *language = [NSString stringWithUTF8String:getenv("PV_LANGUAGE") ?: "English"];
@@ -700,6 +733,8 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 	}];
 	[inScript then:^{
 		PVExpectEqualObjects([[[NSBundle mainBundle] preferredLocalizations] firstObject], language, @"the localization in use");
+		if (getenv("PV_APPEARANCE"))
+			PVExpectEqual([[[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] isEqualToString:@"Dark"], strcmp(getenv("PV_APPEARANCE"), "Dark") == 0, @"the appearance of the system for this process: %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"]);
 		// the strings and the menus are those of the language
 		if (![language isEqualToString:@"English"]) {
 			NSString *verify = NSLocalizedString(@"Verify Button Title", @"");
@@ -711,7 +746,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 		PVExpect(![[[[PVScenarios menuItemWithAction:@selector(performMediaCommand:)] menu] title] isEqualToString:@"Media Menu Title"], @"the Media menu is not localized");
 		for (NSString *action in @[@"startTest:", @"startSlideshow:", @"viewOptions:", @"import:", @"export:", @"printCards:", @"toggleInspector:", @"showPreferences:", @"findDoubles:", @"saveDocumentAs:"])
 			PVExpect([PVScenarios menuItemWithAction:NSSelectorFromString(action)] != nil, @"no menu item for %@", action);
-		PVSaveWindowScreenshot([self startingPoint], [NSString stringWithFormat:@"localizations/%@-starting-point", language]);
+		[self shoot:[self startingPoint] as:@"starting-point"];
 		PVClickView([self buttonWithAction:NSSelectorFromString(@"newDocument:") in:[[self startingPoint] contentView]], 1, 0);
 	}];
 	[inScript wait:@"a new document" until:^BOOL {
@@ -721,7 +756,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 	[self typeWord:@"house" translation:@"maison" in:inScript];
 	[self typeWord:@"cat" translation:@"chat" in:inScript];
 	[inScript then:^{
-		PVSaveWindowScreenshot([document window], [NSString stringWithFormat:@"localizations/%@-document-editing", language]);
+		[self shoot:[document window] as:@"document-editing"];
 		PVTypeCommand(@"r", 0);
 	}];
 	// the first training mode starts with a slideshow of the new words; Esc ends it
@@ -736,7 +771,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 		}];
 		[inScript then:^{
 			if (number == 1)
-				PVSaveWindowScreenshot(testPanel(), [NSString stringWithFormat:@"localizations/%@-multiple-choice", language]);
+				[self shoot:testPanel() as:@"multiple-choice"];
 			static const unsigned short digitKeys[] = {18, 19, 20, 21};
 			PVPostKey(digitKeys[[[[tester() valueForKey:@"mMCQView"] valueForKey:@"mSolutionIndex"] intValue]], nil, 0);
 		}];
@@ -748,7 +783,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 	}
 	[inScript wait:@"the result panel" timeout:10 until:^BOOL { return [resultPanel() isVisible]; }];
 	[inScript then:^{
-		PVSaveWindowScreenshot(resultPanel(), [NSString stringWithFormat:@"localizations/%@-results", language]);
+		[self shoot:resultPanel() as:@"results"];
 		PVExpectEqualObjects([[[[document valueForKey:@"mTester"] valueForKey:@"mResultView"] valueForKey:@"mResults"] valueForKey:@"Value"], (@[@2, @0]), @"results of the multiple-choice test");
 		PVPostKey(PVKeyReturn, nil, 0);
 	}];
@@ -761,7 +796,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 		return [[document valueForKey:@"mainTab"] intValue] == 0 && [presets window] == [document window] && [presets numberOfRows] == 4;
 	}];
 	[inScript then:^{
-		PVSaveWindowScreenshot([document window], [NSString stringWithFormat:@"localizations/%@-document-training", language]);
+		[self shoot:[document window] as:@"document-training"];
 		NSTableView *presets = [document valueForKey:@"mPresetTableView"];
 		NSRect row = [presets rectOfRow:1];
 		PVClickAtPoint(presets, NSMakePoint(NSMidX(row), NSMidY(row)), 1, 0);
@@ -774,7 +809,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 		}];
 		[inScript then:^{
 			if (number == 1)
-				PVSaveWindowScreenshot(testPanel(), [NSString stringWithFormat:@"localizations/%@-written-test", language]);
+				[self shoot:testPanel() as:@"written-test"];
 			NSString *question = [tester() question];
 			PVExpect([question isEqualToString:@"maison"] || [question isEqualToString:@"chat"], @"unexpected question %@", question);
 			PVTypeText([question isEqualToString:@"maison"] ? @"house" : @"cat");
@@ -793,7 +828,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 	[inScript then:^{ PVTypeCommand(@",", 0); }];
 	[inScript wait:@"the Preferences window (Command-,)" timeout:10 until:^BOOL { return [preferences() isKeyWindow]; }];
 	[inScript then:^{
-		PVSaveWindowScreenshot(preferences(), [NSString stringWithFormat:@"localizations/%@-preferences", language]);
+		[self shoot:preferences() as:@"preferences"];
 		PVTypeCommand(@"w", 0);
 	}];
 	[inScript wait:@"Command-W to close the Preferences" until:^BOOL { return ![preferences() isVisible] && [[document window] isKeyWindow]; }];
@@ -802,7 +837,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 	[inScript then:^{ if (![[ProVocInspector sharedInspector] isVisible]) PVTypeCommand(@"i", 0); }];
 	[inScript wait:@"the Inspector (Command-I)" until:^BOOL { return [[ProVocInspector sharedInspector] isVisible]; }];
 	[inScript then:^{
-		PVSaveWindowScreenshot([[ProVocInspector sharedInspector] window], [NSString stringWithFormat:@"localizations/%@-inspector", language]);
+		[self shoot:[[ProVocInspector sharedInspector] window] as:@"inspector"];
 		PVTypeCommand(@"i", 0);
 	}];
 	[inScript wait:@"Command-I to close the Inspector" until:^BOOL { return ![[ProVocInspector sharedInspector] isVisible]; }];

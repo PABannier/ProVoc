@@ -43,6 +43,8 @@ SCENARIOS = {
     'localization-german': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(de)', 'PV_LANGUAGE=German'])],
     'localization-italian': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(it)', 'PV_LANGUAGE=Italian'])],
     'localization-spanish': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(es)', 'PV_LANGUAGE=Spanish'])],
+    'appearance-light': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(en)', '-AppleInterfaceStyle', 'Light', 'PV_LANGUAGE=English', 'PV_APPEARANCE=Light'])],
+    'appearance-dark': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(en)', '-AppleInterfaceStyle', 'Dark', 'PV_LANGUAGE=English', 'PV_APPEARANCE=Dark'])],
     'localization-danish': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(da)', 'PV_LANGUAGE=Danish'])],
     'quit-with-two-unsaved-documents': [('quitWithTwoUnsavedDocuments', FRESH)],
     'quit-without-changes': [('clearRecentDocuments', FRESH), ('quitWithoutChanges', FRESH)],

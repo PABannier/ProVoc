@@ -311,15 +311,6 @@
 
 @end
 
-@implementation NSApplication (About)
-
--(void)orderFrontStandardAboutPanel:(id)inSender
-{
-	[[ARAboutDialog sharedAboutDialog] showAboutWindow];
-}
-
-@end
-
 @implementation NSUserDefaults (Upgrade)
 
 -(void)upgrade

@@ -188,7 +188,7 @@
 			int ago = n - 1 - i;
 			switch (mDisplay) {
 				case 0:
-					if ([date isToday])
+					if ([date pvIsToday])
 						format = NSLocalizedString(@"Today Test Label Format", @"");
 					else if ([date isYersterday])
 						format = NSLocalizedString(@"Yesterday Test Label Format", @"");

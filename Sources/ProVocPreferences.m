@@ -494,7 +494,8 @@
 	[openPanel setMessage:NSLocalizedString(@"Custom Background Open Panel Message", @"")];
 	[openPanel setPrompt:NSLocalizedString(@"Custom Background Open Panel Prompt", @"")];
 	[openPanel setAllowsMultipleSelection:NO];
-	if ([openPanel runModalForTypes:@[@"qtz"]] == NSOKButton)
+	[openPanel setAllowedFileTypes:@[@"qtz"]];	// (-runModalForTypes: no longer restricts the panel to these types)
+	if ([openPanel runModal] == NSOKButton)
 		[ProVocBackgroundStyle setCustomBackgroundCompositionPath:[openPanel filename]];
 	[self didChangeValueForKey:@"backgroundStyleNames"];
 	[self didChangeValueForKey:@"indexOfSelectedBackgroundStyle"];

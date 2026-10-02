@@ -148,49 +148,6 @@ error:
 	return NO;
 }
 
--(BOOL)scanHexLongLong:(long long *)outValue
-{
-	unsigned location = [self scanLocation];
-	NSCharacterSet *skip = [self charactersToBeSkipped];
-
-	if ([self isAtEnd])
-		goto error;
-	
-	[self setCharactersToBeSkipped:[NSCharacterSet emptyCharacterSet]];
-	[self scanCharactersFromSet:skip intoString:nil];
-	[self scanString:@"0x" intoString:nil];
-	
-	static NSCharacterSet *set = nil;
-	if (!set)
-		set = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEFabcdef"] retain];
-	
-	BOOL scanned = NO;
-	long long value = 0;
-	unichar c;
-	while ([self scanCharacter:&c fromSet:set]) {
-		int digit = c - '0';
-		if (digit < 0 || digit >= 10) {
-			digit = 10 + c - 'A';
-			if (digit < 10 || digit >= 16)
-				digit = 10 + c - 'a';
-		}
-		value = 16 * value + digit;
-		scanned = YES;
-	}
-	
-	if (!scanned)
-		goto error;
-		
-	if (outValue)
-		*outValue = value;
-	return YES;
-		
-error:	
-	[self setScanLocation:location];
-	[self setCharactersToBeSkipped:skip];
-	return NO;
-}
-
 -(id)description
 {
 	return [NSString stringWithFormat:@"%@ (remaining: '%@')", [super description], [[self string] substringFromIndex:[self scanLocation]]];
@@ -206,18 +163,6 @@ error:
 	if (!set) {
 		NSMutableCharacterSet *s = [[self whitespaceCharacterSet] mutableCopy];
 		[s formIntersectionWithCharacterSet:[[self tabCharacterSet] invertedSet]];
-		set = [s copy];
-		[s release];
-	}
-	return set;
-}
-
-+(NSCharacterSet *)newlineCharacterSet
-{
-	static NSCharacterSet *set = nil;
-	if (!set) {
-		NSMutableCharacterSet *s = [[self whitespaceAndNewlineCharacterSet] mutableCopy];
-		[s formIntersectionWithCharacterSet:[[self whitespaceCharacterSet] invertedSet]];
 		set = [s copy];
 		[s release];
 	}

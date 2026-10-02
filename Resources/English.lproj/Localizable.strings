@@ -370,3 +370,8 @@ Than Twice";
 "No Microphone Message" = "No microphone was found.";
 "No Camera Message" = "No camera was found.";
 "Open System Settings Button" = "Open System Settings";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"Submit Obsolete Title" = "Documents can no longer be submitted";
+"Submit Obsolete Message" = "The vocabulary server of Arizona Software no longer exists. To share this vocabulary, save the document and send its file: it contains the words and their media.";
+"Submit Obsolete Reveal Button" = "Show in Finder";

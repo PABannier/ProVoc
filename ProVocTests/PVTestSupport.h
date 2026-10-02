@@ -59,6 +59,8 @@ void PVPostFlagsChanged(NSEventModifierFlags inModifiers);
 // real mouse: they ignore mouse events posted to the event queue. This is what
 // VoiceOver or "full keyboard access" do.)
 void PVPressAlertButton(NSButton *inButton);
+// Everything a window says: the texts of its labels and the titles of its buttons, one per line.
+NSString *PVTextOfWindow(NSWindow *inWindow);
 // One key event per character.
 void PVTypeText(NSString *inText);
 

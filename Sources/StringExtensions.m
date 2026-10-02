@@ -49,14 +49,6 @@
 	return height;
 }
 
--(NSSize)sizeWithAttributes:(NSDictionary *)inAttributes
-{
-	NSAttributedString *string = [[NSAttributedString alloc] initWithString:self attributes:inAttributes];
-	NSSize size = [string size];
-	[string release];
-	return size;
-}
-
 -(float)widthWithAttributes:(NSDictionary *)inAttributes
 {
 	NSAttributedString *string = [[NSAttributedString alloc] initWithString:self attributes:inAttributes];
@@ -214,25 +206,6 @@
 	[textContainer release];
 	[layoutManager release];
 	return height;
-}
-
--(NSSize)size
-{
-	NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:self];
-	NSTextContainer *textContainer = [[NSTextContainer alloc] initWithContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
-	NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
-	
-	[layoutManager addTextContainer:textContainer];
-	[textStorage addLayoutManager:layoutManager];
-	[textContainer setLineFragmentPadding:0.0];
-	
-	[layoutManager glyphRangeForTextContainer:textContainer];
-	NSSize size = [layoutManager usedRectForTextContainer:textContainer].size;
-	
-	[textStorage release];
-	[textContainer release];
-	[layoutManager release];
-	return size;
 }
 
 -(float)width

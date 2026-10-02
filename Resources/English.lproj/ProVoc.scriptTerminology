@@ -38,6 +38,13 @@
 			<key>Name</key>
 			<string>import</string>
 		</dict>
+		<key>StartTest</key>
+		<dict>
+			<key>Description</key>
+			<string>Start the test of the frontmost document with its current training mode (as Vocabulary > Start Test does).</string>
+			<key>Name</key>
+			<string>start test</string>
+		</dict>
 		<key>ImportText</key>
 		<dict>
 			<key>UnnamedArgument</key>
