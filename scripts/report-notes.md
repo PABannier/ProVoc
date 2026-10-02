@@ -153,6 +153,14 @@ to `~/ProVoc backups/` first).
   event loop.
 - Open and save panels, the Font and Color panels' internals, and drags cannot be played
   by events: the tests check that the panel comes, then do what it would do.
+- The tests run in the Debug build, which is compiled with the same optimization as the
+  Release build (-Os): they exercise the code as it ships. The Release application
+  itself (`dist/ProVoc.app`) is checked for its architecture and signature, launched
+  through LaunchServices and quit; `scripts/deadkey-check.sh` can be given its path.
+- macOS ties the microphone and camera permission of an ad hoc signed build to its exact
+  binary. With `sign.local.xcconfig` (local to a Mac, not in git) the Debug build is
+  signed with a development certificate and keeps the permission across rebuilds; the
+  Release build is always signed ad hoc.
 - The tests need the keyboard focus: the Mac must be left alone while they run. A failure
   caused by another application taking the front says so.
 - Spotlight: the importer is tested by loading it as Spotlight does. On the Mac where this
