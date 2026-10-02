@@ -18,7 +18,7 @@
 #import "BezierPathExtensions.h"
 #import "AppleScriptExtensions.h"
 #import "SoundRecorderController.h"
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 @implementation ProVocInspector
 
@@ -93,7 +93,7 @@
 -(float)scaleFactor
 {
 	if ([NSApp systemVersion] >= 0x1040)
-		return [[self window] userSpaceScaleFactor];
+		return 1.0;
 	else
 		return 1.0;
 }
@@ -437,15 +437,6 @@
 
 -(SoundRecorderController *)sharedSoundRecorderController
 {
-	if ([NSApp systemVersion] < 0x1050)
-    {
-		int result = NSRunAlertPanel(NSLocalizedString(@"Leopard Only Feature Title", @""), NSLocalizedString(@"Leopard Only Feature Message", @""), NSLocalizedString(@"OK", @""), NSLocalizedString(@"Leopard Only Feature Download Button", @""), nil);
-		if (result == NSAlertAlternateReturn) {
-			[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Leopard Only Feature Download URL", @"")]];
-		}
-		return nil;
-	}
-    
     return [SoundRecorderController sharedController];
 }
 
@@ -524,7 +515,7 @@ static BOOL sRecording = NO;
 {
 	if (!sRecording) {
 		sRecording = YES;
-		NSImage *image = [[SoundRecorderController sharedGrabber] captureImage];
+		NSImage *image = [[ProVocCameraGrabber sharedGrabber] captureImage];
 		sRecording = NO;
 		if (image) {
 			NSEnumerator *enumerator = [mSelectedWords objectEnumerator];
@@ -538,7 +529,9 @@ static BOOL sRecording = NO;
 -(IBAction)importMovie:(id)inSender
 {
 	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-	if ([openPanel runModalForTypes:[QTMovie movieUnfilteredFileTypes]] == NSOKButton) {
+	// (-runModalForTypes: no longer restricts the panel to these types: any file could be chosen)
+	[openPanel setAllowedFileTypes:[QTMovie movieUnfilteredFileTypes]];
+	if ([openPanel runModal] == NSOKButton) {
 		NSEnumerator *enumerator = [mSelectedWords objectEnumerator];
 		ProVocWord *word;
 		while (word = [enumerator nextObject])
@@ -553,7 +546,7 @@ static BOOL sRecording = NO;
 	[openPanel setPrompt:NSLocalizedString(@"Export Movie Panel Prompt", @"")];
 	[openPanel setCanChooseDirectories:YES];
 	[openPanel setCanChooseFiles:NO];
-	if ([openPanel runModalForTypes:nil] == NSOKButton) {
+	if ([openPanel runModal] == NSOKButton) {
 		NSDictionary *info = @{@"Directory": [openPanel filename], @"Document": mDocument};
 		[mSelectedWords makeObjectsPerformSelector:@selector(exportMovie:) withObject:info];
 	}
@@ -573,7 +566,7 @@ static BOOL sRecording = NO;
 {
 	if (!sRecording) {
 		sRecording = YES;
-		NSString *file = [[SoundRecorderController sharedGrabber] captureMovie];
+		NSString *file = [[ProVocCameraGrabber sharedGrabber] captureMovie];
 		sRecording = NO;
 		if (file) {
 			NSEnumerator *enumerator = [mSelectedWords objectEnumerator];
@@ -876,6 +869,8 @@ error:
 -(NSString *)mediaPathInBundle:(NSString *)inPath
 {
 	NSString *path = [inPath ? inPath : [self fileName] stringByAppendingPathComponent:@"Media"];
+	if (!path)
+		return nil;	// document never saved
 	BOOL isDir;
 	if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir || [[NSFileManager defaultManager] createDirectoryAtPath:path attributes:nil])
 		return path;
@@ -913,6 +908,8 @@ error:
 -(NSString *)pathForMediaFile:(NSString *)inName
 {
 	NSString *path;
+	if (!inName)
+		return nil;
 	path = [[self mediaPathInBundle:nil] stringByAppendingPathComponent:inName];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:path])
 		return path;
@@ -1066,6 +1063,8 @@ error:
 
 -(NSImage *)imageForMedia:(NSString *)inMedia
 {
+	if (!inMedia)
+		return nil;
 	NSString *file = [self pathForMediaFile:inMedia];
 	return [[[NSImage alloc] initWithContentsOfFile:file] autorelease];
 }
@@ -1100,11 +1099,10 @@ error:
 
 -(id)movieForMedia:(NSString *)inMedia
 {
-	if ([NSApp hasQTKit]) {
-		NSString *file = [self pathForMediaFile:inMedia];
-		return [QTMovie movieWithFile:file error:nil];
-	} else
+	if (!inMedia)
 		return nil;
+	NSString *file = [self pathForMediaFile:inMedia];
+	return [QTMovie movieWithFile:file error:nil];
 }
 
 -(id)movieOfWord:(ProVocWord *)inWord
@@ -1154,6 +1152,8 @@ error:
 
 -(NSSound *)audioForMedia:(NSString *)inMedia
 {
+	if (!inMedia)
+		return nil;
 	NSString *file = [self pathForMediaFile:inMedia];
 	return [[[NSSound alloc] initWithContentsOfFile:file byReference:YES] autorelease];
 }
@@ -1415,7 +1415,7 @@ error:
 	NSString *text = [self text];
 	NSAttributedString *string = [[[NSAttributedString alloc] initWithString:text attributes:[self attributes]] autorelease];
 	NSBezierPath *path = [NSBezierPath bezierPathWithRoundRectInRect:NSInsetRect([self bounds], 5, 5) radius:5];
-	const float pattern[2] = {10.0, 4.0};
+	const CGFloat pattern[2] = {10.0, 4.0};
 	[path setLineDash:pattern count:2 phase:18];
 	r = NSInsetRect(r, 10, 10);
 	r.size.height = [string heightForWidth:r.size.width];

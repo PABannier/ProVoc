@@ -1,0 +1,12 @@
+.DS_Store
+build/
+dist/
+xcuserdata/
+*.xcuserstate
+fixtures/user-decks/
+verification/logs/
+verification/results/
+verification/screenshots/
+verification/LAST_RUN_PASSED
+verification/NEEDS_HUMAN.md
+sign.local.xcconfig

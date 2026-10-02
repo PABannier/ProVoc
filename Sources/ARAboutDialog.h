@@ -33,7 +33,12 @@
 @end
 
 @interface ARAboutWindow : NSPanel {
+	BOOL mShownAtLaunch;
 }
+
+// At launch the window is only shown for a moment: it must not take the keyboard
+// away from the document window.
+-(void)setShownAtLaunch:(BOOL)inShownAtLaunch;
 
 @end
 

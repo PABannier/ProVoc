@@ -73,7 +73,7 @@
     return YES;
 }
 
--(NSRect)rectForPage:(int)inPage
+-(NSRect)rectForPage:(NSInteger)inPage
 {
 	NSRect rect = NSZeroRect;
 	rect.origin.y = (inPage - 1) * mPaperSize.height;
@@ -309,7 +309,7 @@
 										[path moveToPoint:NSMakePoint(NSMinX(cardRect), NSMidY(cardRect))];
 										[path relativeLineToPoint:NSMakePoint(cardRect.size.width, 0)];
 									}
-									const float pattern[2] = {4, 4};
+									const CGFloat pattern[2] = {4, 4};
 									[path setLineDash:pattern count:2 phase:0];
 									[path stroke];
 								}

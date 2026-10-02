@@ -136,7 +136,7 @@
 		[self newPage];
 		return;
 	}
-	[mCurrentWords addObject:@{@"Page Seperator": mPageTitle,
+	[mCurrentWords addObject:@{@"Page Seperator": mPageTitle ? mPageTitle : @"",
 															@"Top": @(mCurrentY + [self titleTopMargin]),
 															@"Height": @(textHeight)}];
 	mCurrentY += height + [self interWordMargin];
@@ -161,6 +161,10 @@
 	mPaperSize.height -= [info topMargin] + [info bottomMargin];
 	
 	[mPages removeAllObjects];
+	// (they belonged to mPages: the first -closePage of a second pagination - the print
+	// panel paginates more than once - sent a message to a freed dictionary and crashed)
+	mCurrentPage = nil;
+	mCurrentWords = nil;
 	mCurrentY = 0;
 	
 	BOOL firstPage = YES;
@@ -198,7 +202,7 @@
 	return YES;
 }
 
--(NSRect)rectForPage:(int)inPage
+-(NSRect)rectForPage:(NSInteger)inPage
 {
 	NSRect rect = NSZeroRect;
 	mCurrentPage = mPages[inPage - 1];

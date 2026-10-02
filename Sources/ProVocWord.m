@@ -80,7 +80,7 @@
 
 -(NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@ 0x%x %@ = %@>", NSStringFromClass([self class]), self, mSourceWord, mTargetWord];
+	return [NSString stringWithFormat:@"<%@ %p %@ = %@>", NSStringFromClass([self class]), self, mSourceWord, mTargetWord];
 }
 
 -(void)setSourceWord:(NSString *)inSource
@@ -329,7 +329,7 @@
 -(NSString *)lastAnsweredDate
 {
 	NSDate *date = [self lastAnswered];
-	if ([date isToday])
+	if ([date pvIsToday])
 		return NSLocalizedString(@"Today", @"");
 	if ([date isYersterday])
 		return NSLocalizedString(@"Yesterday", @"");

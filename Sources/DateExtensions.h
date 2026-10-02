@@ -26,7 +26,7 @@
 -(NSDate *)previousMonth;
 -(NSDate *)nextMonth;
 
--(BOOL)isToday;
+-(BOOL)pvIsToday;	// (was -isToday: macOS now has a method of that name)
 -(BOOL)isYersterday;
 
 -(BOOL)isBetweenDate:(NSDate *)inFrom andDate:(NSDate *)inTo;

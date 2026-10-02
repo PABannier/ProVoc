@@ -17,6 +17,21 @@
 
 @implementation NSTableView (ProVocExtensions)
 
+-(NSEnumerator *)selectedRowNumberEnumerator
+{
+	NSMutableArray *rows = [NSMutableArray array];
+	[[self selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger inRow, BOOL *outStop) {
+		[rows addObject:@(inRow)];
+	}];
+	return [rows objectEnumerator];
+}
+
+-(void)selectRowAtIndex:(NSInteger)inRow byExtendingSelection:(BOOL)inExtend
+{
+	if (inRow >= 0 && inRow < [self numberOfRows])
+		[self selectRowIndexes:[NSIndexSet indexSetWithIndex:inRow] byExtendingSelection:inExtend];
+}
+
 + (NSImage *) ascendingSortIndicator
 {
 	NSImage *result = [NSImage imageNamed:@"NSAscendingSortIndicator"];
@@ -48,7 +63,7 @@
 	while (column = [enumerator nextObject]) {
 		id identifier = [column identifier];
 		id width = [NSNumber numberWithFloat:[column width]];
-		NSDictionary *state = @{@"Identifier": identifier, @"Width": width};
+		NSDictionary *state = [NSDictionary dictionaryWithObjectsAndKeys:identifier, @"Identifier", width, @"Width", nil];
 		[states addObject:state];
 	}
 	return @{@"Version": @1, @"States": states};

@@ -7,6 +7,7 @@
 //
 
 #import "ProVocAppDelegate.h"
+#import "ProVocApplication.h"
 #import "ProVocPreferences.h"
 #import "ProVocDocument.h"
 #import "ProVocDocument+Lists.h"
@@ -21,6 +22,7 @@
 #import "ProVocStartingPoint.h"
 #import "ProVocCardController.h"
 #import "ProVocServiceProvider.h"
+#import "ProVocHelpController.h"
 
 #import "ARAboutDialog.h"
 
@@ -29,6 +31,11 @@
 + (void)initialize
 {
 	unsigned seed = time(nil) % 32000;
+#ifdef DEBUG
+	// Test hook: "-PVRandomSeed 42" makes the order of the questions reproducible.
+	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"PVRandomSeed"])
+		seed = (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"PVRandomSeed"];
+#endif
 	srand(seed);
 
 	[NSValueTransformer setValueTransformer:[[[PercentTransformer alloc] init] autorelease] forName:@"PercentTransformer"];
@@ -181,44 +188,12 @@
 {
 	ProVocServiceProvider *serviceProvider = [[ProVocServiceProvider alloc] init];
 	[NSApp setServicesProvider:serviceProvider];
-	
-	if ([NSApp systemVersion] >= 0x1040 && ![[NSFileManager defaultManager] fileExistsAtPath:[@"~/Library/Widgets/ProVoc.wdgt" stringByExpandingTildeInPath]]
-				&& ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/Widgets/ProVocs.wdgt"] && ![[NSUserDefaults standardUserDefaults] boolForKey:@"IgnoreWidgetInstall"]
-				&& [[[NSDocumentController sharedDocumentController] recentDocumentURLs] count] > 0) {
-		NSString *check = [NSString stringWithContentsOfURL:[NSURL URLWithString:NSLocalizedString(@"Install Widget Check URL", @"")]];
-		if ([check isEqual:@"OK"]) {
-			int result = NSRunAlertPanel(NSLocalizedString(@"Install Widget Title", @""), NSLocalizedString(@"Install Widget Message", @""),
-					NSLocalizedString(@"Install Widget Download Button", @""), NSLocalizedString(@"Install Widget Later Button", @""), NSLocalizedString(@"Install Widget Ignore Button", @""));
-			switch (result) {
-				case NSAlertDefaultReturn:
-					[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Widget Download URL", @"")]];
-					break;
-				case NSAlertAlternateReturn:
-					break;
-				case NSAlertOtherReturn:
-					[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"IgnoreWidgetInstall"];
-					break;
-			}
-		}
-	}
+	[(ProVocApplication *)NSApp installMediaMenu];
 }
 
 - (IBAction)showPreferences:(id)sender
 {
     [[ProVocPreferences sharedPreferences] showWindow:self];
-}
-
-/*
--(IBAction)showHelp:(id)inSender
-{
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://www.arizona-software.ch/provoc/help"]];
-}
-*/
-
--(IBAction)checkForUpdates:(id)inSender
-{
-    NSBeep();
-    NSLog(@"%s - this should be removed, depend on App Store update mechanism instead", __func__);
 }
 
 -(BOOL)applicationShouldOpenUntitledFile:(NSApplication *)inSender
@@ -249,6 +224,18 @@
 	return YES;
 }
 
+-(void)beginOpenPanelWithCompletionHandler:(void (^)(NSArray *))inCompletionHandler
+{
+	[super beginOpenPanelWithCompletionHandler:^(NSArray *inURLs) {
+		inCompletionHandler(inURLs);
+		// Back to the starting point if the panel was cancelled. (Not when documents were
+		// chosen: they are opened asynchronously, and a window that becomes key in the
+		// meantime would stay in front of theirs.)
+		if ([inURLs count] == 0)
+			[[ProVocStartingPoint defaultStartingPoint] performSelector:@selector(idle) withObject:nil afterDelay:0.0];
+	}];
+}
+
 -(id)openDocumentWithContentsOfURL:(NSURL *)inURL display:(BOOL)inDisplay error:(NSError **)outError
 {
 	id document = [super openDocumentWithContentsOfURL:inURL display:inDisplay error:outError];
@@ -259,26 +246,33 @@
 	return document;
 }
 
+// The Arizona Software web site is gone: these commands used to open pages of it.
+-(void)explainMissingWebSite:(NSString *)inWhat
+{
+	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+	[alert setMessageText:NSLocalizedString(@"Web Site Gone Title", @"")];
+	[alert setInformativeText:NSLocalizedString(inWhat, @"")];
+	[alert runModal];
+}
+
 -(IBAction)discoverProvoc:(id)inSender
 {
-	NSString *address = [NSString stringWithFormat:NSLocalizedString(@"Discover Features URL (v=%@)", @""), [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"]];
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:address]];
+	[[ProVocHelpController sharedController] showPage:@"quicktour"];
 }
 
 -(IBAction)visitHomepage:(id)inSender
 {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Homepage URL", @"")]];
+	[self explainMissingWebSite:@"Web Site Gone Homepage Message"];
 }
 
 -(IBAction)reportBug:(id)inSender
 {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NSLocalizedString(@"Bug Report URL", @"")]];
+	[self explainMissingWebSite:@"Web Site Gone Feedback Message"];
 }
 
 -(IBAction)downloadDocuments:(id)inSender
 {
-	NSString *address = [NSString stringWithFormat:NSLocalizedString(@"Download Vocabulary URL (v=%@)", @""), [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"]];
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:address]];
+	[self explainMissingWebSite:@"Web Site Gone Vocabulary Message"];
 }
 
 -(void)submitDocument:(id)inSender
@@ -313,15 +307,6 @@
 -(void)applicationDidBecomeActive:(NSNotification *)inNotification
 {
 	[[self documents] makeObjectsPerformSelector:@selector(checkWidgetLog)];
-}
-
-@end
-
-@implementation NSApplication (About)
-
--(void)orderFrontStandardAboutPanel:(id)inSender
-{
-	[[ARAboutDialog sharedAboutDialog] showAboutWindow];
 }
 
 @end

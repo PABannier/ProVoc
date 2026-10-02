@@ -9,6 +9,7 @@
 #import "ProVocBackground.h"
 #import "ProVocApplication.h"
 #import "ProVocTester.h"
+#import "ProVocBackgroundScene.h"
 
 @implementation ProVocBackground
 
@@ -33,10 +34,10 @@
 		[self loadWindow];
 		mInputsToTrigger = [[NSMutableArray alloc] initWithCapacity:0];
 		mWindow = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200) styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
-		[mWindow setContentView:mView];
 		[mWindow setLevel:NSFloatingWindowLevel + 1];
 		[mWindow setHasShadow:NO];
 		[mView stopRendering];
+		mScene = [[ProVocBackgroundScene alloc] initWithFrame:NSMakeRect(0, 0, 200, 200)];
 		NSString *path = [ProVocBackgroundStyle customBackgroundCompositionPath];
 		if (path)
 			[self setCompositionPath:path];
@@ -46,29 +47,48 @@
 	return self;
 }
 
+-(void)setRenderer:(id)inRenderer
+{
+	if (mRenderer != inRenderer) {
+		BOOL wasRendering = [mRenderer isRendering];
+		[mRenderer stopRendering];
+		mRenderer = inRenderer;
+		[mWindow setContentView:mRenderer];
+		if (wasRendering)
+			[mRenderer startRendering];
+	}
+}
+
 -(void)setStyle:(ProVocBackgroundStyle *)inStyle
 {
-	[self setCompositionPath:[inStyle compositionPath]];
+	// The built-in backgrounds are drawn natively; Quartz Composer (deprecated, and
+	// crashing with some of the original compositions) only serves custom compositions.
+	if ([ProVocBackgroundScene canDrawBackgroundOfBundle:[inStyle bundle]]) {
+		[mScene setBundle:[inStyle bundle]];
+		[self setRenderer:mScene];
+	} else
+		[self setCompositionPath:[inStyle compositionPath]];
 }
 
 -(void)setCompositionPath:(NSString *)inPath
 {
 	[mView loadCompositionFromFile:inPath];
+	[self setRenderer:mView];
 }
 
 -(void)display
 {
 	if (![[NSUserDefaults standardUserDefaults] boolForKey:PVEnableBackground])
 		return;
-	NSEnumerator *enumerator = [[mView inputKeys] objectEnumerator];
+	NSEnumerator *enumerator = [[mRenderer inputKeys] objectEnumerator];
 	NSString *key;
 	while (key = [enumerator nextObject])
 		if ([key hasPrefix:@"Previous"])
-			[mView setValue:nil forInputKey:key];
+			[mRenderer setValue:nil forInputKey:key];
 	NSColor *color = [NSUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:PVTestBackgroundColor]];
 	[self setValue:color forInputKey:@"Color"];
 	[self setValue:@(((float)(rand() % 30000)) / 30000) forInputKey:@"Random"];
-	[mView startRendering];
+	[mRenderer startRendering];
 	NSSize maxSize = NSMakeSize(2000, 2000);
 	NSRect frame = [[NSScreen mainScreen] frame];
 	frame = NSInsetRect(frame, MAX(0, (frame.size.width - maxSize.width) / 2), MAX(0, (frame.size.height - maxSize.height) / 2));
@@ -89,7 +109,7 @@
 {
 	if (mDisplayed) {
 		[mWindow orderOut:nil];
-		[mView stopRendering];
+		[mRenderer stopRendering];
 		mDisplayed = NO;
 	}
 }
@@ -97,18 +117,18 @@
 -(void)displayNow
 {
 	if (mDisplayed)
-		[mView display];
+		[mRenderer display];
 }
 
 -(void)setValue:(id)inValue forInputKey:(NSString *)inKey
 {
-	if ([[mView inputKeys] containsObject:inKey]) {
+	if ([[mRenderer inputKeys] containsObject:inKey]) {
 		NSString *previousKey = [@"Previous" stringByAppendingString:inKey];
-		if ([[mView inputKeys] containsObject:previousKey])
-			[mView setValue:[mView valueForInputKey:inKey] forInputKey:previousKey];
-		[mView setValue:inValue forInputKey:inKey];
+		if ([[mRenderer inputKeys] containsObject:previousKey])
+			[mRenderer setValue:[mRenderer valueForInputKey:inKey] forInputKey:previousKey];
+		[mRenderer setValue:inValue forInputKey:inKey];
 		NSString *triggerKey = [@"Change" stringByAppendingString:inKey];
-		if ([[mView inputKeys] containsObject:triggerKey])
+		if ([[mRenderer inputKeys] containsObject:triggerKey])
 			[self triggerInputKey:triggerKey];
 	}
 }
@@ -118,15 +138,15 @@
 	NSEnumerator *enumerator = [inKeys objectEnumerator];
 	NSString *key;
 	while (key = [enumerator nextObject])
-		if ([[mView inputKeys] containsObject:key])
-			[mView setValue:inValue forInputKey:key];
+		if ([[mRenderer inputKeys] containsObject:key])
+			[mRenderer setValue:inValue forInputKey:key];
 }
 
 -(void)triggerInputKeys:(NSArray *)inKeys
 {
-	if ([mView isRendering]) {
+	if ([mRenderer isRendering]) {
 		[self setValue:@YES forInputKeys:inKeys];
-		[mView display];
+		[mRenderer display];
 		[self setValue:@NO forInputKeys:inKeys];
 	} else
 		[mInputsToTrigger addObjectsFromArray:inKeys];
@@ -177,7 +197,7 @@
         [bundleSearchPaths addObject:[currPath stringByAppendingPathComponent:@"Application Support/ProVoc/PlugIns"]];
         [bundleSearchPaths addObject:[currPath stringByAppendingPathComponent:@"Application Support/ProVoc/Backgrounds"]];
 	}
-    [bundleSearchPaths addObject:[[NSBundle mainBundle] builtInPlugInsPath]];
+    [bundleSearchPaths addObject:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"PlugIns"]];
     
     searchPathEnum = [bundleSearchPaths objectEnumerator];
     while (currPath = [searchPathEnum nextObject]) {
@@ -326,6 +346,11 @@
 		return [mBundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
 	else
 		return [mCompositionPath lastPathComponent];
+}
+
+-(NSBundle *)bundle
+{
+	return mBundle;
 }
 
 -(NSString *)compositionPath

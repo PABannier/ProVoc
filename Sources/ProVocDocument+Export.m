@@ -133,10 +133,11 @@
 			[words addObjectsFromArray:[page words]];
 		[words makeObjectsPerformSelector:@selector(resetIndexInFile)];
 		if (![mediaPath isEqual:[self mediaPathInBundle]] && mediaPath != [self mediaPathInBundle]) {
-			NSDictionary *info = @{@"Document": self, @"MediaPath": mediaPath};
+			NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:self, @"Document", mediaPath, @"MediaPath", nil]; // mediaPath may be nil
 			[words makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 		}
 	NS_HANDLER
+		// (not a ProVoc document: -pagesFromFile: tries the other formats)
 	NS_ENDHANDLER
 	return pages;
 }
@@ -158,9 +159,14 @@
 
 -(NSString *)stringWithContentsOfFile:(NSString *)inFilename
 {
-	if (![self useCustomEncoding])
-		return [NSString stringWithContentsOfFile:inFilename];
-	else {
+	if (![self useCustomEncoding]) {
+		// "Automatic": text files are in UTF-8 today (or in UTF-16 with a byte order mark),
+		// and read as such. The files of the time, in the encoding of the system (Mac OS
+		// Roman), are not valid UTF-8 as soon as they have an accent: they are read as before.
+		NSStringEncoding encoding;
+		NSString *string = [NSString stringWithContentsOfFile:inFilename usedEncoding:&encoding error:NULL];
+		return string ? string : [NSString stringWithContentsOfFile:inFilename];
+	} else {
 		NSData *data = [NSData dataWithContentsOfFile:inFilename];
 		return [[[NSString alloc] initWithData:data encoding:[self stringEncoding]] autorelease];
 	}
@@ -319,51 +325,24 @@
 
 @implementation ProVocDocument (Submit)
 
+// The vocabulary server of Arizona Software, to which documents were uploaded
+// (ProVocSubmitter), is gone. The command says so and shows the file of the document,
+// to be shared by the means of today.
 -(IBAction)submitDocument:(id)inSender
 {
-	if ([[self allWords] count] == 0) {
-		NSRunInformationalAlertPanel(NSLocalizedString(@"No Word To Submit Title", @""), NSLocalizedString(@"No Word To Submit Message", @""), nil, nil, nil);
-		return;
+	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+	[alert setMessageText:NSLocalizedString(@"Submit Obsolete Title", @"")];
+	[alert setInformativeText:NSLocalizedString(@"Submit Obsolete Message", @"")];
+	NSURL *file = [self isDocumentEdited] ? nil : [self fileURL];
+	if (file) {
+		[alert addButtonWithTitle:NSLocalizedString(@"Submit Obsolete Reveal Button", @"")];
+		[alert addButtonWithTitle:NSLocalizedString(@"iPod Obsolete Cancel Button", @"")];
+		[[[alert buttons] objectAtIndex:1] setKeyEquivalent:@"\033"];
 	}
-	int returnCode = NSAlertOtherReturn;
-	if ([self isDocumentEdited])
-		returnCode = NSRunInformationalAlertPanel(NSLocalizedString(@"Submit Modified Title", @""), NSLocalizedString(@"Submit Modified Message", @""), NSLocalizedString(@"Submit Save Button", @""), NSLocalizedString(@"Submit Cancel Button", @""), nil);
-	else if (![self fileName])
-		returnCode = NSRunInformationalAlertPanel(NSLocalizedString(@"Submit Unsaved Title", @""), NSLocalizedString(@"Submit Unsaved Message", @""), NSLocalizedString(@"Submit Save Button", @""), NSLocalizedString(@"Submit Cancel Button", @""), nil);
-	else if (![[self fileType] isEqual:@"ProVocDocumentPackage"])
-		returnCode = NSRunInformationalAlertPanel(NSLocalizedString(@"Submit Resaved Title", @""), NSLocalizedString(@"Submit Resaved Message", @""), NSLocalizedString(@"Submit Save Button", @""), NSLocalizedString(@"Submit Cancel Button", @""), nil);
-	if (returnCode == NSAlertAlternateReturn)
-		return;
-	if (returnCode == NSAlertDefaultReturn)
-		[self saveDocument:nil];
-			
-	if ([self fileName]) {
-		NSEnumerator *enumerator = [[self allWords] objectEnumerator];
-		ProVocWord *word;
-		int words = 0, audio = 0, images = 0, movies = 0;
-		while (word = [enumerator nextObject]) {
-			words++;
-			if ([word canPlayAudio:@"Source"])
-				audio++;
-			if ([word canPlayAudio:@"Target"])
-				audio++;
-			if ([word imageMedia])
-				images++;
-			if ([word movieMedia])
-				movies++;
-		}
-		ProVocSubmitter *submitter = [[[ProVocSubmitter alloc] init] autorelease];
-		[submitter setDelegate:self];
-		[submitter submitFile:[self fileName]
-			sourceLanguage:[self sourceLanguage]
-			targetLanguage:[self targetLanguage]
-			info:@{@"Words": @(words),
-							@"Audio": @(audio),
-							@"Images": @(images),
-							@"Movies": @(movies),
-							@"Submission Info": mSubmissionInfo}
-			modalForWindow:mMainWindow];
-	}
+	[alert beginSheetModalForWindow:[self window] completionHandler:^(NSModalResponse inResponse) {
+		if (file && inResponse == NSAlertFirstButtonReturn)
+			[[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[file]];
+	}];
 }
 
 -(void)submitter:(ProVocSubmitter *)inSubmitter updateSubmissionInfo:(NSDictionary *)inInfo

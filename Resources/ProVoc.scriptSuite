@@ -6,6 +6,12 @@
     "AppleEventCode" = "PrVc";
 
 	"Commands" = {
+		"StartTest" = {
+			"AppleEventClassCode" = "PVAE";
+			"AppleEventCode" = "StTs";
+			"CommandClass" = "ProVocStartTestCommand";
+		};
+
 		"ImportFile" = {
 			"AppleEventClassCode" = "PVAE";
 			"AppleEventCode" = "ImFi";

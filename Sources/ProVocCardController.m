@@ -318,7 +318,7 @@
 			[path moveToPoint:NSMakePoint(NSMinX(rect), floor(NSMidY(rect)) + 0.5)];
 			[path relativeLineToPoint:NSMakePoint(rect.size.width, 0)];
 		}
-		const float pattern[2] = {4, 4};
+		const CGFloat pattern[2] = {4, 4};
 		[path setLineDash:pattern count:2 phase:0];
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:ProVocCardDisplayFrames])
 			[path stroke];

@@ -19,3 +19,9 @@
 @interface ProVocExportFileCommand : NSScriptCommand
 
 @end
+
+// "start test": not in the dictionary of ProVoc 4.2.3, added so that a script can do
+// what Command-R does
+@interface ProVocStartTestCommand : NSScriptCommand
+
+@end

@@ -15,14 +15,13 @@
 -(BOOL)scanQuotedWord:(NSString **)outWord;
 -(BOOL)scanLineOfCSVWords:(NSArray **)outWords;
 -(BOOL)scanCharacter:(unichar *)outChar fromSet:(NSCharacterSet *)inCharacterSet;
--(BOOL)scanHexLongLong:(long long *)outValue;
 
 @end
 
 @interface NSCharacterSet (ProVocExtensions)
 
 +(NSCharacterSet *)spaceCharacterSet;
-+(NSCharacterSet *)newlineCharacterSet;
+// (+newlineCharacterSet, once defined here, is a method of Foundation)
 +(NSCharacterSet *)tabCharacterSet;
 +(NSCharacterSet *)tabAndNewlineCharacterSet;
 

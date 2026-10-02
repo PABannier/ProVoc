@@ -15,8 +15,7 @@
 #import "ProVocBackground.h"
 #import "ProVocTimer.h"
 
-#import <Carbon/Carbon.h>
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 #import "WindowExtensions.h"
 #import "StringExtensions.h"
@@ -130,36 +129,43 @@ enum {
 
 +(void)initialize
 {
-}
+	NSArray *progressKeys = [NSArray arrayWithObject:@"progress"];
+	[self setKeys:progressKeys triggerChangeNotificationsForDependentKey:@"progressMin"];
+	[self setKeys:progressKeys triggerChangeNotificationsForDependentKey:@"progressMax"];
+	[self setKeys:progressKeys triggerChangeNotificationsForDependentKey:@"progressValue"];
+	[self setKeys:progressKeys triggerChangeNotificationsForDependentKey:@"progressTitle"];
 
-+(NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
-{
-    NSMutableSet *affectedValuesKeyPaths = [NSMutableSet set];
-    
-    if ([key isEqualToString:@"progress"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"progressMin",@"progressMax",@"progressValue",@"progressTitle"]];
-    else if ([key isEqualToString:@"displayCorrectAnswer"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"canGiveAnswer",@"verifyTitle",@"correctAnswer",@"hideComment", @"hideLabel"]];
-    else if ([key isEqualToString:@"audio"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"canPlayQuestionAudio",@"canPlayAnswerAudio",@"questionAudioImage",@"answerAudioImage"]];
-    else if ([key isEqualToString:@"noteWords"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"maxNoteIndex",@"multipleNote"]];
-    else if ([key isEqualToString:@"font"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"questionFontSize",@"answerFontSize",@"questionWritingDirection",@"answerWritingDirection"]];
-    else if ([key isEqualToString:@"commentFont"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"sourceFontSize",@"targetFontSize",@"commentFontSize",@"sourceWritingDirection",@"targetWritingDirection",@"commentWritingDirection"]];
-    else if ([key isEqualToString:@"movie"])
-        [affectedValuesKeyPaths addObject:@"nonNilMovie"];
-    else if ([key isEqualToString:@"hideQuestion"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"question", @"canGiveAnswer", @"verifyTitle"]];
-    else if ([key isEqualToString:@"flagged"])
-        [affectedValuesKeyPaths addObject:@"labelIndex"];
-    else if ([key isEqualToString:@"canGiveAnswer"])
-        [affectedValuesKeyPaths addObject:@"verifyTitle"];
-    else if ([key isEqualToString:@"hideComment"])
-        [affectedValuesKeyPaths addObjectsFromArray:@[@"hideLabel", @"canGiveAnswer", @"verifyTitle"]];
+	[self setKeys:[NSArray arrayWithObjects:@"hideComment", @"displayCorrectAnswer", @"hideQuestion", nil] triggerChangeNotificationsForDependentKey:@"canGiveAnswer"];
+	[self setKeys:[NSArray arrayWithObjects:@"hideComment", @"canGiveAnswer", @"displayCorrectAnswer", @"hideQuestion", nil] triggerChangeNotificationsForDependentKey:@"verifyTitle"];
+	[self setKeys:[NSArray arrayWithObjects:@"displayCorrectAnswer", nil] triggerChangeNotificationsForDependentKey:@"correctAnswer"];
+	[self setKeys:[NSArray arrayWithObjects:@"displayCorrectAnswer", nil] triggerChangeNotificationsForDependentKey:@"hideComment"];
+	[self setKeys:[NSArray arrayWithObjects:@"displayCorrectAnswer", @"hideComment", nil] triggerChangeNotificationsForDependentKey:@"hideLabel"];
 
-    return affectedValuesKeyPaths;
+	[self setKeys:[NSArray arrayWithObject:@"flagged"] triggerChangeNotificationsForDependentKey:@"labelIndex"];
+
+	[self setKeys:[NSArray arrayWithObject:@"noteWords"] triggerChangeNotificationsForDependentKey:@"maxNoteIndex"];
+	[self setKeys:[NSArray arrayWithObject:@"noteWords"] triggerChangeNotificationsForDependentKey:@"multipleNote"];
+
+	[self setKeys:[NSArray arrayWithObject:@"hideQuestion"] triggerChangeNotificationsForDependentKey:@"question"];
+
+	[self setKeys:[NSArray arrayWithObject:@"audio"] triggerChangeNotificationsForDependentKey:@"canPlayQuestionAudio"];
+	[self setKeys:[NSArray arrayWithObject:@"audio"] triggerChangeNotificationsForDependentKey:@"canPlayAnswerAudio"];
+	[self setKeys:[NSArray arrayWithObject:@"audio"] triggerChangeNotificationsForDependentKey:@"questionAudioImage"];
+	[self setKeys:[NSArray arrayWithObject:@"audio"] triggerChangeNotificationsForDependentKey:@"answerAudioImage"];
+	[self setKeys:[NSArray arrayWithObject:@"movie"] triggerChangeNotificationsForDependentKey:@"nonNilMovie"];
+
+	NSArray *fontKeys = [NSArray arrayWithObject:@"font"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"questionFontSize"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"answerFontSize"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"questionWritingDirection"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"answerWritingDirection"];
+	fontKeys = [NSArray arrayWithObject:@"commentFont"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"sourceFontSize"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"targetFontSize"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"commentFontSize"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"sourceWritingDirection"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"targetWritingDirection"];
+	[self setKeys:fontKeys triggerChangeNotificationsForDependentKey:@"commentWritingDirection"];
 }
 
 
@@ -178,6 +184,24 @@ static NSMutableArray *sCurrentTesters = nil;
 	if (![mProVocDocument isCurrentDocument])
 		return NO;
 	switch ([inEvent keyCode]) {
+		case 53: // Esc
+			if ([inEvent isARepeat])
+				break;
+			if ([mResultPanel isVisible]) {
+				// Done is the Esc button, except when it is the default (Return) button
+				// because there is nothing to repeat: Esc must still mean Done then.
+				if (([inEvent modifierFlags] & NSAlternateKeyMask) == 0 && ![self canRepeatWrongWords]) {
+					[self terminateResultPanel:nil];
+					return YES;
+				}
+			} else if (([inEvent modifierFlags] & NSAlternateKeyMask) != 0 && [[self testPanel] isVisible]) {
+				// Plain Esc is the key equivalent of the Finish button. With Option the button
+				// is "Abort", but Option-Esc never reaches it (the text field takes it for
+				// "complete").
+				[self cancelTestPanel:nil];
+				return YES;
+			}
+			break;
 		case 122: // F1
 			[self playQuestionAudio:nil];
 			return YES;
@@ -292,7 +316,12 @@ static NSMutableArray *sCurrentTesters = nil;
 	[mSpeechSynthesizer release];
 	[mLearnedWords release];
 	[mLearnedWordsInfo release];
+	// The windows of the nib are top-level objects: they come with a reference that their
+	// owner has to release. It was never released: each training left its four panels
+	// behind, invisible, until the application quit.
+	NSArray *panels = [NSArray arrayWithObjects:mTestPanel, mMCQTestPanel, mResultPanel, mNotePanel, nil];
     [super dealloc];
+	[panels makeObjectsPerformSelector:@selector(release)];
 }
 
 -(void)setLanguageSettings:(NSDictionary *)inSettings forDirection:(int)inDirection
@@ -332,7 +361,7 @@ static NSMutableArray *sCurrentTesters = nil;
 	return mMode;
 }
 
-int SORT_BY_NUMBER(id left, id right, void *info)
+NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 {
 	int nA = [left number];
 	int nB = [right number];
@@ -562,9 +591,13 @@ int SORT_BY_NUMBER(id left, id right, void *info)
 
 -(void)resumeTestWithParameters:(id)inParameters
 {
-	float width = [inParameters[@"displayLabelText"] boolValue] ? 150 : 30;
+	BOOL displayLabelText = [inParameters[@"displayLabelText"] boolValue];
+	float width = displayLabelText ? 150 : 30;
 	[self setPopUp:mLabelPopUp1 width:width];
 	[self setPopUp:mLabelPopUp3 width:width];
+	// only the color swatch fits in the narrow pop-up: no clipped piece of the title next to it
+	[[mLabelPopUp1 cell] setImagePosition:displayLabelText ? NSImageLeft : NSImageOnly];
+	[[mLabelPopUp3 cell] setImagePosition:displayLabelText ? NSImageLeft : NSImageOnly];
 	
 	[self flagsChanged:[NSApp currentEvent]];
 	
@@ -620,7 +653,11 @@ int SORT_BY_NUMBER(id left, id right, void *info)
 
 -(void)timerDidElapse:(NSNotification *)inNotification
 {
-	if ([self waitForAnswerBeforeTimerElapse] && [self canGiveAnswer]) {
+	// While an answer is being typed the alert waits until that answer has been verified:
+	// -verifyTestPanel: then calls again, without notification. (It used to wait here in
+	// that case too: after a correct answer the next question was already there, and the
+	// alert never came as long as the answers were right.)
+	if (inNotification && [self waitForAnswerBeforeTimerElapse] && [self canGiveAnswer]) {
 		mTimerDidElapse = YES;
 		return;
 	}
@@ -1033,7 +1070,8 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	static NSMutableString *answer = nil;
 	if (!answer)
 		answer = [[NSMutableString alloc] initWithCapacity:0];
-	[answer setString:inAnswer];
+	// accented letters typed with a dead key are composed, pasted or imported ones may not be
+	[answer setString:[inAnswer precomposedStringWithCanonicalMapping]];
 	
 	[answer replaceOccurrencesOfString:[NSString stringWithFormat:@"%C", 0x00A0] withString:@" " options:0 range:NSMakeRange(0, [answer length])];
 	[answer replaceOccurrencesOfString:[NSString stringWithFormat:@"%C", 0x2026] withString:@"..." options:0 range:NSMakeRange(0, [answer length])];
@@ -1293,7 +1331,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 -(NSMutableDictionary *)peekInfoForLearnedWord:(id)inWord
 {
-	int index = [mLearnedWords indexOfObject:inWord];
+	NSUInteger index = [mLearnedWords indexOfObject:inWord];
 	if (index != NSNotFound)
 		return mLearnedWordsInfo[index];
 	else
@@ -1307,7 +1345,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 		mLearnedWords = [[NSMutableArray alloc] initWithCapacity:n];
 		mLearnedWordsInfo = [[NSMutableArray alloc] initWithCapacity:n];
 	}
-	int index = [mLearnedWords indexOfObject:inWord];
+	NSUInteger index = [mLearnedWords indexOfObject:inWord];
 	NSMutableDictionary *info;
 	if (index != NSNotFound)
 		info = mLearnedWordsInfo[index];
@@ -1426,11 +1464,11 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 -(BOOL)ignoreRebound
 {
-	static NSTimeInterval lastTime = 0;
-	NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-	BOOL ignore = now - lastTime < 0.2;
-	lastTime = now;
-	return ignore;
+	// A key held down must not rush through several words. (This used to drop every
+	// call made within 0.2 s of the previous one, which also swallowed the second of
+	// two deliberate, quick Returns: "check", then "next word".)
+	NSEvent *event = [NSApp currentEvent];
+	return [event type] == NSEventTypeKeyDown && [event isARepeat];
 }
 
 -(IBAction)verifyTestPanel:(id)sender
@@ -1516,7 +1554,8 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	[self historySetRepetition:repetition ofWord:currentWord];
 	if (mTimerDidElapse) {
 		mTimerDidElapse = NO;
-		[self timerDidElapse:nil];
+		if ([[self testPanel] isVisible])	// not if that answer was the last one
+			[self timerDidElapse:nil];
 	}
 }
 
@@ -1819,10 +1858,16 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	[self willChangeValueForKey:@"canRepeatWrongWords"];
 	[self didChangeValueForKey:@"canRepeatWrongWords"];
 	[mRetryButton setHidden:[mWrongWordsArray count] == 0];
-    if (![self canRepeatWrongWords]) {
-        [mRetryButton setKeyEquivalent:@""];
-        [mTerminateButton setKeyEquivalent:@"\r"];
-    }
+	// Return repeats the wrong words when there are some, otherwise it means Done. Set both
+	// ways each time: the panel is shown again after each repetition. (Esc always means
+	// Done: see -handleKeyDownEvent:.)
+	if ([self canRepeatWrongWords]) {
+		[mTerminateButton setKeyEquivalent:@"\033"];
+		[mRetryButton setKeyEquivalent:@"\r"];
+	} else {
+		[mRetryButton setKeyEquivalent:@""];
+		[mTerminateButton setKeyEquivalent:@"\r"];
+	}
     
 	if (mMode != 0)
 		mFreezeHistory = YES;
@@ -1967,7 +2012,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 -(NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@ 0x%x (word=%@, dir=%i)>", NSStringFromClass([self class]), self, mWord, mDirection];
+	return [NSString stringWithFormat:@"<%@ %p (word=%@, dir=%i)>", NSStringFromClass([self class]), self, mWord, mDirection];
 }
 
 @end
@@ -2017,7 +2062,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 -(NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@ 0x%x (word=%@)>", NSStringFromClass([self class]), self, mWord];
+	return [NSString stringWithFormat:@"<%@ %p (word=%@)>", NSStringFromClass([self class]), self, mWord];
 }
 
 -(void)setSourceWord:(NSString *)inSource
@@ -2411,10 +2456,7 @@ static int sDimCount = 0;
 
 +(void)dimScreensHidingMenuBar:(BOOL)inHideMenuBar
 {
-	if (inHideMenuBar)
-		HideMenuBar();
-	else
-		ShowMenuBar();
+	[NSMenu setMenuBarVisible:!inHideMenuBar];
 	if (sDimCount++ == 0) {
 		[[ProVocInspector sharedInspector] setInspectorHidden:YES];
 		NSEnumerator *enumerator = [[NSScreen screens] objectEnumerator];
@@ -2439,7 +2481,7 @@ static int sDimCount = 0;
 	if (--sDimCount == 0) {
 		[sDimWindows makeObjectsPerformSelector:@selector(orderOut:) withObject:nil];
 		[sDimWindows removeAllObjects];
-		ShowMenuBar();
+		[NSMenu setMenuBarVisible:YES];
 		[[ProVocInspector sharedInspector] setInspectorHidden:NO];
 	}
 }

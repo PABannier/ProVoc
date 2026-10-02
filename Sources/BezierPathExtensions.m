@@ -41,28 +41,36 @@
 
 @implementation NSBezierPath (Shading)
 
-static void sGetShadingComponents(void *info, const float *inData, float *outData)
+static void sGetShadingComponents(void *info, const CGFloat *inData, CGFloat *outData)
 {
 	NSArray *array = (NSArray *)info;
 	NSColor *color = [array[0] blendedColorWithFraction:*inData ofColor:array[1]];
-    [color getRed:&outData[0] green:&outData[1] blue:&outData[2] alpha:&outData[3]];
+    [[color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]] getRed:&outData[0] green:&outData[1] blue:&outData[2] alpha:&outData[3]];
 }
 
-static void sGetAquaShadingComponents(void *info, const float *inData, float *outData)
+static void sGetAquaShadingComponents(void *info, const CGFloat *inData, CGFloat *outData)
 {
 	NSColor *color = (NSColor *)info;
-	const float k = *inData;
+	const CGFloat k = *inData;
 	if (k < 0.5)
 		color = [color blendedColorWithFraction:0.5 * k ofColor:[NSColor whiteColor]];
 	else
 		color = [color blendedColorWithFraction:0.5 * (1.0 - k) ofColor:[NSColor blackColor]];
-    [color getRed:&outData[0] green:&outData[1] blue:&outData[2] alpha:&outData[3]];
+    [[color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]] getRed:&outData[0] green:&outData[1] blue:&outData[2] alpha:&outData[3]];
 }
 
-static float sRanges[8] = {0, 1, 0, 1, 0, 1, 0, 1};
+static CGFloat sRanges[8] = {0, 1, 0, 1, 0, 1, 0, 1};
+
+static void sReleaseShadingInfo(void *info)
+{
+	[(id)info release];
+}
 
 -(void)fillWithAngleInDegrees:(float)inDegrees info:(void *)inInfo callback:(CGFunctionEvaluateCallback)inCallback
 {
+	// nothing to fill (a view without size): Core Graphics complains in the log about clipping to an empty path
+	if ([self isEmpty] || NSIsEmptyRect([self bounds]))
+		return;
     float alpha = inDegrees / 180.0 * M_PI;
     float dx = cos(alpha);
     float dy = sin(alpha);
@@ -90,11 +98,13 @@ static float sRanges[8] = {0, 1, 0, 1, 0, 1, 0, 1};
 	CGPoint start = CGPointMake(dmin * dx, dmin * dy);
 	CGPoint end = CGPointMake(dmax * dx, dmax * dy);
     
+    // The shading may be evaluated after this method returns (drawing is recorded
+    // and replayed later), so the function keeps its colors alive itself.
     CGFunctionCallbacks callbacks;
     callbacks.version = 0;
     callbacks.evaluate = inCallback;
-    callbacks.releaseInfo = nil;
-    CGFunctionRef function = CGFunctionCreate(inInfo, 1, sRanges, 4, sRanges, &callbacks);
+    callbacks.releaseInfo = &sReleaseShadingInfo;
+    CGFunctionRef function = CGFunctionCreate([(id)inInfo retain], 1, sRanges, 4, sRanges, &callbacks);
 
     CGShadingRef shading = CGShadingCreateAxial(colorSpace, start, end, function, YES, YES);
     

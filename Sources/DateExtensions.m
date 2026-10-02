@@ -115,7 +115,7 @@
 	return date;
 }
 
--(BOOL)isToday
+-(BOOL)pvIsToday
 {
 	NSDate *date = [NSDate date];
 	return [self isBetweenDate:[date beginningOfDay] andDate:[date beginningOfNextDay]];

@@ -22,7 +22,7 @@
 #import "ImageExtensions.h"
 #import "ExtendedCell.h"
 
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 static NSArray *sDraggedItems = nil;
 
@@ -110,7 +110,7 @@ static NSArray *sDraggedItems = nil;
 	NSArray *words = dictionary[@"Words"];
 	[words makeObjectsPerformSelector:@selector(resetIndexInFile)];
 	if (![mediaPath isEqual:[self mediaPathInBundle]] && mediaPath != [self mediaPathInBundle]) {
-		NSDictionary *info = @{@"Document": self, @"MediaPath": mediaPath};
+		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:self, @"Document", mediaPath, @"MediaPath", nil]; // mediaPath may be nil
 		[words makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 	}
 	return words;
@@ -137,7 +137,7 @@ static NSArray *sDraggedItems = nil;
 	NSString *mediaPath = dictionary[@"MediaPath"];
 	NSArray *sources = dictionary[@"Sources"];
 	if (![mediaPath isEqual:[self mediaPathInBundle]] && mediaPath != [self mediaPathInBundle]) {
-		NSDictionary *info = @{@"Document": self, @"MediaPath": mediaPath};
+		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:self, @"Document", mediaPath, @"MediaPath", nil]; // mediaPath may be nil
 		[sources makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 	}
 	return sources;
@@ -211,7 +211,7 @@ static NSArray *sDraggedItems = nil;
 	id item;
 	int row = -1;
 	while (item = [enumerator nextObject]) {
-		[mPageOutlineView selectRow:row = [mPageOutlineView rowForItem:item] byExtendingSelection:extend];
+		[mPageOutlineView selectRowAtIndex:row = [mPageOutlineView rowForItem:item] byExtendingSelection:extend];
 		extend = YES;
 	}
 	[mPageOutlineView scrollRowToVisible:row];
@@ -283,7 +283,7 @@ static NSArray *sDraggedItems = nil;
 				[self pagesDidChange];
 				[mPageOutlineView expandItem:page];
 				int row = [mPageOutlineView rowForItem:page];
-				[mPageOutlineView selectRow:row byExtendingSelection:NO];
+				[mPageOutlineView selectRowAtIndex:row byExtendingSelection:NO];
 				[mPageOutlineView scrollRowToVisible:row];
 			}
 			[page addWords:draggedItems];
@@ -395,10 +395,8 @@ static NSArray *sDraggedItems = nil;
 
 -(BOOL)tableView:(NSTableView *)inTableView shouldEditTableColumn:(NSTableColumn *)inTableColumn row:(int)inRowIndex
 {
-	if (inTableView == mPresetTableView) {
-		[self setEditingPreset:!mEditingPreset];
-		return NO;
-	}
+	if (inTableView == mPresetTableView)
+		return NO;	// see -togglePresetEditing:
     if (inTableView == mWordTableView && [[inTableColumn identifier] isEqualTo:@"Mark"]) {
 		NSEvent *event = [NSApp currentEvent];
         if ([event type] == NSLeftMouseDown && [event clickCount] > 1 && inRowIndex < [mVisibleWords count]) {
@@ -439,6 +437,16 @@ static NSArray *sDraggedItems = nil;
 		if (deselect)
 			[mWordTableView deselectAll:nil];
 	}
+}
+
+-(BOOL)tableView:(NSTableView *)inTableView writeRowsWithIndexes:(NSIndexSet *)inRowIndexes toPasteboard:(NSPasteboard *)inPasteboard
+{
+	// what NSTableView asks when a drag starts; -tableView:writeRows:toPasteboard: is its long deprecated ancestor
+	NSMutableArray *rows = [NSMutableArray array];
+	[inRowIndexes enumerateIndexesUsingBlock:^(NSUInteger inRow, BOOL *outStop) {
+		[rows addObject:@(inRow)];
+	}];
+	return [self tableView:inTableView writeRows:rows toPasteboard:inPasteboard];
 }
 
 -(BOOL)tableView:(NSTableView *)inTableView writeRows:(NSArray *)inRows toPasteboard:(NSPasteboard *)inPasteboard
@@ -537,7 +545,7 @@ static NSArray *sDraggedItems = nil;
 	int row = -1;
 	ProVocWord *word;
 	while (word = [enumerator nextObject]) {
-		[mWordTableView selectRow:row = [mVisibleWords indexOfObjectIdenticalTo:word] byExtendingSelection:extend];
+		[mWordTableView selectRowAtIndex:row = [mVisibleWords indexOfObjectIdenticalTo:word] byExtendingSelection:extend];
 		extend = YES;
 	}
 	[mWordTableView scrollRowToVisible:row];
@@ -616,7 +624,7 @@ static NSArray *sDraggedItems = nil;
 
 -(void)tableView:(NSTableView *)inTableView pasteFromPasteboard:(NSPasteboard *)inPasteboard
 {
-	unsigned row = [[inTableView selectedRowIndexes] lastIndex];
+	NSUInteger row = [[inTableView selectedRowIndexes] lastIndex];
 	if (row == NSNotFound)
 		row = [mVisibleWords count];
 	else
@@ -674,7 +682,7 @@ static NSArray *sDraggedItems = nil;
 {
 	int row = [inTableView rowAtPoint:[inTableView convertPoint:[inEvent locationInWindow] fromView:nil]];
 	if (row >= 0 && row < [mVisibleWords count] && ![[inTableView selectedRowIndexes] containsIndex:row])
-		[inTableView selectRow:row byExtendingSelection:([inEvent modifierFlags] & NSShiftKeyMask) != 0];
+		[inTableView selectRowAtIndex:row byExtendingSelection:([inEvent modifierFlags] & NSShiftKeyMask) != 0];
 	NSMenu *menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 	[menu addItemWithTitle:NSLocalizedString(@"Start Speaking", @"") action:@selector(startSpeaking:) keyEquivalent:@""];
 	[menu addItemWithTitle:NSLocalizedString(@"Stop Speaking", @"") action:@selector(stopSpeaking:) keyEquivalent:@""];
@@ -705,14 +713,14 @@ static NSArray *sSelectedWords = nil;
 	if (!sSelectedWords)
 		return;
 		
-	unsigned firstRow = NSNotFound, lastRow = NSNotFound;
+	NSUInteger firstRow = NSNotFound, lastRow = NSNotFound;
 	BOOL extend = NO;
 	NSEnumerator *enumerator = [sSelectedWords objectEnumerator];
 	id word;
 	while (word = [enumerator nextObject]) {
-		unsigned row = [mVisibleWords indexOfObjectIdenticalTo:word];
+		NSUInteger row = [mVisibleWords indexOfObjectIdenticalTo:word];
 		if (row != NSNotFound) {
-			[mWordTableView selectRow:row byExtendingSelection:extend];
+			[mWordTableView selectRowAtIndex:row byExtendingSelection:extend];
 			lastRow = row;
 			if (!extend) {
 				firstRow = row;
@@ -791,7 +799,7 @@ static NSArray *sSelectedWords = nil;
 	else
 		[words removeAllObjects];
 		
-	NSEnumerator *enumerator = [mWordTableView selectedRowEnumerator];
+	NSEnumerator *enumerator = [mWordTableView selectedRowNumberEnumerator];
 	id row;
 	while (row = [enumerator nextObject]) {
 		int index = [row intValue];
@@ -881,7 +889,7 @@ static NSArray *sSelectedWords = nil;
 	[[self allPages] makeObjectsPerformSelector:@selector(removeWords:) withObject:inWords];
 	[self wordsDidChange];
 	if ([mWordTableView selectedRow] >= [mVisibleWords count])
-		[mWordTableView selectRow:[mVisibleWords count] - 1 byExtendingSelection:NO];
+		[mWordTableView selectRowAtIndex:[mVisibleWords count] - 1 byExtendingSelection:NO];
 	[self selectedWordsDidChange:nil];
 	[self didChangeData];
 }
@@ -893,11 +901,21 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 	sKeepOnDoubleWordSearch = NO;
 }
 
+-(void)addSilentTesterTo:(NSMutableArray *)ioTesters
+{
+	[ioTesters addObject:[[[ProVocSilentTester alloc] initWithDocument:self] autorelease]];
+}
+
 -(id)doubleWordsIn:(NSArray *)inWords progressDelegate:(id)inDelegate
 {
 	sKeepOnDoubleWordSearch = YES;
 	NSMutableSet *doubles = [NSMutableSet set];
-	ProVocSilentTester *tester = [[[ProVocSilentTester alloc] initWithDocument:self] autorelease];
+	// This runs in a thread of its own (-findDoublesThread:). The tester that compares the
+	// words loads a nib with windows, which may only be made - and released - in the main
+	// thread: Find Double Entries raised an exception there and the application quit.
+	NSMutableArray *testers = [NSMutableArray array];
+	[self performSelectorOnMainThread:@selector(addSilentTesterTo:) withObject:testers waitUntilDone:YES];
+	ProVocSilentTester *tester = [testers lastObject];
 	
 	int pass, i, j, n = [inWords count];
 	int count = 0, total = n * (n - 1);
@@ -922,6 +940,7 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 		}
 	}
 
+	[testers performSelectorOnMainThread:@selector(removeAllObjects) withObject:nil waitUntilDone:YES];
 	return sKeepOnDoubleWordSearch ? doubles : nil;
 }
 
@@ -1003,7 +1022,7 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 
 typedef struct { id identifier; BOOL descending; id determinents; BOOL ignoreCase; BOOL ignoreAccents; } SortContext;
 
-int ORDER_BY_CONTEXT (id left, id right, void *ctxt)
+NSInteger ORDER_BY_CONTEXT (id left, id right, void *ctxt)
 {
 	SortContext *context = (SortContext *)ctxt;
 	int order = 0;
@@ -1171,7 +1190,7 @@ static NSTimeInterval waitTime = 0;
 -(void)selectedPagesDidChange
 {
 	[mSelectedPages removeAllObjects];
-	NSEnumerator *enumerator = [mPageOutlineView selectedRowEnumerator];
+	NSEnumerator *enumerator = [mPageOutlineView selectedRowNumberEnumerator];
 	id row;
 	while (row = [enumerator nextObject]) {
 		id page = [mPageOutlineView itemAtRow:[row intValue]];
@@ -1194,7 +1213,7 @@ static NSTimeInterval waitTime = 0;
 -(NSArray *)selectedSourceAncestors
 {
 	NSMutableArray *ancestors = [NSMutableArray array];
-	NSEnumerator *enumerator = [mPageOutlineView selectedRowEnumerator];
+	NSEnumerator *enumerator = [mPageOutlineView selectedRowNumberEnumerator];
 	id row;
 	while (row = [enumerator nextObject]) {
 		id source = [mPageOutlineView itemAtRow:[row intValue]];
@@ -1401,7 +1420,7 @@ static NSTimeInterval waitTime = 0;
 		while (encoding = *encodings++)
 			if (encoding <= 30)
 				*myEncodings++ = encoding;
-		*myEncodings = nil;
+		*myEncodings = 0;
 	}
 	return encodings;
 }

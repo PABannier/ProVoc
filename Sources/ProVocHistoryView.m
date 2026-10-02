@@ -133,7 +133,7 @@
 -(void)drawRect:(NSRect)inRect
 {
 	[[NSColor whiteColor] set];
-	NSRectFill(inRect);
+	NSRectFill(NSIntersectionRect(inRect, [self bounds]));	// the dirty rect may exceed the bounds (macOS 14+)
 	[[NSColor darkGrayColor] set];
 	NSFrameRect([self bounds]);
 
@@ -188,7 +188,7 @@
 			int ago = n - 1 - i;
 			switch (mDisplay) {
 				case 0:
-					if ([date isToday])
+					if ([date pvIsToday])
 						format = NSLocalizedString(@"Today Test Label Format", @"");
 					else if ([date isYersterday])
 						format = NSLocalizedString(@"Yesterday Test Label Format", @"");

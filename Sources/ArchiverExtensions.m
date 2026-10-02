@@ -16,7 +16,7 @@
     [self encodeValueOfObjCType:@encode(BOOL) at:&value];
 }
 
--(void)encodeBytes:(const uint8_t *)bytesp length:(unsigned)lenv forKey:(NSString *)key
+-(void)encodeBytes:(const uint8_t *)bytesp length:(NSUInteger)lenv forKey:(NSString *)key
 {
     [self encodeBytes:bytesp length:lenv];
 }
@@ -79,7 +79,7 @@
     return value;
 }
 
--(const uint8_t *)decodeBytesForKey:(NSString *)key returnedLength:(unsigned *)lengthp
+-(const uint8_t *)decodeBytesForKey:(NSString *)key returnedLength:(NSUInteger *)lengthp
 {
     return [self decodeBytesWithReturnedLength:lengthp];
 }

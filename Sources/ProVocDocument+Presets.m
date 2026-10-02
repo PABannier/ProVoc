@@ -139,16 +139,21 @@
 -(void)presetsDidChange:(id)inSender
 {
 	[self willChangeValueForKey:@"presetName"];
+	// The current preset is selected before reloading too: when the selected row is one
+	// that went away (the last preset was removed), reloading selects the first row, and
+	// the first preset became the current one instead of the previous one.
+	if (mIndexOfCurrentPresets < [mPresetTableView numberOfRows])
+		[mPresetTableView selectRowAtIndex:mIndexOfCurrentPresets byExtendingSelection:NO];
 	[mPresetTableView reloadData];
-	[mPresetTableView selectRow:mIndexOfCurrentPresets byExtendingSelection:NO];
+	[mPresetTableView selectRowAtIndex:mIndexOfCurrentPresets byExtendingSelection:NO];
 	[self didChangeValueForKey:@"presetName"];
 	[self setParameters:[mPresets[mIndexOfCurrentPresets] parameters]];
 }
 
 -(id)presetSettings
 {
-	return @{@"IndexOfCurrentPresets": @(mIndexOfCurrentPresets),
-									@"Presets": [self presets]};
+	return [NSDictionary dictionaryWithObjectsAndKeys:@(mIndexOfCurrentPresets), @"IndexOfCurrentPresets",
+									[self presets], @"Presets", nil];
 }
 
 -(void)setPresetSettings:(id)inPresetSettings
@@ -177,12 +182,12 @@
 	return NO;
 }
 
--(float)splitView:(NSSplitView *)inSplitView constrainMinCoordinate:(float)inProposedMin ofSubviewAt:(int)inOffset
+-(CGFloat)splitView:(NSSplitView *)inSplitView constrainMinCoordinate:(CGFloat)inProposedMin ofSubviewAt:(NSInteger)inOffset
 {
 	return 150;
 }
 
--(float)splitView:(NSSplitView *)inSplitView constrainMaxCoordinate:(float)inProposedMin ofSubviewAt:(int)inOffset
+-(CGFloat)splitView:(NSSplitView *)inSplitView constrainMaxCoordinate:(CGFloat)inProposedMin ofSubviewAt:(NSInteger)inOffset
 {
 	return [[inSplitView window] frame].size.width - ([mPresetEditView frame].size.width + 150);
 }

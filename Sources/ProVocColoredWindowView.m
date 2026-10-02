@@ -31,7 +31,7 @@
 	[super drawRect:inRect];
 	if (mColor) {
 		[[mColor colorWithAlphaComponent:0.75] set];
-		[NSBezierPath fillRect:inRect];
+		[NSBezierPath fillRect:NSIntersectionRect(inRect, [self bounds])];	// the dirty rect may exceed the bounds (macOS 14+)
 	}
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "ProVocPreferences.h"
+#import "ProVocApplication.h"
 #import "ProVocDocument+Lists.h"
 #import "ProVocInspector.h"
 #import "ProVocBackground.h"
@@ -173,7 +174,7 @@
     description[PVSpaceSensitive] = @YES;
 	[self addLanguage:description];
 	int row = [mLanguageTableView numberOfRows] - 1;
-    [mLanguageTableView selectRow:row byExtendingSelection:NO];
+    [mLanguageTableView selectRowAtIndex:row byExtendingSelection:NO];
 	[mLanguageTableView scrollRowToVisible:row];
 	[mLanguageTableView editColumn:0 row:row withEvent:nil select:YES];
 }
@@ -218,7 +219,7 @@
 {
     if(inTableView == mLanguageTableView) {
         NSMutableArray *languagesToDelete = [NSMutableArray array];
-        NSEnumerator *enumerator = [mLanguageTableView selectedRowEnumerator];
+        NSEnumerator *enumerator = [mLanguageTableView selectedRowNumberEnumerator];
         NSNumber *row;
         while (row = [enumerator nextObject])
             [languagesToDelete addObject:[self languages][[row intValue]]];
@@ -266,7 +267,7 @@
 
 	float factor = 1.0;
 	if ([NSApp systemVersion] >= 0x1040)
-		factor = [window userSpaceScaleFactor];
+		factor = 1.0;
 	NSView *paneView = mPaneViews[inIndex];
 	NSView *view = [window contentView];
 	float deltaHeight = [paneView frame].size.height - [view frame].size.height;
@@ -291,6 +292,8 @@
     [toolbar setDelegate:self];
     
     [[self window] setToolbar:toolbar];
+	// the classic preferences look: the pane icons centered under the title, never in an overflow menu
+	[[self window] setToolbarStyle:NSWindowToolbarStylePreference];
 }
 
 -(NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)inToolbar
@@ -374,22 +377,28 @@
 	if ([inKey hasPrefix:@"labelColorData"])
 		return labels[index][PVLabelColorData];
 	
-	return nil;//[super valueForUndefinedKey:inKey];
+	return [super valueForUndefinedKey:inKey];
+}
+
+-(NSString *)captionForFontFamilyName:(NSString *)inName
+{
+	// the system font has a private family name (".AppleSystemUIFont")
+	return [inName hasPrefix:@"."] ? NSLocalizedString(@"System Font Caption", @"") : inName;
 }
 
 -(NSString *)sourceFontCaption
 {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:@"sourceFontFamilyName"];
+	return [self captionForFontFamilyName:[[NSUserDefaults standardUserDefaults] objectForKey:@"sourceFontFamilyName"]];
 }
 
 -(NSString *)targetFontCaption
 {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:@"targetFontFamilyName"];
+	return [self captionForFontFamilyName:[[NSUserDefaults standardUserDefaults] objectForKey:@"targetFontFamilyName"]];
 }
 
 -(NSString *)commentFontCaption
 {
-	return [[NSUserDefaults standardUserDefaults] objectForKey:@"commentFontFamilyName"];
+	return [self captionForFontFamilyName:[[NSUserDefaults standardUserDefaults] objectForKey:@"commentFontFamilyName"]];
 }
 
 -(void)observeValueForKeyPath:(NSString *)inKeyPath ofObject:(id)inObject change:(NSDictionary *)inChange context:(void *)inContext
@@ -485,7 +494,8 @@
 	[openPanel setMessage:NSLocalizedString(@"Custom Background Open Panel Message", @"")];
 	[openPanel setPrompt:NSLocalizedString(@"Custom Background Open Panel Prompt", @"")];
 	[openPanel setAllowsMultipleSelection:NO];
-	if ([openPanel runModalForTypes:@[@"qtz"]] == NSOKButton)
+	[openPanel setAllowedFileTypes:@[@"qtz"]];	// (-runModalForTypes: no longer restricts the panel to these types)
+	if ([openPanel runModal] == NSOKButton)
 		[ProVocBackgroundStyle setCustomBackgroundCompositionPath:[openPanel filename]];
 	[self didChangeValueForKey:@"backgroundStyleNames"];
 	[self didChangeValueForKey:@"indexOfSelectedBackgroundStyle"];

@@ -20,7 +20,9 @@
 	int r = 14;
 	int s = 1;
 	while ([date timeIntervalSinceNow] > 0) {
-		[self setFrameOrigin:NSMakePoint(origin.x + s * (rand() % r + 1), origin.y)];
+		// not rand(): this loop runs a time-dependent number of times, and would make the
+		// sequence of questions depend on the speed of the machine
+		[self setFrameOrigin:NSMakePoint(origin.x + s * (int)(arc4random_uniform(r) + 1), origin.y)];
 		s *= -1;
 		[background displayNow];
 	}

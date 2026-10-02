@@ -13,7 +13,7 @@
 #import "MenuExtensions.h"
 #import "SpeechSynthesizerExtensions.h"
 
-#import <QTKit/QTKit.h>
+#import "QTKitCompat.h"
 
 @interface NSObject (MCQViewDelegate)
 
@@ -415,9 +415,28 @@ static QTMovieView *sMovieView = nil;
 	}
 }
 
+// The digit keys of the top row and of the keypad, whatever the keyboard layout: on an
+// AZERTY keyboard the top row only types digits with Shift.
++(int)digitForKeyDownEvent:(NSEvent *)inEvent
+{
+	if (([inEvent modifierFlags] & (NSCommandKeyMask | NSControlKeyMask | NSAlternateKeyMask)) != 0)
+		return -1;
+	static const unsigned short keyCodes[2][10] = {{29, 18, 19, 20, 21, 23, 22, 26, 28, 25}, {82, 83, 84, 85, 86, 87, 88, 89, 91, 92}};
+	int row, digit;
+	for (row = 0; row < 2; row++)
+		for (digit = 0; digit < 10; digit++)
+			if ([inEvent keyCode] == keyCodes[row][digit])
+				return digit;
+	return -1;
+}
+
 -(void)keyDown:(NSEvent *)inEvent
 {
-	[self interpretKeyEvents:@[inEvent]];
+	int digit = [[self class] digitForKeyDownEvent:inEvent];
+	if (digit > 0)
+		[self selectIndex:digit - 1];
+	else
+		[self interpretKeyEvents:@[inEvent]];
 }
 
 -(void)mouseDown:(NSEvent *)inEvent

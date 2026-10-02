@@ -17,6 +17,10 @@
 -(id)tableColumnStates;
 -(void)setTableColumnStates:(id)inStates;
 
+// Same behaviour as the deprecated -selectedRowEnumerator and -selectRow:byExtendingSelection:
+-(NSEnumerator *)selectedRowNumberEnumerator;
+-(void)selectRowAtIndex:(NSInteger)inRow byExtendingSelection:(BOOL)inExtend;
+
 @end
 
 @interface NSOutlineView (ExpandedState)

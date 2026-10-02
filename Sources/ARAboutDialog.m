@@ -101,6 +101,7 @@
 
 -(void)showAboutWindow
 {
+	[(ARAboutWindow *)[self window] setShownAtLaunch:NO];
     [self displayAboutWindow:YES];
 
     float dt = 0.05; // s
@@ -159,6 +160,10 @@ again:
 
 -(void)show:(id)inSender
 {
+	// (As the only window of the application when it becomes active, it was made the
+	// key window, and the document opened at launch got neither key nor main status
+	// until it closed, three seconds later: Command-R or typing did nothing meanwhile.)
+	[(ARAboutWindow *)[self window] setShownAtLaunch:YES];
 	[self displayAboutWindow:YES];
 }
 
@@ -171,7 +176,7 @@ again:
 
 @implementation ARAboutWindow
 
--(id)initWithContentRect:(NSRect)inContentRect styleMask:(unsigned int)inStyle 	backing:(NSBackingStoreType)inBufferingType defer:(BOOL)inFlag
+-(id)initWithContentRect:(NSRect)inContentRect styleMask:(NSWindowStyleMask)inStyle 	backing:(NSBackingStoreType)inBufferingType defer:(BOOL)inFlag
 {
     if (self = [super initWithContentRect:inContentRect styleMask:NSBorderlessWindowMask
                         backing:NSBackingStoreBuffered defer:NO]) {
@@ -182,9 +187,14 @@ again:
     return self;
 }
 
+-(void)setShownAtLaunch:(BOOL)inShownAtLaunch
+{
+	mShownAtLaunch = inShownAtLaunch;
+}
+
 -(BOOL)canBecomeKeyWindow
 {
-    return YES;
+    return !mShownAtLaunch;
 }
 
 @end

@@ -19,7 +19,7 @@
 
 @implementation ProVocDifficultyTableColumn
 
--(id)dataCellForRow:(int)inRow
+-(id)dataCellForRow:(NSInteger)inRow
 {
 	if (!mDataCell)
 		mDataCell = [[RankCell alloc] init];
@@ -39,7 +39,7 @@
 
 @implementation ProVocFlaggedTableColumn
 
--(id)dataCellForRow:(int)inRow
+-(id)dataCellForRow:(NSInteger)inRow
 {
 	if (!mDataCell)
 		mDataCell = [[NSImageCell alloc] init];
@@ -56,7 +56,7 @@
 
 @implementation ProVocPresetTableColumn
 
--(id)dataCellForRow:(int)inRow
+-(id)dataCellForRow:(NSInteger)inRow
 {
 	if (!mDataCell) {
 		mDataCell = [[PresetCell alloc] init];

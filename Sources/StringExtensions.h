@@ -16,7 +16,6 @@
 -(NSString *)stringByDeletingCharactersInSet:(NSCharacterSet *)inCharacterSet;
 
 -(float)heightForWidth:(float)inWidth withAttributes:(NSDictionary *)inAttributes;
--(NSSize)sizeWithAttributes:(NSDictionary *)inAttributes;
 -(float)widthWithAttributes:(NSDictionary *)inAttributes;
 
 -(NSString *)nameOfCopyWithExistingNames:(NSArray *)inNames;
@@ -35,7 +34,7 @@
 @interface NSAttributedString (ProVocExtensions)
 
 -(float)heightForWidth:(float)inWidth;
--(NSSize)size;
+// (-size and -[NSString sizeWithAttributes:], once defined here too, are methods of AppKit)
 -(float)width;
 
 @end

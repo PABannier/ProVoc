@@ -130,8 +130,10 @@
 
 -(void)makeColumnWithIdentifier:(NSString *)inIdentifier visible:(BOOL)inVisible
 {
-	NSTableColumn *column = [mWordTableView tableColumnWithIdentifier:inIdentifier];
-	if ([self isColumnVisible:column] != inVisible)
+	// among all the columns: the table no longer knows a column that is hidden, and
+	// View Options could not show it again (an exception was raised instead)
+	NSTableColumn *column = [self columnWithIdentifier:inIdentifier];
+	if (column && [self isColumnVisible:column] != inVisible)
 		[self toggleTableColumn:column sizeToFit:YES];
 }
 

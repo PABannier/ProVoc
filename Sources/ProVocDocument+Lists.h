@@ -16,9 +16,9 @@
 #define PVSearchComments @"PVSearchComments"
 
 #define ProVocSourcesType @"ProVocSourcesType"
-#define ProVocSelfSourcesType [NSString stringWithFormat:@"ProVocSelfSourcesType%i", (int)self]
+#define ProVocSelfSourcesType [NSString stringWithFormat:@"ProVocSelfSourcesType%p", self]
 #define ProVocWordsType @"ProVocWordsType"
-#define ProVocSelfWordsType [NSString stringWithFormat:@"ProVocSelfWordsType%i", (int)self]
+#define ProVocSelfWordsType [NSString stringWithFormat:@"ProVocSelfWordsType%p", self]
 
 @interface ProVocDocument (Words)
 

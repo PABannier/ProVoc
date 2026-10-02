@@ -7,6 +7,7 @@
 //
 
 #import "ProVocDocument+Slideshow.h"
+#import "ProVocApplication.h"
 #import "ProVocTester.h"
 #import "StringExtensions.h"
 #import "ArrayExtensions.h"
@@ -245,7 +246,7 @@ static QTMovieView *sMovieView = nil;
 {
 	if (self = [super initWithFrame:inFrame]) {
 		NSColor *backGroundColor = [NSUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:PVTestBackgroundColor]];
-		float r, g, b;
+		CGFloat r, g, b;
 		[[backGroundColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] getRed:&r green:&g blue:&b alpha:nil];
 		NSColor *textColor = (r + g + b) / 3 >= 0.5 ? [NSColor blackColor] : [NSColor whiteColor];
 
@@ -425,7 +426,7 @@ static SlideView *sSecondSlideView = nil;
 	NSRect frame = [screen frame];
 	float factor = 1.0;
 	if ([NSApp systemVersion] >= 0x1040)
-		factor = [screen userSpaceScaleFactor];
+		factor = 1.0;
 	NSRect riFrame = frame;
 	riFrame.size.height /= factor;
 	riFrame.size.width /= factor;
@@ -452,7 +453,7 @@ static SlideView *sSecondSlideView = nil;
 		frame.size.width *= factor;
 		sSecondSlide = [[NSWindow alloc] initWithContentRect:frame styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 		frame.origin = NSZeroPoint;
-		sSecondSlideView = [[SlideView alloc] initWithFrame:frame strings:@[target, delayComment ? [inWord comment] : nil] swapFonts:swapped
+		sSecondSlideView = [[SlideView alloc] initWithFrame:frame strings:[NSArray arrayWithObjects:target, delayComment ? [inWord comment] : nil, nil] swapFonts:swapped
 									image:nil movie:nil
 									sourceSound:nil targetSound:delayTarget ? targetSound : nil
 									firstIndex:1];
@@ -583,6 +584,8 @@ waitAgain:
 	[[self window] nextEventMatchingMask:NSLeftMouseDownMask | NSRightMouseDownMask | NSKeyDownMask
 									untilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]
 									inMode:NSDefaultRunLoopMode dequeue:YES];
+	[NSObject cancelPreviousPerformRequestsWithTarget:slideShowControlView];
+	[controlPanel orderOut:nil];
 	[NSScreen undimScreens];
 	[NSCursor unhide];
 }

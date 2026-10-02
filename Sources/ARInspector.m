@@ -26,7 +26,7 @@
 -(void)drawRect:(NSRect)inRect
 {
 	[[NSColor colorWithCalibratedWhite:0.75 alpha:1.0] set];
-	NSRectFill(inRect);
+	NSRectFill(NSIntersectionRect(inRect, [self bounds]));	// the dirty rect may exceed the bounds (macOS 14+)
 	[[NSColor lightGrayColor] set];
 	NSFrameRect([self bounds]);
 }
@@ -143,7 +143,7 @@
 
 -(float)scaleFactor
 {
-	return [[self window] userSpaceScaleFactor];
+	return 1.0;
 }
 
 -(void)setHeight:(float)inHeight animate:(BOOL)inAnimate

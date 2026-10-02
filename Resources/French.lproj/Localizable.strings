@@ -327,3 +327,57 @@ de deux fois";
 "Leopard Only Feature Message" = "Cette version de ProVoc est optimizée pour Mac OS X 10.5 Leopard, et n'offre pas d'enregistremetn sonore pour les versions antérieurs du système.";
 "Leopard Only Feature Download Button" = "Télécharger ProVoc pour la version actuelle du système";
 "Leopard Only Feature Download URL" = "http://www.arizona-software.ch/provoc/download/?target=tiger";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"iPod Obsolete Title" = "Les notes ne peuvent plus être envoyées sur un iPod";
+"iPod Obsolete Message" = "Les iPod dotés de la fonction Notes ne sont plus pris en charge par macOS. Vous pouvez exporter votre vocabulaire dans un fichier à la place.";
+"iPod Obsolete Export Button" = "Exporter…";
+"iPod Obsolete Cancel Button" = "Annuler";
+"Updates Obsolete Title" = "ProVoc ne peut plus rechercher de mises à jour";
+"Updates Obsolete Message (v=%@)" = "Arizona Software ne publie plus ProVoc. Ceci est la version %@, recompilée à partir de son code source pour les Mac actuels.";
+"Web Site Gone Title" = "Le site web d’Arizona Software n’existe plus";
+"Web Site Gone Homepage Message" = "ProVoc a été publié par Arizona Software jusqu’en 2008. Son code source est public ; cette copie a été recompilée à partir de celui-ci.";
+"Web Site Gone Feedback Message" = "Plus personne chez Arizona Software ne reçoit les rapports de bogue ni les commentaires.";
+"Web Site Gone Vocabulary Message" = "La bibliothèque de vocabulaires était hébergée sur ce site. Vous pouvez toujours importer du vocabulaire depuis des fichiers texte avec Fichier > Importer…";
+"Help Window Title" = "Aide ProVoc";
+"Movie Unsupported Format Message" = "Cette séquence ne peut pas être lue : son format n’est pas pris en charge par cette version de macOS.";
+"System Font Caption" = "Police système";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"Media Menu Title" = "Médias";
+"Media Menu Play First Audio" = "Lire l’audio de la question / source";
+"Media Menu Play Second Audio" = "Lire l’audio de la réponse / cible";
+"Media Menu Show Image" = "Afficher l’image en taille réelle";
+"Media Menu Play Movie" = "Lire la séquence";
+"Media Menu Play Movie Full Size" = "Lire la séquence en taille réelle";
+"Media Menu Record First Audio" = "Enregistrer l’audio de la source…";
+"Media Menu Record Second Audio" = "Enregistrer l’audio de la cible…";
+"Media Menu Capture Image" = "Capturer une image…";
+"Media Menu Record Movie" = "Enregistrer une séquence…";
+"Recorder Window Title" = "Enregistrement audio";
+"Recorder Record Button" = "Enregistrer";
+"Recorder Stop Button" = "Arrêter";
+"Recorder Play Button" = "Lire";
+"Recorder OK Button" = "OK";
+"Recorder Cancel Button" = "Annuler";
+"Recorder Ready Status" = "Appuyez sur Enregistrer (ou sur la barre d’espace) pour commencer.";
+"Recorder Recording Status (%.1f s)" = "Enregistrement… %.1f s — appuyez sur Retour pour terminer.";
+"Recorder Recorded Status" = "Enregistré. Appuyez sur Retour pour le conserver.";
+"Camera Image Window Title" = "Capture d’image";
+"Camera Movie Window Title" = "Enregistrement de séquence";
+"Camera Capture Button" = "Capturer";
+"Camera Image Ready Status" = "Appuyez sur Retour pour prendre la photo.";
+"Camera Movie Ready Status" = "Appuyez sur Enregistrer (ou sur la barre d’espace) pour commencer.";
+"Camera Recording Status" = "Enregistrement… appuyez sur Retour pour terminer.";
+"Microphone Unavailable Title" = "ProVoc ne peut pas utiliser le microphone";
+"Camera Unavailable Title" = "ProVoc ne peut pas utiliser la caméra";
+"Microphone Access Denied Message" = "Autorisez ProVoc à utiliser le microphone dans Réglages Système > Confidentialité et sécurité > Microphone.";
+"Camera Access Denied Message" = "Autorisez ProVoc à utiliser la caméra dans Réglages Système > Confidentialité et sécurité > Caméra.";
+"No Microphone Message" = "Aucun microphone n’a été trouvé.";
+"No Camera Message" = "Aucune caméra n’a été trouvée.";
+"Open System Settings Button" = "Ouvrir Réglages Système";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"Submit Obsolete Title" = "Les documents ne peuvent plus être soumis";
+"Submit Obsolete Message" = "Le serveur de vocabulaires d’Arizona Software n’existe plus. Pour partager ce vocabulaire, enregistrez le document et envoyez son fichier : il contient les mots et leurs médias.";
+"Submit Obsolete Reveal Button" = "Afficher dans le Finder";
