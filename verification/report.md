@@ -44,6 +44,7 @@ nothing a user needs requires the Control key.
 | Result panel: Return / Esc did the wrong thing after the first use | Key equivalents were set one way only | Set both ways each time: Return = Repeat Incorrect Words when there are some, otherwise Done; Esc = Done |
 | "Time is over!" never appeared after a correct answer | Logic error in the deferral of the alert (original bug) | Fixed |
 | The splash window at launch took the keyboard for three seconds | It became key instead of the document | It cannot become key when shown at launch |
+| In the camera window, Space no longer recorded a movie after a picture had been taken | AppKit clears the key of a button that stops being the default button | The default button is set first, then the keys |
 | A click on a movie took the focus from the answer field | The movie view accepted first responder | It no longer does in a test panel |
 | F1–F4 need the fn key on current keyboards | — | Vocabulary > Media: the same commands with second shortcuts (below) |
 
@@ -156,7 +157,11 @@ to `~/ProVoc backups/` first).
 - The tests run in the Debug build, which is compiled with the same optimization as the
   Release build (-Os): they exercise the code as it ships. The Release application
   itself (`dist/ProVoc.app`) is checked for its architecture and signature, launched
-  through LaunchServices and quit; `scripts/deadkey-check.sh` can be given its path.
+  through LaunchServices and quit, and `scripts/deadkey-check.sh` answers a whole test
+  in it with keys pressed by macOS.
+- Pressing Option twice in a row is a system-wide shortcut of some applications (the
+  Claude desktop application opens its quick entry window, which then gets the keys).
+  `scripts/deadkey-check.sh` therefore leaves a second between two Option dead keys.
 - macOS ties the microphone and camera permission of an ad hoc signed build to its exact
   binary. With `sign.local.xcconfig` (local to a Mac, not in git) the Debug build is
   signed with a development certificate and keeps the permission across rebuilds; the
@@ -169,9 +174,9 @@ to `~/ProVoc backups/` first).
 
 ## Results of the last verification run
 
-Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641c verify.sh: clean both configurations before building them (cleaning Debug removed the Release product)` (with uncommitted changes).
+Run of 2026-10-02 14:20 in the working copy, at commit `99fd5f3 Camera window: Space records a movie again after a picture; the permission-gated checks pass`.
 
-**Verdict: 3 step(s) of the verification and 6 line(s) of FEATURES.md do not pass.**
+**Verdict: everything passed.**
 
 ### Steps
 
@@ -189,10 +194,11 @@ Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641
 | `verify/dist-launches` | PASS |
 | `verify/hosted-run1` | PASS |
 | `verify/hosted-run2` | PASS |
-| `verify/e2e-run1` | FAIL |
-| `verify/e2e-run2` | FAIL |
+| `verify/e2e-run1` | PASS |
+| `verify/e2e-run2` | PASS |
 | `verify/applescript-check.sh` | PASS |
-| `verify/deadkey-check.sh` | FAIL |
+| `verify/deadkey-check.sh` | PASS |
+| `verify/deadkey-check-release` | PASS |
 | `verify/log-scan-self-test` | PASS |
 | `verify/log-scan-hosted-run1` | PASS |
 | `verify/log-scan-hosted-run2` | PASS |
@@ -202,8 +208,8 @@ Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641
 - lipo -archs: arm64 (Release), arm64 (Debug)
 - Tests hosted in the application, run 1: 143 passed, 0 failed.
 - Tests hosted in the application, run 2: 143 passed, 0 failed.
-- Scenarios of the stand-alone application, run 1: 20 passed, 2 failed (`e2e/record-audio`, `e2e/capture-image-and-movie`).
-- Scenarios of the stand-alone application, run 2: 20 passed, 2 failed (`e2e/record-audio`, `e2e/capture-image-and-movie`).
+- Scenarios of the stand-alone application, run 1: 22 passed, 0 failed.
+- Scenarios of the stand-alone application, run 2: 22 passed, 0 failed.
 
 ### Features
 
@@ -241,7 +247,7 @@ Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641
 | PASS | Answer matching: leading/trailing spaces. | `ProVocTests/ProVocAnswerTests/testSpaces` |
 | PASS | Answer matching: punctuation. | `ProVocTests/ProVocAnswerTests/testPunctuation` |
 | PASS | Answer matching: French accented input. | `ProVocTests/ProVocAnswerTests/testFrenchAccentedInput` |
-| FAIL | Dead keys and composition in the answer field with the French (AZERTY) layout: `^` then `e` → `ê`, `¨` then `i` → `ï`, ⌥-e then e → `é`, accented letters. | `ProVocTests/ProVocInterrogationTests/testDeadKeysAndAccentedLetters*`<br>`scripts/deadkey-check.sh`<br>**not ticked; scripts/deadkey-check.sh failed (scripts)** |
+| PASS | Dead keys and composition in the answer field with the French (AZERTY) layout: `^` then `e` → `ê`, `¨` then `i` → `ï`, ⌥-e then e → `é`, accented letters. | `ProVocTests/ProVocInterrogationTests/testDeadKeysAndAccentedLetters*`<br>`scripts/deadkey-check.sh`<br>`scripts/deadkey-check-release` |
 | PASS | Direction source→target. | `ProVocTests/ProVocInterrogationTests/testAllCorrect*` |
 | PASS | Direction target→source. | `ProVocTests/ProVocInterrogationTests/testDirectionTargetToSource*` |
 | PASS | Direction both/random. | `ProVocTests/ProVocInterrogationTests/testDirectionBoth*`<br>`ProVocTests/ProVocInterrogationTests/testDirectionRandom*` |
@@ -351,13 +357,13 @@ Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641
 | PASS | F1 / F2 play source/target audio. | `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys` |
 | PASS | F3 shows the image full size; Esc exits. | `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys` |
 | PASS | F4 plays the movie; ⌥F4 / ⇧F4 full size; Esc exits. | `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys` |
-| FAIL | ⌘F1 / ⌘F2 record source/target audio (respecting the `NoShiftRecord` preference logic in `handleKeyDownEvent:`). | `e2e/record-audio`<br>**not ticked; e2e/record-audio failed (e2e-run1, e2e-run2)** |
-| FAIL | ⌥-click record: the modal recorder (record / stop / play / OK / Cancel; Return = OK, Esc = Cancel). | `e2e/record-audio`<br>**not ticked; e2e/record-audio failed (e2e-run1, e2e-run2)** |
-| FAIL | ⌘F3 captures an image (camera). | `e2e/capture-image-and-movie`<br>**not ticked; e2e/capture-image-and-movie failed (e2e-run1, e2e-run2)** |
-| FAIL | ⌘F4 records a movie (camera). | `e2e/capture-image-and-movie`<br>**not ticked; e2e/capture-image-and-movie failed (e2e-run1, e2e-run2)** |
+| PASS | ⌘F1 / ⌘F2 record source/target audio (respecting the `NoShiftRecord` preference logic in `handleKeyDownEvent:`). | `e2e/record-audio` |
+| PASS | ⌥-click record: the modal recorder (record / stop / play / OK / Cancel; Return = OK, Esc = Cancel). | `e2e/record-audio` |
+| PASS | ⌘F3 captures an image (camera). | `e2e/capture-image-and-movie` |
+| PASS | ⌘F4 records a movie (camera). | `e2e/capture-image-and-movie` |
 | PASS | Choosing media files via the open panels of the inspector; exporting and removing media. | `ProVocTests/ProVocMediaTests/testInspectorImportExportAndRemoveMedia`<br>`ProVocTests/ProVocMediaTests/testPanelMethodsOfTheTimeStillExist` |
 | PASS | Common formats play (`.mov` / `.mp4` / `.m4a` / `.aiff` / `.wav` / `.mp3`); anything AVFoundation cannot decode fails gracefully with a clear message. | `ProVocTests/ProVocMediaTests/testCommonSoundFormatsPlay`<br>`ProVocTests/ProVocMediaTests/testCommonMovieFormatsPlayAndOthersFailGracefully` |
-| FAIL | Menu items for the function-key actions (Play Question/Source Audio, Play Answer/Target Audio, Show Image Full Size, Play Movie, Record…) with secondary shortcuts that need no fn key. | `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`<br>`ProVocTests/ProVocMediaTests/testMediaKeysDuringATest*`<br>`e2e/record-audio`<br>`e2e/capture-image-and-movie`<br>`e2e/localization-english`<br>**not ticked; e2e/record-audio failed (e2e-run1, e2e-run2); e2e/capture-image-and-movie failed (e2e-run1, e2e-run2)** |
+| PASS | Menu items for the function-key actions (Play Question/Source Audio, Play Answer/Target Audio, Show Image Full Size, Play Movie, Record…) with secondary shortcuts that need no fn key. | `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`<br>`ProVocTests/ProVocMediaTests/testMediaKeysDuringATest*`<br>`e2e/record-audio`<br>`e2e/capture-image-and-movie`<br>`e2e/localization-english` |
 
 #### F. App-level
 
@@ -385,7 +391,7 @@ Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641
 | PASS | Automator actions. | `ProVocTests/ProVocAutomatorTests/testActionsAreInTheApplication`<br>`ProVocTests/ProVocAutomatorTests/testGetContentsOfDocument`<br>`ProVocTests/ProVocAutomatorTests/testAddTextToVocabulary`<br>`ProVocTests/ProVocAutomatorTests/testAddFilesToVocabulary` |
 | PASS | Every localization launches; English and French are smoke-tested end to end (`-AppleLanguages "(fr)"`). | `e2e/localization-english`<br>`e2e/localization-french`<br>`e2e/localization-german`<br>`e2e/localization-italian`<br>`e2e/localization-spanish`<br>`e2e/localization-danish` |
 | PASS | Hide / Hide Others / Minimize / Quit (⌘H / ⌥⌘H / ⌘M / ⌘Q) with unsaved-changes prompts. | `e2e/quit-with-unsaved-changes`<br>`e2e/quit-with-two-unsaved-documents`<br>`e2e/quit-without-changes` |
-| PASS | The app builds for arm64 (Release and Debug), is signed, and launches. | `verify/clean`<br>`verify/build-release`<br>`verify/build-debug`<br>`verify/arm64-only-release`<br>`verify/arm64-only-debug`<br>`verify/dist-signed`<br>`verify/dist-launches` |
+| PASS | The app builds for arm64 (Release and Debug), is signed, and launches. | `verify/clean`<br>`verify/build-release`<br>`verify/build-debug`<br>`verify/arm64-only-release`<br>`verify/arm64-only-debug`<br>`verify/dist-signed`<br>`verify/dist-launches`<br>`scripts/deadkey-check-release` |
 | PASS | Every deck in `fixtures/user-decks/` opens, can be tested with the keyboard-only flow, saves and reopens identically. | `ProVocTests/ProVocDeckTests/testUserDecksOpenSaveAndReopenIdentically`<br>`ProVocTests/ProVocUserDeckTrainingTests/testEveryDeckIsTrainedWithTheKeyboardSavedAndReopened*` |
 | PASS | Light and dark appearance: the panels render correctly in both. | `e2e/appearance-light`<br>`e2e/appearance-dark`<br>`ProVocTests/ProVocVisualTests/testMainWindowsRender` |
 
@@ -400,3 +406,10 @@ Run of 2026-10-02 13:41 in `/Users/pierre-antoine/dev/ProVoc`, at commit `6b0641
 | PASS | Dashboard widget offer at launch and widget log (`ProVocDocument+WidgetLog`) — OBSOLETE: Dashboard was removed from macOS (10.15); the widget cannot run — replaced by: no offer at launch; the answers a widget logged in a document (`Widget.log`) are still read into its statistics and history | `ProVocTests/ProVocAppFeatureTests/testWidgetLogOfADocumentIsStillRead`<br>`e2e/launch` |
 | PASS | Quartz Composer backgrounds — OBSOLETE: Quartz Composer is deprecated and the compositions of the four backgrounds no longer render — replaced by: the same four backgrounds (Plant Shades, Ocean, Globe, Nature) drawn with Core Animation from the pictures of the original plug-ins, with the same reactions to questions and answers | `ProVocTests/ProVocBackgroundTests/testBuiltInBackgroundsAreDrawnNatively`<br>`ProVocTests/ProVocTestBackgroundTests/testGlobeShowsQuestionAndAnswer`<br>`ProVocTests/ProVocTestBackgroundTests/testPlantsReactToAnswersAndResults` |
 
+
+## Clean checkout
+
+The same verification was then run in a fresh clone of the branch at commit `a5e0ce8`
+(`git clone`, then `PV_USER_DECKS=… PV_SIGN_XCCONFIG=… scripts/verify.sh`, on 2026-10-02):
+every step passed, the hosted tests 143 / 143 in both runs, the stand-alone scenarios
+22 / 22 in both runs, and 157 of 157 lines of FEATURES.md.
