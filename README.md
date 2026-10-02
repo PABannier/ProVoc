@@ -13,6 +13,16 @@ ProVoc 4.2.3 builds and runs natively on arm64 (macOS 13 or later, Xcode 16 or l
     scripts/verify.sh      # clean builds, every test, dist/ProVoc.app, verification/report.md
     scripts/install.sh     # copies dist/ProVoc.app to /Applications
 
+To only build the application, the Xcode project in the repository is enough:
+
+    xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath build/DerivedData build
+
+(`ProVoc.xcodeproj` is generated from `project.yml` by XcodeGen; `scripts/verify.sh`
+regenerates it.) The verification also trains on copies of real decks, which are not in
+the repository: put a few `.pvoc` documents in `fixtures/user-decks/`, or run
+`PV_USER_DECKS=<folder of decks> scripts/verify.sh`. It types and clicks in the
+application for about forty minutes, and needs the permissions described in the report.
+
 `verification/report.md` says what was broken and how it was fixed, lists the shortcuts
 added and what replaces the features that cannot exist any more, and gives the verdict
 of each line of `FEATURES.md`.
