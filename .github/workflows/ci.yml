@@ -1,0 +1,72 @@
+# Builds ProVoc for arm64 on every push to master and on every pull request, runs the
+# tests that need neither the keyboard nor a permission, and packages the disk image
+# the way a release does (kept a week with the run, to try it).
+#
+# The whole verification (scripts/verify.sh) types and clicks in the application and
+# needs the microphone, the camera and the Accessibility permission: it is run on a
+# Mac, by hand, not here.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tools
+        run: |
+          sw_vers
+          uname -m
+          xcodebuild -version
+
+      - name: Scripts parse
+        run: |
+          for script in scripts/*.sh .github/scripts/*.sh; do bash -n "$script"; done
+          for script in scripts/*.py .github/scripts/*.py; do python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read(), sys.argv[1])" "$script"; done
+
+      - name: Build Release (arm64)
+        run: |
+          xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath build/DerivedData ARCHS=arm64 ONLY_ACTIVE_ARCH=NO build > build-release.log 2>&1 || { grep -E "error:|failed" build-release.log | head -40; tail -40 build-release.log; exit 1; }
+          lipo -archs build/DerivedData/Build/Products/Release/ProVoc.app/Contents/MacOS/ProVoc
+
+      - name: Build Debug and the tests (arm64)
+        run: |
+          xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Debug -derivedDataPath build/DerivedData ARCHS=arm64 ONLY_ACTIVE_ARCH=NO build-for-testing > build-debug.log 2>&1 || { grep -E "error:|failed" build-debug.log | head -40; tail -40 build-debug.log; exit 1; }
+
+      # hosted in the application, but without typing: answer matching, the application
+      # class and its categories, the Spotlight importer, every nib of every localization
+      - name: Tests
+        run: |
+          xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Debug -derivedDataPath build/DerivedData ARCHS=arm64 ONLY_ACTIVE_ARCH=NO test-without-building \
+            -only-testing:ProVocTests/ProVocAnswerTests -only-testing:ProVocTests/ProVocAppTests -only-testing:ProVocTests/ProVocImporterTests -only-testing:ProVocTests/ProVocNibTests \
+            > tests.log 2>&1 || { grep -E "error:|Test Case .* failed" tests.log | head -40; tail -40 tests.log; exit 1; }
+          grep -E "Executed [0-9]+ tests" tests.log | tail -1
+
+      - name: Disk image
+        run: |
+          python3 -m venv build/venv
+          build/venv/bin/pip install --quiet dmgbuild==1.6.7
+          DMGBUILD=build/venv/bin/dmgbuild .github/scripts/package.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ProVoc-arm64-dmg
+          path: dist/*.dmg
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: logs
+          path: "*.log"
+          retention-days: 7

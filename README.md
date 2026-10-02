@@ -5,7 +5,24 @@ A vocabulary trainer for Mac OS X, originally written by Arizona Software (http:
 
 *Please be aware that this project is currently unstable as I am modernising a large legacy codebase.*
 
-## Building on Apple Silicon (branch `arm64-revival`)
+[![CI](https://github.com/PABannier/ProVoc/actions/workflows/ci.yml/badge.svg)](https://github.com/PABannier/ProVoc/actions/workflows/ci.yml)
+
+## Download
+
+The [latest release](https://github.com/PABannier/ProVoc/releases/latest) has
+`ProVoc-<version>-arm64.dmg` for Apple Silicon Macs (macOS 13 or later): open it and
+drag ProVoc onto the Applications folder.
+
+The application is not notarized by Apple (it is signed "ad hoc"). The first time, macOS
+therefore refuses to open it: open System Settings > Privacy & Security, scroll down to
+the message about ProVoc and click **Open Anyway** — or run
+`xattr -dr com.apple.quarantine /Applications/ProVoc.app` in Terminal.
+
+A release is made by publishing it on GitHub: the Release workflow builds the tag and
+attaches the disk image. A tag that is a version number (`v4.3`) becomes the version of
+the application.
+
+## Building on Apple Silicon
 
 ProVoc 4.2.3 builds and runs natively on arm64 (macOS 13 or later, Xcode 16 or later,
 `brew install xcodegen`):
