@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Tools
         run: |
@@ -58,13 +58,13 @@ jobs:
           build/venv/bin/pip install --quiet dmgbuild==1.6.7
           DMGBUILD=build/venv/bin/dmgbuild .github/scripts/package.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ProVoc-arm64-dmg
           path: dist/*.dmg
           retention-days: 7
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: logs
