@@ -57,8 +57,8 @@ Notes on behaviour that differs from the wording of the specification are given 
 - [x] Answer matching: leading/trailing spaces. — test: `ProVocTests/ProVocAnswerTests/testSpaces`
 - [x] Answer matching: punctuation. — test: `ProVocTests/ProVocAnswerTests/testPunctuation`
 - [x] Answer matching: French accented input. — test: `ProVocTests/ProVocAnswerTests/testFrenchAccentedInput`
-- [ ] Dead keys and composition in the answer field with the French (AZERTY) layout: `^` then `e` → `ê`, `¨` then `i` → `ï`, ⌥-e then e → `é`, accented letters. — test: `ProVocTests/ProVocInterrogationTests/testDeadKeysAndAccentedLetters*`, `scripts/deadkey-check.sh`
-  - Not ticked yet: `scripts/deadkey-check.sh` (keys pressed by System Events) needs the Accessibility permission, which only a person can give (see `verification/NEEDS_HUMAN.md`). The hosted tests, which send the same key codes through the text input system with the French and the ABC layouts, pass.
+- [x] Dead keys and composition in the answer field with the French (AZERTY) layout: `^` then `e` → `ê`, `¨` then `i` → `ï`, ⌥-e then e → `é`, accented letters. — test: `ProVocTests/ProVocInterrogationTests/testDeadKeysAndAccentedLetters*`, `scripts/deadkey-check.sh`, `scripts/deadkey-check-release`
+  - `scripts/deadkey-check.sh` has the keys pressed by macOS itself (System Events), typed ahead without waiting, with the French and the ABC layouts, in the test build and in the Release application of `dist/`; it needs the Accessibility permission for the terminal. The hosted tests send the same key codes through the text input system.
 - [x] Direction source→target. — test: `ProVocTests/ProVocInterrogationTests/testAllCorrect*`
 - [x] Direction target→source. — test: `ProVocTests/ProVocInterrogationTests/testDirectionTargetToSource*`
 - [x] Direction both/random. — test: `ProVocTests/ProVocInterrogationTests/testDirectionBoth*`, `ProVocTests/ProVocInterrogationTests/testDirectionRandom*`
@@ -164,17 +164,16 @@ Notes on behaviour that differs from the wording of the specification are given 
 - [x] F1 / F2 play source/target audio. — test: `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`
 - [x] F3 shows the image full size; Esc exits. — test: `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`
 - [x] F4 plays the movie; ⌥F4 / ⇧F4 full size; Esc exits. — test: `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`
-- [ ] ⌘F1 / ⌘F2 record source/target audio (respecting the `NoShiftRecord` preference logic in `handleKeyDownEvent:`). — test: `e2e/record-audio`
-  - Not ticked yet: macOS has to be told once, by a person, that ProVoc may use the microphone (`scripts/request-capture-access.sh`, see `verification/NEEDS_HUMAN.md`). Second shortcuts: ⇧⌘K and ⇧⌘L.
-- [ ] ⌥-click record: the modal recorder (record / stop / play / OK / Cancel; Return = OK, Esc = Cancel). — test: `e2e/record-audio`
-- [ ] ⌘F3 captures an image (camera). — test: `e2e/capture-image-and-movie`
-  - Not ticked yet: the camera needs the same permission. Second shortcut: ⇧⌘B.
-- [ ] ⌘F4 records a movie (camera). — test: `e2e/capture-image-and-movie`
-  - Not ticked yet: camera permission. Second shortcut: ⇧⌘M.
+- [x] ⌘F1 / ⌘F2 record source/target audio (respecting the `NoShiftRecord` preference logic in `handleKeyDownEvent:`). — test: `e2e/record-audio`
+  - macOS has to be told once, by a person, that ProVoc may use the microphone (`scripts/request-capture-access.sh`). Second shortcuts: ⇧⌘K and ⇧⌘L.
+- [x] ⌥-click record: the modal recorder (record / stop / play / OK / Cancel; Return = OK, Esc = Cancel). — test: `e2e/record-audio`
+- [x] ⌘F3 captures an image (camera). — test: `e2e/capture-image-and-movie`
+  - The camera needs the same permission. Second shortcut: ⇧⌘B.
+- [x] ⌘F4 records a movie (camera). — test: `e2e/capture-image-and-movie`
+  - Second shortcut: ⇧⌘M. Space starts and stops the recording, Return keeps the movie, Esc cancels.
 - [x] Choosing media files via the open panels of the inspector; exporting and removing media. — test: `ProVocTests/ProVocMediaTests/testInspectorImportExportAndRemoveMedia`, `ProVocTests/ProVocMediaTests/testPanelMethodsOfTheTimeStillExist`
 - [x] Common formats play (`.mov` / `.mp4` / `.m4a` / `.aiff` / `.wav` / `.mp3`); anything AVFoundation cannot decode fails gracefully with a clear message. — test: `ProVocTests/ProVocMediaTests/testCommonSoundFormatsPlay`, `ProVocTests/ProVocMediaTests/testCommonMovieFormatsPlayAndOthersFailGracefully`
-- [ ] Menu items for the function-key actions (Play Question/Source Audio, Play Answer/Target Audio, Show Image Full Size, Play Movie, Record…) with secondary shortcuts that need no fn key. — test: `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`, `ProVocTests/ProVocMediaTests/testMediaKeysDuringATest*`, `e2e/record-audio`, `e2e/capture-image-and-movie`, `e2e/localization-english`
-  - Not ticked yet because of the two recording scenarios above; the menu and the playing shortcuts pass.
+- [x] Menu items for the function-key actions (Play Question/Source Audio, Play Answer/Target Audio, Show Image Full Size, Play Movie, Record…) with secondary shortcuts that need no fn key. — test: `ProVocTests/ProVocMediaTests/testInspectorFollowsSelectionAndMediaKeys`, `ProVocTests/ProVocMediaTests/testMediaKeysDuringATest*`, `e2e/record-audio`, `e2e/capture-image-and-movie`, `e2e/localization-english`
 
 ## F. App-level
 
@@ -205,7 +204,7 @@ Notes on behaviour that differs from the wording of the specification are given 
 - [x] Every localization launches; English and French are smoke-tested end to end (`-AppleLanguages "(fr)"`). — test: `e2e/localization-english`, `e2e/localization-french`, `e2e/localization-german`, `e2e/localization-italian`, `e2e/localization-spanish`, `e2e/localization-danish`
 - [x] Hide / Hide Others / Minimize / Quit (⌘H / ⌥⌘H / ⌘M / ⌘Q) with unsaved-changes prompts. — test: `e2e/quit-with-unsaved-changes`, `e2e/quit-with-two-unsaved-documents`, `e2e/quit-without-changes`
   - Hide Others (⌥⌘H) is checked to be in the menu with its shortcut, not played: it would hide the other applications of the person using this Mac.
-- [x] The app builds for arm64 (Release and Debug), is signed, and launches. — test: `verify/clean`, `verify/build-release`, `verify/build-debug`, `verify/arm64-only-release`, `verify/arm64-only-debug`, `verify/dist-signed`, `verify/dist-launches`
+- [x] The app builds for arm64 (Release and Debug), is signed, and launches. — test: `verify/clean`, `verify/build-release`, `verify/build-debug`, `verify/arm64-only-release`, `verify/arm64-only-debug`, `verify/dist-signed`, `verify/dist-launches`, `scripts/deadkey-check-release`
 - [x] Every deck in `fixtures/user-decks/` opens, can be tested with the keyboard-only flow, saves and reopens identically. — test: `ProVocTests/ProVocDeckTests/testUserDecksOpenSaveAndReopenIdentically`, `ProVocTests/ProVocUserDeckTrainingTests/testEveryDeckIsTrainedWithTheKeyboardSavedAndReopened*`
   - `fixtures/user-decks/` holds copies of real decks and is not in git: in a fresh checkout, `PV_USER_DECKS=<folder> scripts/verify.sh` copies them.
 - [x] Light and dark appearance: the panels render correctly in both. — test: `e2e/appearance-light`, `e2e/appearance-dark`, `ProVocTests/ProVocVisualTests/testMainWindowsRender`

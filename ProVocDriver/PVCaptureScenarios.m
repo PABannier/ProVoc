@@ -210,10 +210,12 @@
 	[inScript then:^{ PVPostKey(PVKeyF4, nil, NSEventModifierFlagCommand | NSEventModifierFlagFunction); }];
 	[inScript wait:@"Command-F4 to show the camera" timeout:20 until:cameraRunning];
 	[inScript then:^{
+		PVExpectEqualObjects([[camera valueForKey:@"mActionButton"] keyEquivalent], @" ", @"the key of the Record button (the window was used for a picture before)");
 		PVExpect(![[camera valueForKey:@"mOKButton"] isEnabled], @"OK is enabled before anything is recorded");
 		PVPostKey(PVKeySpace, @" ", 0);
 	}];
-	[inScript wait:@"Space to record a movie" timeout:20 until:^BOOL { return [camera isRecordingMovie] && CMTimeGetSeconds([(AVCaptureMovieFileOutput *)[camera valueForKey:@"mMovieOutput"] recordedDuration]) > 1.0; }];
+	[inScript wait:@"Space to record a movie" timeout:20 until:^BOOL {
+		return [camera isRecordingMovie] && CMTimeGetSeconds([(AVCaptureMovieFileOutput *)[camera valueForKey:@"mMovieOutput"] recordedDuration]) > 1.0; }];
 	[inScript then:^{
 		PVSaveWindowScreenshot(panel(), @"windows/camera-movie");
 		PVPostKey(PVKeySpace, @" ", 0);

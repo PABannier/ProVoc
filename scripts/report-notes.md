@@ -44,6 +44,7 @@ nothing a user needs requires the Control key.
 | Result panel: Return / Esc did the wrong thing after the first use | Key equivalents were set one way only | Set both ways each time: Return = Repeat Incorrect Words when there are some, otherwise Done; Esc = Done |
 | "Time is over!" never appeared after a correct answer | Logic error in the deferral of the alert (original bug) | Fixed |
 | The splash window at launch took the keyboard for three seconds | It became key instead of the document | It cannot become key when shown at launch |
+| In the camera window, Space no longer recorded a movie after a picture had been taken | AppKit clears the key of a button that stops being the default button | The default button is set first, then the keys |
 | A click on a movie took the focus from the answer field | The movie view accepted first responder | It no longer does in a test panel |
 | F1–F4 need the fn key on current keyboards | — | Vocabulary > Media: the same commands with second shortcuts (below) |
 
@@ -156,7 +157,11 @@ to `~/ProVoc backups/` first).
 - The tests run in the Debug build, which is compiled with the same optimization as the
   Release build (-Os): they exercise the code as it ships. The Release application
   itself (`dist/ProVoc.app`) is checked for its architecture and signature, launched
-  through LaunchServices and quit; `scripts/deadkey-check.sh` can be given its path.
+  through LaunchServices and quit, and `scripts/deadkey-check.sh` answers a whole test
+  in it with keys pressed by macOS.
+- Pressing Option twice in a row is a system-wide shortcut of some applications (the
+  Claude desktop application opens its quick entry window, which then gets the keys).
+  `scripts/deadkey-check.sh` therefore leaves a second between two Option dead keys.
 - macOS ties the microphone and camera permission of an ad hoc signed build to its exact
   binary. With `sign.local.xcconfig` (local to a Mac, not in git) the Debug build is
   signed with a development certificate and keeps the permission across rebuilds; the

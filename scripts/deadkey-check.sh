@@ -69,38 +69,56 @@ end tell")
 	echo "ok: être, naïf, été typed with the dead keys of $1 ($(counts))"
 }
 
+# Only key codes (physical keys) are sent: what they type is decided by the layout of
+# the application, as with a real keyboard. ("keystroke" would let System Events choose
+# the keys with its own idea of the layout.)
+#   key codes: e 14, t 17, r 15, n 45, i 34, f 3, u 32, Return 36;
+#   the key of A is 12 on AZERTY and 0 on QWERTY.
+
 # French (AZERTY): ^ is the key right of P (key code 33), ¨ the same key with Shift, é the key 2 (key code 19)
 pass com.apple.keylayout.French 'key code 33
-keystroke "e"
-keystroke "tre"
+key code 14
+key code 17
+key code 15
+key code 14
 key code 36
-keystroke "na"
+key code 45
+key code 12
 key code 33 using shift down
-keystroke "i"
-keystroke "f"
+key code 34
+key code 3
 key code 36
 key code 19
-keystroke "t"
+key code 17
 key code 19
 key code 36' "1/0 1/0 1/0"
 
-# ABC or U.S.: Option-I then e = ê, Option-U then i = ï, Option-E then e = é
+# ABC or U.S.: Option-I then e = ê, Option-U then i = ï, Option-E then e = é.
+# (One second between two presses of Option: Option pressed twice in a row is a
+# system-wide shortcut of some applications - the Claude desktop application opens its
+# quick entry window, which then gets the keys.)
 for OTHER in com.apple.keylayout.ABC com.apple.keylayout.US; do
 	if $LAYOUT --list | grep -qx "$OTHER"; then
 		pass $OTHER 'key code 34 using option down
-keystroke "e"
-keystroke "tre"
+key code 14
+key code 17
+key code 15
+key code 14
 key code 36
-keystroke "na"
+key code 45
+key code 0
+delay 1
 key code 32 using option down
-keystroke "i"
-keystroke "f"
+key code 34
+key code 3
 key code 36
+delay 1
 key code 14 using option down
-keystroke "e"
-keystroke "t"
+key code 14
+key code 17
+delay 1
 key code 14 using option down
-keystroke "e"
+key code 14
 key code 36' "2/0 2/0 2/0"
 		break
 	fi

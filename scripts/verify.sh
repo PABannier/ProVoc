@@ -9,7 +9,8 @@
 # 3. makes dist/ProVoc.app from the Release build, signs it, launches it as the Finder does;
 # 4. runs the tests hosted in the application (ProVocTests) twice, back to back;
 # 5. runs the scenarios of the stand-alone application (scripts/e2e.py) twice, back to back;
-# 6. runs the osascript checks (AppleScript dictionary, dead keys typed by the system);
+# 6. runs the osascript checks (AppleScript dictionary; dead keys typed by the system, in the
+#    test build and in dist/ProVoc.app);
 # 7. checks that the log scan really fails on an exception, and scans the logs;
 # 8. writes verification/report.md, with a verdict for each line of FEATURES.md.
 #
@@ -175,14 +176,17 @@ run_e2e 1
 run_e2e 2
 
 say "osascript checks"
-script_check() {  # script_check name
-	scripts/$1 > $V/logs/$1.log 2>&1
+script_check() {  # script_check id script [arguments]
+	local id=$1; shift
+	scripts/"$@" > $V/logs/$id.log 2>&1
 	local status=$?
-	tail -3 $V/logs/$1.log
-	if [ $status -eq 0 ]; then echo "PASS scripts/$1" >> $V/results/scripts.txt; record PASS verify/$1; else echo "FAIL scripts/$1" >> $V/results/scripts.txt; record FAIL verify/$1 "$(tail -1 $V/logs/$1.log | cut -c1-300)"; fi
+	tail -3 $V/logs/$id.log
+	if [ $status -eq 0 ]; then echo "PASS scripts/$id" >> $V/results/scripts.txt; record PASS verify/$id; else echo "FAIL scripts/$id" >> $V/results/scripts.txt; record FAIL verify/$id "$(tail -1 $V/logs/$id.log | cut -c1-300)"; fi
 }
-script_check applescript-check.sh
-script_check deadkey-check.sh
+script_check applescript-check.sh applescript-check.sh
+script_check deadkey-check.sh deadkey-check.sh
+# ... and the same keys in the application that is shipped (the Release build)
+script_check deadkey-check-release deadkey-check.sh "$ROOT/dist/ProVoc.app"
 
 say "Logs"
 # the scan must fail when the application logs an exception: one is raised on purpose

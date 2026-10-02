@@ -444,6 +444,10 @@ BOOL ProVocEnsureCaptureAccess(NSString *inMediaType)
 	mHasCapturedMovie = NO;
 	mCloseWhenRecorded = NO;
 	[mOKButton setHidden:!inMovie];
+	// The default button first: the window clears the key of the button that stops being
+	// its default button (after a picture, Space no longer recorded a movie).
+	[[self window] setDefaultButtonCell:[(inMovie ? mOKButton : mActionButton) cell]];
+	[mOKButton setKeyEquivalent:@"\r"];
 	[mActionButton setKeyEquivalent:inMovie ? @" " : @"\r"];
 	[[self window] setTitle:NSLocalizedString(inMovie ? @"Camera Movie Window Title" : @"Camera Image Window Title", @"")];
 	[[self window] center];
