@@ -161,9 +161,9 @@ to `~/ProVoc backups/` first).
 
 ## Results of the last verification run
 
-Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ecf verify.sh, the report, FEATURES.md with the test of each feature; training mode chosen with the arrow keys` (with uncommitted changes).
+Run of 2026-10-02 13:22 in `/Users/pierre-antoine/dev/ProVoc`, at commit `d8c5f7f The tests run optimized code: the Debug build uses -Os like Release`.
 
-**Verdict: 13 step(s) of the verification and 10 line(s) of FEATURES.md do not pass.**
+**Verdict: 7 step(s) of the verification and 9 line(s) of FEATURES.md do not pass.**
 
 ### Steps
 
@@ -172,27 +172,27 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 | `verify/screen-unlocked` | PASS |
 | `verify/project` | PASS |
 | `verify/tools` | PASS |
-| `verify/build-release` | FAIL |
+| `verify/build-release` | PASS |
 | `verify/build-debug` | PASS |
 | `verify/arm64-only-release` | FAIL |
-| `verify/arm64-only-debug` | FAIL |
+| `verify/arm64-only-debug` | PASS |
 | `verify/dist-signed` | FAIL |
 | `verify/dist-launches` | FAIL |
 | `verify/hosted-run1` | FAIL |
-| `verify/hosted-run2` | FAIL |
+| `verify/hosted-run2` | PASS |
 | `verify/e2e-run1` | FAIL |
 | `verify/e2e-run2` | FAIL |
 | `verify/applescript-check.sh` | PASS |
 | `verify/deadkey-check.sh` | FAIL |
-| `verify/log-scan-self-test` | FAIL |
-| `verify/log-scan-hosted-run1` | FAIL |
-| `verify/log-scan-hosted-run2` | FAIL |
+| `verify/log-scan-self-test` | PASS |
+| `verify/log-scan-hosted-run1` | PASS |
+| `verify/log-scan-hosted-run2` | PASS |
 
-- Release build: 139 different compiler / linker warnings (`verification/results/warnings-Release.txt`).
+- Release build: 151 different compiler / linker warnings (`verification/results/warnings-Release.txt`).
 - Debug build: 189 different compiler / linker warnings (`verification/results/warnings-Debug.txt`).
 - lipo -archs:  (Release), arm64 (Debug)
-- Tests hosted in the application, run 1: 142 passed, 1 failed (`ProVocTests/ProVocDocumentFeatureTests/testFindDoubleEntries`).
-- Tests hosted in the application, run 2: 142 passed, 1 failed (`ProVocTests/ProVocAppFeatureTests/testAboutWindowScrollsItsCredits`).
+- Tests hosted in the application, run 1: 141 passed, 2 failed (`ProVocTests/ProVocAppFeatureTests/testSubmitDocumentExplainsItself`, `ProVocTests/ProVocDocumentFeatureTests/testHistoryViewAndClearHistory`).
+- Tests hosted in the application, run 2: 143 passed, 0 failed.
 - Scenarios of the stand-alone application, run 1: 20 passed, 2 failed (`e2e/record-audio`, `e2e/capture-image-and-movie`).
 - Scenarios of the stand-alone application, run 2: 20 passed, 2 failed (`e2e/record-audio`, `e2e/capture-image-and-movie`).
 
@@ -311,7 +311,7 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 | PASS | Word table: columns shown/hidden (View Options ⌘J, Return = OK, Esc = Cancel). | `e2e/window-state` |
 | PASS | Word table: difficulty column, flagged column, labels column. | `ProVocTests/ProVocDocumentFeatureTests/testLanguagePopUpsAndColumns` |
 | PASS | Find ⌘F (search field). | `ProVocTests/ProVocEditingTests/testFindFiltersTheList` |
-| FAIL | Find Double Entries ⌥⌘F. | `ProVocTests/ProVocDocumentFeatureTests/testFindDoubleEntries`<br>**ProVocTests/ProVocDocumentFeatureTests/testFindDoubleEntries failed (hosted-run1)** |
+| PASS | Find Double Entries ⌥⌘F. | `ProVocTests/ProVocDocumentFeatureTests/testFindDoubleEntries` |
 | PASS | Select None ⇧⌘A (and Select All ⌘A). | `ProVocTests/ProVocEditingTests/testSelectionFlagAndLabelShortcuts` |
 | PASS | Mark Selected Words ⇧⌘F. | `ProVocTests/ProVocEditingTests/testSelectionFlagAndLabelShortcuts` |
 | PASS | Labels ⌘0–⌘9. | `ProVocTests/ProVocEditingTests/testSelectionFlagAndLabelShortcuts` |
@@ -329,7 +329,7 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 | PASS | Difficulty: increase, decrease, reset; Reset Difficulty and Last Answered. | `ProVocTests/ProVocEditingTests/testModeAndDifficultyShortcuts`<br>`ProVocTests/ProVocDocumentFeatureTests/testRevealSwapAndReset` |
 | PASS | Reveal Selected Words in Lessons. | `ProVocTests/ProVocDocumentFeatureTests/testRevealSwapAndReset` |
 | PASS | Languages: source/target language pop-ups of the document. | `ProVocTests/ProVocDocumentFeatureTests/testLanguagePopUpsAndColumns` |
-| PASS | History view (`ProVocHistoryView`): charts render with real data after tests; Clear History. | `ProVocTests/ProVocDocumentFeatureTests/testHistoryViewAndClearHistory` |
+| FAIL | History view (`ProVocHistoryView`): charts render with real data after tests; Clear History. | `ProVocTests/ProVocDocumentFeatureTests/testHistoryViewAndClearHistory`<br>**ProVocTests/ProVocDocumentFeatureTests/testHistoryViewAndClearHistory failed (hosted-run1)** |
 
 #### E. Inspector (⌘I) and media
 
@@ -356,7 +356,7 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 |---|---|---|
 | PASS | `NSApp` is a `ProVocApplication` (principal class), so `sendEvent:` runs. | `ProVocTests/ProVocAppTests/testApplicationClass`<br>`e2e/launch`<br>`ProVocTests/ProVocAppTests/testNoCategoryOfTheApplicationCollidesWithAMethodOfTheSystem` |
 | PASS | Every nib of every localization (English, French, German, Italian, Spanish, Danish) loads with every outlet and action connected; no stale `~` nib is shipped. | `ProVocTests/ProVocNibTests/test*` |
-| FAIL | No exception is swallowed: exceptions are logged, and the suite fails on any exception in the log. | `verify/log-scan-self-test`<br>`verify/log-scan-hosted-run1`<br>`verify/log-scan-hosted-run2`<br>`ProVocTests/ProVocDeckTests/testCorruptDeckIsRefusedAndTheExceptionIsLogged`<br>**verify/log-scan-self-test failed (verify); verify/log-scan-hosted-run1 failed (verify); verify/log-scan-hosted-run2 failed (verify)** |
+| PASS | No exception is swallowed: exceptions are logged, and the suite fails on any exception in the log. | `verify/log-scan-self-test`<br>`verify/log-scan-hosted-run1`<br>`verify/log-scan-hosted-run2`<br>`ProVocTests/ProVocDeckTests/testCorruptDeckIsRefusedAndTheExceptionIsLogged` |
 | PASS | No label or button is too small for its text, in any nib of any localization (the labels were laid out for Lucida Grande). | `ProVocTests/ProVocNibTests/test*` |
 | PASS | No category of the application replaces a method of a system class (About ProVoc opened the standard About panel because of one). | `ProVocTests/ProVocAppTests/testNoCategoryOfTheApplicationCollidesWithAMethodOfTheSystem` |
 | PASS | A document whose vocabulary cannot be read is refused with an error, not opened empty. | `ProVocTests/ProVocDeckTests/testCorruptDeckIsRefusedAndTheExceptionIsLogged` |
@@ -367,7 +367,7 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 | PASS | Preferences: languages (case/accent/punctuation/space sensitivity, optional determinants). | `ProVocTests/ProVocPreferencesTests/testLanguagesPane`<br>`ProVocTests/ProVocAnswerTests/testCaseSensitivity`<br>`ProVocTests/ProVocAnswerTests/testAccentSensitivity`<br>`ProVocTests/ProVocAnswerTests/testPunctuation`<br>`ProVocTests/ProVocAnswerTests/testSpaces`<br>`ProVocTests/ProVocAnswerTests/testOptionalDeterminants` |
 | PASS | Preferences: training (synonym and comment separators, learning parameters). | `ProVocTests/ProVocPreferencesTests/testGeneralAndTrainingPanes`<br>`ProVocTests/ProVocTrainingTests/testUntilLearned*` |
 | PASS | Starting point / welcome window. | `e2e/launch`<br>`e2e/localization-english` |
-| FAIL | About dialog (credits scroll). | `ProVocTests/ProVocAppFeatureTests/testAboutWindowScrollsItsCredits`<br>**ProVocTests/ProVocAppFeatureTests/testAboutWindowScrollsItsCredits failed (hosted-run2)** |
+| PASS | About dialog (credits scroll). | `ProVocTests/ProVocAppFeatureTests/testAboutWindowScrollsItsCredits` |
 | PASS | Help (⌘?) opens the local help book. | `ProVocTests/ProVocAppFeatureTests/testHelpOpensTheLocalHelpBook` |
 | PASS | Spotlight search inside the app (`ProVocSpotlighter`). | `ProVocTests/ProVocAppFeatureTests/testSpotlightSearch` |
 | PASS | Spotlight importer for `.pvoc` files. | `ProVocTests/ProVocImporterTests/testImporterIsNativeAndDeclaresTheDocumentType`<br>`ProVocTests/ProVocImporterTests/testImporterGivesWordsLanguagesAndCount` |
@@ -376,7 +376,7 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 | PASS | Automator actions. | `ProVocTests/ProVocAutomatorTests/testActionsAreInTheApplication`<br>`ProVocTests/ProVocAutomatorTests/testGetContentsOfDocument`<br>`ProVocTests/ProVocAutomatorTests/testAddTextToVocabulary`<br>`ProVocTests/ProVocAutomatorTests/testAddFilesToVocabulary` |
 | PASS | Every localization launches; English and French are smoke-tested end to end (`-AppleLanguages "(fr)"`). | `e2e/localization-english`<br>`e2e/localization-french`<br>`e2e/localization-german`<br>`e2e/localization-italian`<br>`e2e/localization-spanish`<br>`e2e/localization-danish` |
 | PASS | Hide / Hide Others / Minimize / Quit (⌘H / ⌥⌘H / ⌘M / ⌘Q) with unsaved-changes prompts. | `e2e/quit-with-unsaved-changes`<br>`e2e/quit-with-two-unsaved-documents`<br>`e2e/quit-without-changes` |
-| FAIL | The app builds for arm64 (Release and Debug), is signed, and launches. | `verify/build-release`<br>`verify/build-debug`<br>`verify/arm64-only-release`<br>`verify/arm64-only-debug`<br>`verify/dist-signed`<br>`verify/dist-launches`<br>**verify/build-release failed (verify); verify/arm64-only-release failed (verify); verify/arm64-only-debug failed (verify); verify/dist-signed failed (verify); verify/dist-launches failed (verify)** |
+| FAIL | The app builds for arm64 (Release and Debug), is signed, and launches. | `verify/build-release`<br>`verify/build-debug`<br>`verify/arm64-only-release`<br>`verify/arm64-only-debug`<br>`verify/dist-signed`<br>`verify/dist-launches`<br>**verify/arm64-only-release failed (verify); verify/dist-signed failed (verify); verify/dist-launches failed (verify)** |
 | PASS | Every deck in `fixtures/user-decks/` opens, can be tested with the keyboard-only flow, saves and reopens identically. | `ProVocTests/ProVocDeckTests/testUserDecksOpenSaveAndReopenIdentically`<br>`ProVocTests/ProVocUserDeckTrainingTests/testEveryDeckIsTrainedWithTheKeyboardSavedAndReopened*` |
 | PASS | Light and dark appearance: the panels render correctly in both. | `e2e/appearance-light`<br>`e2e/appearance-dark`<br>`ProVocTests/ProVocVisualTests/testMainWindowsRender` |
 
@@ -387,7 +387,7 @@ Run of 2026-10-02 12:54 in `/Users/pierre-antoine/dev/ProVoc`, at commit `aac9ec
 | PASS | Send to iPod (notes export, iPod preference pane) — OBSOLETE: no Mac sends notes to an iPod any more (the iPod preference pane never shows: no iPod is ever connected) — replaced by: the command (⌥⌘I) explains it and offers Export… (⇧⌘E), which writes the same words to a text file | `ProVocTests/ProVocAppFeatureTests/testSendToiPodOffersToExport` |
 | PASS | Check for Updates (server gone) — OBSOLETE: the update server of Arizona Software is gone — replaced by: the command says so and gives the version of this build | `ProVocTests/ProVocAppFeatureTests/testUpdateAndWebSiteCommandsExplainThemselves` |
 | PASS | Web links: Discover ProVoc Features, Visit Arizona Software Home Page, Send Bug Report or Feedback, Download Vocabulary — OBSOLETE: the web site of Arizona Software is gone — replaced by: Discover ProVoc Features opens the quick tour of the help book in the application; the three other commands explain that the site is gone and what to use instead | `ProVocTests/ProVocAppFeatureTests/testUpdateAndWebSiteCommandsExplainThemselves`<br>`ProVocTests/ProVocAppFeatureTests/testHelpOpensTheLocalHelpBook`<br>`e2e/launch` |
-| PASS | Submit Document (`ProVocSubmitter`, server gone) — OBSOLETE: the vocabulary server (FTP upload + confirmation page) is gone — replaced by: the command explains it and shows the file of the document in the Finder, to be shared by the means of today | `e2e/submit-document-reveals-the-file`<br>`ProVocTests/ProVocAppFeatureTests/testSubmitDocumentExplainsItself` |
+| FAIL | Submit Document (`ProVocSubmitter`, server gone) — OBSOLETE: the vocabulary server (FTP upload + confirmation page) is gone — replaced by: the command explains it and shows the file of the document in the Finder, to be shared by the means of today | `e2e/submit-document-reveals-the-file`<br>`ProVocTests/ProVocAppFeatureTests/testSubmitDocumentExplainsItself`<br>**ProVocTests/ProVocAppFeatureTests/testSubmitDocumentExplainsItself failed (hosted-run1)** |
 | PASS | Dashboard widget offer at launch and widget log (`ProVocDocument+WidgetLog`) — OBSOLETE: Dashboard was removed from macOS (10.15); the widget cannot run — replaced by: no offer at launch; the answers a widget logged in a document (`Widget.log`) are still read into its statistics and history | `ProVocTests/ProVocAppFeatureTests/testWidgetLogOfADocumentIsStillRead`<br>`e2e/launch` |
 | PASS | Quartz Composer backgrounds — OBSOLETE: Quartz Composer is deprecated and the compositions of the four backgrounds no longer render — replaced by: the same four backgrounds (Plant Shades, Ocean, Globe, Nature) drawn with Core Animation from the pictures of the original plug-ins, with the same reactions to questions and answers | `ProVocTests/ProVocBackgroundTests/testBuiltInBackgroundsAreDrawnNatively`<br>`ProVocTests/ProVocTestBackgroundTests/testGlobeShowsQuestionAndAnswer`<br>`ProVocTests/ProVocTestBackgroundTests/testPlantsReactToAnswersAndResults` |
 

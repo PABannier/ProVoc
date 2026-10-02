@@ -85,8 +85,16 @@ build() {     # build Configuration action...
 	echo "$config: $(grep -c . $V/results/warnings-$config.txt) different warnings (in $V/results/warnings-$config.txt)"
 	return $status
 }
-check verify/build-release build Release clean build
-check verify/build-debug build Debug clean build-for-testing
+# (cleaning one configuration removes the products of the other as well: both are
+# cleaned first, then built)
+clean() {
+	xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath $DD clean > $V/logs/clean.log 2>&1 &&
+	xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Debug -derivedDataPath $DD clean >> $V/logs/clean.log 2>&1 &&
+	[ ! -e $PRODUCTS/Release/ProVoc.app ] && [ ! -e $PRODUCTS/Debug/ProVoc.app ]
+}
+check verify/clean clean
+check verify/build-release build Release build
+check verify/build-debug build Debug build-for-testing
 
 # Every Mach-O file of an application is arm64, and nothing else. (Contents/Frameworks is
 # left out: ProVoc has none; in the Debug build that hosts the tests, Xcode puts its own
