@@ -48,9 +48,16 @@
 	[self run:@"import text \"sun\\tsoleil\\tin the sky\\nmoon\\tlune\""];
 	XCTAssertEqual([[opened allWords] count], 7u, @"import text");
 	XCTAssertEqualObjects([[[opened allWords] objectAtIndex:5] comment], @"in the sky");
+	NSArray *before = [[[[NSDocumentController sharedDocumentController] documents] copy] autorelease];
 	[self run:[NSString stringWithFormat:@"import \"%@\" with new document", file]];
-	XCTAssertTrue(PVWaitUntil(10, ^BOOL { return [[[NSDocumentController sharedDocumentController] documents] count] == documents + 2; }), @"import with new document made no document");
-	ProVocDocument *imported = [[[NSDocumentController sharedDocumentController] documents] lastObject];
+	ProVocDocument *(^newDocument)(void) = ^{
+		for (ProVocDocument *document in [[NSDocumentController sharedDocumentController] documents])
+			if (![before containsObject:document])
+				return document;
+		return (ProVocDocument *)nil;
+	};
+	XCTAssertTrue(PVWaitUntil(10, ^BOOL { return newDocument() != nil; }), @"import with new document made no document");
+	ProVocDocument *imported = newDocument();
 	XCTAssertEqual([[imported allWords] count], 5u, @"words imported in the new document");
 	PVCloseDocument(imported);
 

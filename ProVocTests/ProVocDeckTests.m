@@ -51,12 +51,19 @@
 -(void)testGeneratedDecksOpenWithEverything
 {
 	NSArray *decks = [self generatedDecks];
-	XCTAssertEqualObjects([decks valueForKey:@"lastPathComponent"], (@[@"Accents.pvoc", @"Old format.provoc", @"Plain.pvoc", @"Rich.pvoc"]));
-	NSDictionary *counts = @{@"Accents.pvoc": @15, @"Old format.provoc": @3, @"Plain.pvoc": @5, @"Rich.pvoc": @10};
+	XCTAssertEqualObjects([decks valueForKey:@"lastPathComponent"], (@[@"Accents.pvoc", @"Dead keys.pvoc", @"Old format.provoc", @"Plain.pvoc", @"Rich.pvoc"]));
+	NSDictionary *counts = @{@"Accents.pvoc": @15, @"Dead keys.pvoc": @3, @"Old format.provoc": @3, @"Plain.pvoc": @5, @"Rich.pvoc": @10};
 	for (NSString *deck in decks) {
 		ProVocDocument *document = PVOpenCopyOfDeck(deck);
 		XCTAssertNotNil(document, @"%@ did not open", [deck lastPathComponent]);
 		XCTAssertEqualObjects(@([[document allWords] count]), counts[[deck lastPathComponent]], @"words of %@", [deck lastPathComponent]);
+		if ([[deck lastPathComponent] isEqualToString:@"Dead keys.pvoc"]) {
+			// the deck keeps its training settings: a written test, in the order of the list
+			XCTAssertFalse([[document valueForKey:@"testMCQ"] boolValue]);
+			XCTAssertFalse([[document valueForKey:@"initialSlideshow"] boolValue]);
+			XCTAssertTrue([[document valueForKey:@"dontShuffleWords"] boolValue]);
+			XCTAssertEqualObjects([[document allWords] valueForKey:@"targetWord"], (@[@"être", @"naïf", @"été"]));
+		}
 		if ([[deck lastPathComponent] isEqualToString:@"Accents.pvoc"]) {
 			NSArray *targets = [[document allWords] valueForKey:@"targetWord"];
 			for (NSString *word in @[@"été", @"garçon", @"naïve", @"cœur", @"où", @"niño", @"¿qué?", @"Straße", @"ελληνικά", @"日本語"])

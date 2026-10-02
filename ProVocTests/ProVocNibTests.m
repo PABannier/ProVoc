@@ -220,6 +220,40 @@ static Class PVProbeClass(NSString *inOwnerClassName, NSSet *inOutlets)
 			[missing addObject:outlet];
 	XCTAssertEqualObjects([missing sortedArrayUsingSelector:@selector(compare:)], @[], @"%@: outlets of %@ left nil", what, ownerClassName);
 
+	// Labels and buttons that are too narrow for their text. (The nibs were laid out for
+	// Lucida Grande; the system font of today is wider.)
+	NSMutableArray *truncated = [NSMutableArray array];
+	NSMutableArray *views = [NSMutableArray array];
+	for (id object in topLevelObjects)
+		if ([object isKindOfClass:[NSWindow class]])
+			[views addObject:[object contentView]];
+		else if ([object isKindOfClass:[NSView class]])
+			[views addObject:object];
+	while ([views count] > 0) {
+		NSView *view = [views objectAtIndex:0];
+		[views removeObjectAtIndex:0];
+		[views addObjectsFromArray:[view subviews]];
+		NSString *text = nil;
+		if ([view isMemberOfClass:[NSTextField class]] && ![(NSTextField *)view isEditable] && ![(NSTextField *)view isBezeled])
+			text = [(NSTextField *)view stringValue];
+		else if ([view isMemberOfClass:[NSButton class]] && [[(NSButton *)view title] length] > 0 && [(NSButton *)view imagePosition] != NSImageOnly)
+			text = [(NSButton *)view title];
+		if ([text length] == 0 || [view isHidden])
+			continue;
+		// what the text needs in the width of the control: more lines than there is room for
+		// (a label that wraps), or more width (one that does not)
+		NSCell *cell = [(NSControl *)view cell];
+		NSSize needed = [cell cellSizeForBounds:NSMakeRect(0, 0, NSWidth([view frame]), 10000)];
+		NSSize natural = [cell cellSize];
+		// (a label of one line may be 3 points short: the text is then tightened, see -[NSTextField(ProVoc) awakeFromNib])
+		if (needed.height > NSHeight([view frame]) + 2 || (![cell wraps] && natural.width > NSWidth([view frame]) + 3))
+			[truncated addObject:[NSString stringWithFormat:@"%@ \"%@\" needs %.0f x %.0f (natural width %.0f), has %.0f x %.0f", [view className], text, needed.width, needed.height, natural.width, NSWidth([view frame]), NSHeight([view frame])]];
+	}
+	// (one label was already cut in 2008: in Lucida Grande too its text is half as wide again as its place)
+	if ([what isEqualToString:@"Italian/ProVocCardController"])
+		[truncated filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF CONTAINS %@)", @"\"Dimensioni scheda:\""]];
+	XCTAssertEqualObjects(truncated, @[], @"%@: labels or buttons too small for their text", what);
+
 	int index = 0;
 	for (id object in topLevelObjects)
 		if ([object isKindOfClass:[NSWindow class]]) {

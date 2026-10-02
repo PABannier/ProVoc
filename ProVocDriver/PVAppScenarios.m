@@ -301,7 +301,7 @@ static ProVocWord *PVWord(NSString *inSource, NSString *inTarget, NSString *inCo
 #pragma mark Fixtures
 
 // Writes the decks of fixtures/generated with the application's own classes
-// (scripts/make-fixtures.sh): plain words, accents, a rich deck (chapters, synonyms,
+// (scripts/make-fixtures.sh): plain words, accents, dead keys, a rich deck (chapters, synonyms,
 // parentheses, comments, labels, flags, difficulties, sound, picture, movie) and a
 // deck in the old flat file format (.provoc).
 -(void)generateFixtures:(PVScript *)inScript
@@ -330,6 +330,14 @@ static ProVocWord *PVWord(NSString *inSource, NSString *inTarget, NSString *inCo
 		PVAddPage(accents, @"Français", @[@[@"summer", @"été"], @[@"boy", @"garçon"], @[@"naive", @"naïve"], @[@"heart", @"cœur"], @[@"where", @"où"], @[@"age", @"âge"], @[@"Christmas", @"Noël"], @[@"pupil", @"élève"], @[@"forest", @"forêt"]]);
 		PVAddPage(accents, @"Español y Deutsch", @[@[@"child", @"niño"], @[@"what?", @"¿qué?"], @[@"street", @"Straße"], @[@"beautiful", @"schön"], @[@"Greek", @"ελληνικά"], @[@"Japanese", @"日本語"]]);
 		save(accents, @"Accents.pvoc");
+
+		// three words to answer with dead keys, in a deck set for a plain written test in the order
+		// of the list (scripts/deadkey-check.sh types the answers with the keys of the system)
+		ProVocDocument *deadKeys = PVEmptyDocument();
+		PVAddPage(deadKeys, @"Accents", @[@[@"to be", @"être"], @[@"naive", @"naïf"], @[@"summer", @"été"]]);
+		for (NSArray *setting in @[@[@"testMCQ", @NO], @[@"initialSlideshow", @NO], @[@"dontShuffleWords", @YES], @[@"testDirection", @0], @[@"testKind", @0], @[@"timer", @0], @[@"lateComments", @0], @[@"useSpeechSynthesizer", @NO]])
+			[deadKeys setValue:setting[1] forKey:setting[0]];
+		save(deadKeys, @"Dead keys.pvoc");
 
 		ProVocDocument *rich = PVEmptyDocument();
 		ProVocData *data = [rich valueForKey:@"mProVocData"];
@@ -685,6 +693,49 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 // The application in the language given by PV_LANGUAGE (launched with -AppleLanguages):
 // the starting point, a new document, two words, the first training mode (slideshow of
 // the new words, then multiple choice), the written test, Preferences, the Inspector.
+#pragma mark Submit Document
+
+// Submit Document with a saved document (the application was launched with it): the
+// sheet explains that the server is gone; Return shows the file in the Finder. (This
+// scenario ends with the Finder in front.)
+-(void)submitDocumentRevealsTheFile:(PVScript *)inScript
+{
+	__block BOOL finderCameToFront = NO;
+	ProVocDocument *(^document)(void) = ^{ return (ProVocDocument *)[[self documents] lastObject]; };
+	NSWindow *(^sheet)(void) = ^{ return [[document() window] attachedSheet]; };
+	[inScript wait:@"the document of the launch" timeout:20 until:^BOOL { return [[self documents] count] == 1 && [[document() window] isKeyWindow] && [document() fileURL] != nil; }];
+	[inScript then:^{
+		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidActivateApplicationNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *inNotification) {
+			if ([[[[inNotification userInfo] objectForKey:NSWorkspaceApplicationKey] bundleIdentifier] isEqualToString:@"com.apple.finder"])
+				finderCameToFront = YES;
+		}];
+		NSMenuItem *item = [PVScenarios menuItemWithAction:@selector(submitDocument:)];
+		PVPrepareMenu([item menu]);
+		PVExpect(item && [item isEnabled], @"Submit Document is not available: %@", item);
+		[[item menu] performActionForItemAtIndex:[[item menu] indexOfItem:item]];
+	}];
+	[inScript wait:@"the sheet that explains Submit Document, with a button to show the file" timeout:10 until:^BOOL {
+		NSString *text = PVTextOfWindow(sheet());
+		return [sheet() isKeyWindow] && [text rangeOfString:NSLocalizedString(@"Submit Obsolete Title", @"")].location != NSNotFound
+			&& [text rangeOfString:NSLocalizedString(@"Submit Obsolete Message", @"")].location != NSNotFound
+			&& [text rangeOfString:NSLocalizedString(@"Submit Obsolete Reveal Button", @"")].location != NSNotFound;
+	}];
+	// Esc: nothing happens
+	[inScript then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
+	[inScript wait:@"Esc to close the sheet" until:^BOOL { return sheet() == nil && [[document() window] isKeyWindow]; }];
+	[inScript then:^{
+		PVExpect(!finderCameToFront, @"Esc showed the file in the Finder");
+		NSMenuItem *item = [PVScenarios menuItemWithAction:@selector(submitDocument:)];
+		[[item menu] performActionForItemAtIndex:[[item menu] indexOfItem:item]];
+	}];
+	[inScript wait:@"the sheet again" timeout:10 until:^BOOL { return [sheet() isKeyWindow] && [[sheet() defaultButtonCell] isEnabled]; }];
+	[inScript then:^{
+		PVSaveWindowScreenshot(sheet(), @"windows/submit-document-obsolete");
+		PVPostKey(PVKeyReturn, nil, 0);
+	}];
+	[inScript wait:@"Return to show the file of the document in the Finder" timeout:30 until:^BOOL { return finderCameToFront && sheet() == nil; }];
+}
+
 // A screenshot of a window of the smoke test, named after the language - or after the
 // appearance of the system when the scenario runs for it (PV_APPEARANCE is Light or
 // Dark, and so is the system for this process: -AppleInterfaceStyle). ProVoc is drawn
@@ -711,7 +762,7 @@ static const NSRect kStateFrame = {{140, 180}, {910, 615}};
 			total++;
 			if (luminance > 0.7)
 				light++;
-			else if (luminance < 0.35)
+			else if (luminance < 0.5)	// (the labels of an inspector without a word are grey, not black)
 				dark++;
 		}
 	PVExpect(total > 0 && light > total / 2, @"%@ is not light with the %s appearance of the system (%lu light pixels of %lu)", inName, appearance, (unsigned long)light, (unsigned long)total);

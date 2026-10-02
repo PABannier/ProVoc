@@ -46,6 +46,9 @@ SCENARIOS = {
     'appearance-light': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(en)', '-AppleInterfaceStyle', 'Light', 'PV_LANGUAGE=English', 'PV_APPEARANCE=Light'])],
     'appearance-dark': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(en)', '-AppleInterfaceStyle', 'Dark', 'PV_LANGUAGE=English', 'PV_APPEARANCE=Dark'])],
     'localization-danish': [('clearRecentDocuments', FRESH), ('localizedSmoke', FRESH + ['-AppleLanguages', '(da)', 'PV_LANGUAGE=Danish'])],
+    'submit-document-reveals-the-file': [('submitDocumentRevealsTheFile', FRESH + ['{copy:generated/Plain.pvoc}'])],
+    'record-audio': [('recordAudio', FRESH)],
+    'capture-image-and-movie': [('captureImageAndMovie', FRESH)],
     'quit-with-two-unsaved-documents': [('quitWithTwoUnsavedDocuments', FRESH)],
     'quit-without-changes': [('clearRecentDocuments', FRESH), ('quitWithoutChanges', FRESH)],
 }

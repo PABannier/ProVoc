@@ -157,6 +157,7 @@
 		C96A87E168FDF8243AEB59CD /* ProVocTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = DC15F70325BB8EE14F9D0139 /* ProVocTimer.m */; };
 		C9BDCC221A5322C424D26EC4 /* ProVocTester.m in Sources */ = {isa = PBXBuildFile; fileRef = 83FEF69EA61F03ED1215DAF2 /* ProVocTester.m */; };
 		CA2B9F4F290538A25FDE4844 /* ProVocDocument+Export.m in Sources */ = {isa = PBXBuildFile; fileRef = E4631ED28DFF0BBE7123FA67 /* ProVocDocument+Export.m */; };
+		CB8FCFB3A487A29AA35B86E7 /* PVCaptureScenarios.m in Sources */ = {isa = PBXBuildFile; fileRef = 27F3FD4D2FE53D03F8AFF088 /* PVCaptureScenarios.m */; };
 		CF155AFEC923EB1831829837 /* ProVocTrainingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A147167E0639FC0BE5129CF /* ProVocTrainingTests.m */; };
 		D102F05F9C12D2723D499352 /* TrainingPreferences.tif in Resources */ = {isa = PBXBuildFile; fileRef = 75F7E8A2E14FAD4937C92469 /* TrainingPreferences.tif */; };
 		D881E6546E4A9C27C0494C5F /* OpenDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B4636EBB6668A3BE4D5AF76 /* OpenDocument.png */; };
@@ -273,6 +274,7 @@
 		236F5BB3658F34F026E61DA7 /* ARInspector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ARInspector.h; sourceTree = "<group>"; };
 		23C618ACAB6344FA1210535D /* ProVocDocument+WidgetLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ProVocDocument+WidgetLog.m"; sourceTree = "<group>"; };
 		24387940206D8C9918F4DF2F /* iPodPreferences.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = iPodPreferences.tif; sourceTree = "<group>"; };
+		27F3FD4D2FE53D03F8AFF088 /* PVCaptureScenarios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVCaptureScenarios.m; sourceTree = "<group>"; };
 		288F2F8A3D71714EF651CE26 /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = English.lproj/schema.strings; sourceTree = "<group>"; };
 		290D8389CAC03E656653822C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		292C43FDFE47B47530ECC31E /* Both.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Both.tif; sourceTree = "<group>"; };
@@ -848,6 +850,7 @@
 			isa = PBXGroup;
 			children = (
 				9332344B44B53C7E19020675 /* PVAppScenarios.m */,
+				27F3FD4D2FE53D03F8AFF088 /* PVCaptureScenarios.m */,
 				5D8F29CDB49EAEDC4637C6CD /* PVDocumentScenarios.m */,
 				A48116B7BEE22BDB249049CA /* PVDriver.h */,
 				153507AC6DEADE950764DFE1 /* PVDriver.m */,
@@ -1196,6 +1199,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				38F5BCB7003AB3AD407B5E15 /* PVAppScenarios.m in Sources */,
+				CB8FCFB3A487A29AA35B86E7 /* PVCaptureScenarios.m in Sources */,
 				2906E13943D6F721D0F11558 /* PVDocumentScenarios.m in Sources */,
 				52CC1331BB2F94AA006CEEC2 /* PVDriver.m in Sources */,
 				9B038725B02BE6BF38225F5B /* PVEditingScenarios.m in Sources */,

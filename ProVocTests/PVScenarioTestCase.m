@@ -71,6 +71,11 @@
 	PVCloseDocument(mDocument);
 	[mDocument release];
 	mDocument = nil;
+	// ... and so would a document left open: the window that gets the keys would not be the one of the next test
+	NSArray *left = [NSArray arrayWithArray:[[NSDocumentController sharedDocumentController] documents]];
+	XCTAssertEqual([left count], 0u, @"%@ left documents open: %@", [self name], [left valueForKey:@"displayName"]);
+	for (NSDocument *document in left)
+		PVCloseDocument(document);
 	[mAnswers release];
 	mAnswers = nil;
 }
