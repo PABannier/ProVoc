@@ -1,0 +1,54 @@
+# When a release is published (tag it, write its notes, publish): builds ProVoc for
+# arm64 at that tag and attaches ProVoc-<version>-arm64.dmg to the release, for anyone
+# to download. A tag that is a version number (v4.3 or 4.3) becomes the version of the
+# application.
+#
+# "Run workflow" does the same for a release that already exists (to build its disk
+# image again).
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of an existing release
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Build Release (arm64)
+        run: |
+          xcodebuild -version
+          xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath build/DerivedData ARCHS=arm64 ONLY_ACTIVE_ARCH=NO build > build-release.log 2>&1 || { grep -E "error:|failed" build-release.log | head -40; tail -40 build-release.log; exit 1; }
+
+      - name: Disk image
+        run: |
+          python3 -m venv build/venv
+          build/venv/bin/pip install --quiet dmgbuild==1.6.7
+          DMGBUILD=build/venv/bin/dmgbuild .github/scripts/package.sh "$TAG"
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" dist/*.dmg dist/*.dmg.sha256 --clobber --repo "$GITHUB_REPOSITORY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ProVoc-${{ env.TAG }}-arm64-dmg
+          path: |
+            dist/*.dmg
+            dist/*.dmg.sha256
