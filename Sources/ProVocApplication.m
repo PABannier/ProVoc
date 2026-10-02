@@ -24,6 +24,15 @@
 	return [super sendAction:inAction to:inTarget from:inSender];
 }
 
+// AppKit catches the exceptions raised while the application handles an event or a
+// timer, and goes on. It no longer writes them to the standard error, where the logs
+// of ProVoc go: no exception may be silent.
+-(void)reportException:(NSException *)inException
+{
+	NSLog(@"*** Exception: %@: %@", [inException name], [inException reason]);
+	[super reportException:inException];
+}
+
 // (This was a category of NSApplication in ProVocAppDelegate.m. A category cannot be
 // relied upon to replace a method that AppKit implements itself: About ProVoc opened
 // the standard About panel of macOS.)

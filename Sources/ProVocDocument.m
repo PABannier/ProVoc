@@ -410,7 +410,20 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 		[mGlobalPreferences setValuesForKeysWithDictionary:loadedPrefs];
 		mLoadedParameters = [loadedObject retain];
 	}
+	[self checkLoadedVocabulary];
     return YES;
+}
+
+// The unarchiver of 2008 raised an exception for a file that is not an archive, and the
+// document was refused. Today it returns nil: the document opened empty, ready to be
+// saved over the file. No vocabulary is an error, as it was.
+-(void)checkLoadedVocabulary
+{
+	if (![mProVocData isKindOfClass:[ProVocData class]]) {
+		[mProVocData release];
+		mProVocData = nil;
+		[NSException raise:NSInvalidArchiveOperationException format:@"the vocabulary of the document cannot be read"];
+	}
 }
 
 -(BOOL)writeToFile:(NSString *)inFullDocumentPath ofType:(NSString *)inDocType originalFile:(NSString *)inFullOriginalDocumentPath
@@ -552,6 +565,7 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 			NSData *settingsData = [wrappers[@"Settings"] regularFileContents];
 			
 			mProVocData = [[NSKeyedUnarchiver unarchiveObjectWithData:data] retain];
+			[self checkLoadedVocabulary];
 			id settings = [NSKeyedUnarchiver unarchiveObjectWithData:settingsData];
 			[self setUsedLanguageSettings:settings[@"UsedLanguageSettings"]];
 			[self setParameters:settings[@"Parameters"]];

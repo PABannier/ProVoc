@@ -112,6 +112,23 @@
 	}];
 }
 
+// The proof that an exception cannot go unnoticed (scripts/e2e.py --self-test-exception,
+// run by scripts/verify.sh): an exception is raised from the event loop of the
+// application; the scenario itself ends well, but the runner must fail because of
+// what the application logged.
+-(void)raiseOnPurpose:(PVScript *)inScript
+{
+	__block BOOL raised = NO;
+	[inScript then:^{
+		[[NSRunLoop currentRunLoop] performInModes:@[NSRunLoopCommonModes] block:^{
+			raised = YES;
+			[NSException raise:@"PVSelfTestException" format:@"raised on purpose by the self-test of the log scan"];
+		}];
+	}];
+	[inScript wait:@"the raise" until:^BOOL { return raised; }];
+	[inScript pause:0.5];
+}
+
 // Only reads the two authorizations (nothing is asked)
 -(void)captureAccessStatus:(PVScript *)inScript
 {

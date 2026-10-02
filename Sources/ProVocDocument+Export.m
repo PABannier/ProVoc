@@ -137,6 +137,7 @@
 			[words makeObjectsPerformSelector:@selector(reimportMediaFrom:) withObject:info];
 		}
 	NS_HANDLER
+		// (not a ProVoc document: -pagesFromFile: tries the other formats)
 	NS_ENDHANDLER
 	return pages;
 }

@@ -105,4 +105,60 @@
 	}
 }
 
+// A deck whose vocabulary cannot be read: the exception raised by the unarchiver is not
+// swallowed. It is logged ("*** Exception raised during ..."), and the document does not
+// open - with an error, not with an empty window. The same when such a file is imported.
+-(void)testCorruptDeckIsRefusedAndTheExceptionIsLogged
+{
+	NSString *deck = PVTemporaryCopyOfDeck([PVTestSourceRoot() stringByAppendingPathComponent:@"fixtures/generated/Plain.pvoc"]);
+	XCTAssertTrue([[@"this is not an archive" dataUsingEncoding:NSUTF8StringEncoding] writeToFile:[deck stringByAppendingPathComponent:@"Data"] atomically:YES]);
+	NSUInteger documents = [[[NSDocumentController sharedDocumentController] documents] count];
+	__block BOOL done = NO;
+	__block NSDocument *opened = nil;
+	__block NSError *error = nil;
+	PVBeginCapturingStderr();
+	[[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:[NSURL fileURLWithPath:deck] display:YES completionHandler:^(NSDocument *inDocument, BOOL inWasOpen, NSError *inError) {
+		opened = [inDocument retain];
+		error = [inError retain];
+		done = YES;
+	}];
+	XCTAssertTrue(PVWaitUntil(20, ^BOOL { return done; }), @"no answer from the document controller");
+	NSString *log = PVEndCapturingStderr();
+	XCTAssertNil(opened, @"a deck that cannot be read was opened");
+	XCTAssertNotNil(error, @"no error for a deck that cannot be read");
+	XCTAssertEqual([[[NSDocumentController sharedDocumentController] documents] count], documents);
+	XCTAssertTrue([log rangeOfString:@"*** Exception raised during loadFileWrapperRepresentation:ofType:"].location != NSNotFound, @"the exception was not logged: %@", log);
+	[opened close];
+	[opened release];
+	[error release];
+
+	// the old flat file: the same
+	NSString *flat = [[deck stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Corrupt.provoc"];
+	XCTAssertTrue([[@"this is not an archive either" dataUsingEncoding:NSUTF8StringEncoding] writeToFile:flat atomically:YES]);
+	done = NO;
+	opened = nil;
+	error = nil;
+	PVBeginCapturingStderr();
+	[[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:[NSURL fileURLWithPath:flat] display:YES completionHandler:^(NSDocument *inDocument, BOOL inWasOpen, NSError *inError) {
+		opened = [inDocument retain];
+		error = [inError retain];
+		done = YES;
+	}];
+	XCTAssertTrue(PVWaitUntil(20, ^BOOL { return done; }), @"no answer from the document controller");
+	log = PVEndCapturingStderr();
+	XCTAssertNil(opened, @"a flat file that cannot be read was opened");
+	XCTAssertNotNil(error, @"no error for a flat file that cannot be read");
+	XCTAssertTrue([log rangeOfString:@"*** Exception raised during loadFileWrapperRepresentation:ofType:"].location != NSNotFound, @"the exception was not logged: %@", log);
+	XCTAssertEqual([[[NSDocumentController sharedDocumentController] documents] count], documents);
+	[opened close];
+	[opened release];
+	[error release];
+
+	// A file given to Import is tried as a ProVoc document first; one that is not is
+	// then read as text (there the exception of the unarchiver is expected, and silent).
+	ProVocDocument *document = PVNewDocumentWithWords(@[@[@"house", @"maison"]]);
+	XCTAssertNil([document pagesFromProVocFile:flat]);
+	PVCloseDocument(document);
+}
+
 @end

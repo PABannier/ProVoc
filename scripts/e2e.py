@@ -165,6 +165,11 @@ if '--capture-access-status' in sys.argv:
     SCENARIOS = {'capture-access-status': [('captureAccessStatus', [])]}
     sys.argv.remove('--capture-access-status')
 
+# the self-test of the log scan: this run must FAIL (an exception is raised on purpose)
+if '--self-test-exception' in sys.argv:
+    SCENARIOS = {'self-test': [('raiseOnPurpose', FRESH)]}
+    sys.argv.remove('--self-test-exception')
+
 # scripts/make-fixtures.sh: only the scenario that writes fixtures/generated
 if '--make-fixtures' in sys.argv:
     SCENARIOS = {'generate-fixtures': [('generateFixtures', FRESH)]}
