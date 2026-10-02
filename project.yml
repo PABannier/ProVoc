@@ -24,7 +24,11 @@ settings:
   configs:
     Debug:
       ONLY_ACTIVE_ARCH: YES
-      GCC_OPTIMIZATION_LEVEL: 0
+      # The tests run in the Debug build. It is optimized like the Release build (-Os), so
+      # that they exercise the code as it ships: code of 2008 can behave differently once
+      # optimized (uninitialized variables, aliasing). The two builds only differ by the
+      # test hooks (DEBUG), the assertions, the identifier and the symbols.
+      GCC_OPTIMIZATION_LEVEL: s
       GCC_PREPROCESSOR_DEFINITIONS: ["DEBUG=1", "$(inherited)"]
     Release:
       COPY_PHASE_STRIP: YES
