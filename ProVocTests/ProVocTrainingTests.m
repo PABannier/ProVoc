@@ -65,6 +65,49 @@
 // The four training modes of DefaultPresets.xml are offered. A click applies one.
 // + creates one, which can be renamed and changed; the action menu duplicates and
 // removes; the modes are saved with the document.
+// The whole way with the keyboard: Option-Command-2 shows the Training view with the
+// list of training modes ready for the arrow keys; an arrow chooses a mode, which is
+// applied at once; Command-R starts the test in that mode.
+-(void)testTrainingModeChosenWithTheKeyboard
+{
+	NSArray *defaultPresets = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"DefaultPresets" ofType:@"xml"]];
+	BOOL (^modeIsApplied)(NSInteger) = ^BOOL(NSInteger row) {
+		NSDictionary *expected = defaultPresets[row][@"Parameters"], *parameters = [mDocument parameters];
+		for (NSString *key in expected)
+			if (![parameters[key] isEqual:expected[key]])
+				return NO;
+		return [[self presetTable] selectedRow] == row;
+	};
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"1", NSEventModifierFlagOption); }];
+	[script wait:@"the Editing view (Option-Command-1)" until:^BOOL { return [[mDocument valueForKey:@"mainTab"] intValue] == 1; }];
+	[script then:^{ PVTypeCommand(@"2", NSEventModifierFlagOption); }];
+	[script wait:@"the Training view (Option-Command-2), its list of modes having the focus" until:^BOOL {
+		return [[mDocument valueForKey:@"mainTab"] intValue] == 0 && [[self presetTable] window] == [mDocument window] && [[mDocument window] firstResponder] == [self presetTable];
+	}];
+	// down to the last mode, then up to the second one (Written Test)
+	for (NSInteger row = 1; row <= 3; row++) {
+		[script then:^{
+			if (row == 1)	// (wherever the selection was: from the first mode)
+				[[self presetTable] selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+			PVPostKey(PVKeyDown, nil, NSEventModifierFlagFunction | NSEventModifierFlagNumericPad);
+		}];
+		[script wait:[NSString stringWithFormat:@"Down to choose and apply the mode %ld", (long)row + 1] until:^BOOL { return modeIsApplied(row); }];
+	}
+	for (NSInteger row = 2; row >= 1; row--) {
+		[script then:^{ PVPostKey(PVKeyUp, nil, NSEventModifierFlagFunction | NSEventModifierFlagNumericPad); }];
+		[script wait:[NSString stringWithFormat:@"Up to choose and apply the mode %ld", (long)row + 1] until:^BOOL { return modeIsApplied(row); }];
+	}
+	[script then:^{
+		XCTAssertEqualObjects(defaultPresets[1][@"Parameters"][@"testMCQ"], @NO, @"the second mode of DefaultPresets.xml is the written test");
+		PVTypeCommand(@"r", 0);
+	}];
+	[script wait:@"Command-R to start a written test, the answer field ready" timeout:10 until:^BOOL { return [self showsQuestionNumber:1] && [self answerFieldHasFocus] && ![[mDocument valueForKey:@"testMCQ"] boolValue]; }];
+	[script then:^{ PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption); }];
+	[script wait:@"the test to be over" until:^BOOL { return [self testIsOver]; }];
+	[self runScript:script];
+}
+
 -(void)testTrainingModes
 {
 	NSArray *defaultPresets = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"DefaultPresets" ofType:@"xml"]];
@@ -95,7 +138,6 @@
 		for (NSString *key in expected)
 			XCTAssertEqualObjects(parameters[key], expected[key], @"%@ of %@", key, defaultNames[1]);
 		XCTAssertNotNil(newButton(), @"no + button");
-		NSLog(@"PVDEBUG button %@ enabled %i frame %@ canModify %@ canResume %@ testers %lu target %@ window key %i", newButton(), [newButton() isEnabled], NSStringFromRect([newButton() convertRect:[newButton() bounds] toView:nil]), [mDocument valueForKey:@"canModifyTestParameters"], [mDocument valueForKey:@"canResumeTest"], (unsigned long)[[ProVocTester currentTesters] count], [newButton() target], [[mDocument window] isKeyWindow]);
 		PVClickView(newButton(), 1, 0);
 	}];
 	[script wait:@"a new training mode, selected, its settings displayed" until:^BOOL {

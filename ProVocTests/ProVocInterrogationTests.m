@@ -261,6 +261,25 @@
 	[script wait:@"the three remaining words" until:^BOOL { return [self showsQuestionNumber:1] && [[[self tester] valueForKey:@"progressMax"] intValue] == 3; }];
 	[script then:^{ PVPostKey(PVKeyEscape, nil, NSEventModifierFlagOption); }];
 	[script wait:@"the test to be aborted without result panel" until:^BOOL { return [self testIsOver]; }];
+
+	// the same with the button: it reads Finish, and Abort while Option is down
+	NSButton *(^finishButton)(void) = ^{ return [self buttonWithAction:@selector(cancelTestPanel:) inView:[[self testPanel] contentView]]; };
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	[script wait:@"a new test" until:^BOOL { return [self showsQuestionNumber:1] && [self answerFieldHasFocus]; }];
+	[script then:^{
+		XCTAssertEqualObjects([finishButton() title], NSLocalizedString(@"Finish Button Title", @""));
+		PVClickView(finishButton(), 1, 0);
+	}];
+	[script wait:@"a click on Finish to show the results" until:^BOOL { return [[self resultPanel] isVisible] && ![[self testPanel] isVisible]; }];
+	[script then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
+	[script wait:@"Esc (Done) to close the results" until:^BOOL { return [self testIsOver]; }];
+	[script then:^{ PVTypeCommand(@"r", 0); }];
+	[script wait:@"a new test" until:^BOOL { return [self showsQuestionNumber:1] && [self answerFieldHasFocus]; }];
+	[script then:^{ PVPostFlagsChanged(NSEventModifierFlagOption); }];
+	[script wait:@"the button to read Abort while Option is down" until:^BOOL { return [[finishButton() title] isEqualToString:NSLocalizedString(@"Abort Button Title", @"")]; }];
+	[script then:^{ PVClickView(finishButton(), 1, NSEventModifierFlagOption); }];
+	[script wait:@"Option-click on Abort to end the test without result panel" until:^BOOL { return [self testIsOver] && ![[self resultPanel] isVisible]; }];
+	[script then:^{ PVPostFlagsChanged(0); }];
 	[self runScript:script];
 }
 

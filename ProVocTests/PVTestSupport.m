@@ -470,6 +470,9 @@ void PVPrepareMenu(NSMenu *inMenu)
 	[inMenu update];
 }
 
+// How many times the application lost the front since it started
+static NSUInteger sDeactivations = 0;
+
 @interface PVScript () {
 	NSMutableArray *mSteps;
 	NSUInteger mIndex;
@@ -477,6 +480,7 @@ void PVPrepareMenu(NSMenu *inMenu)
 	NSString *mFailure;
 	BOOL mFinished;
 	NSDate *mInactiveSince;
+	NSUInteger mDeactivationsAtStart;
 	NSDate *mUnsettledSince;
 	BOOL mWarnedUnsettled;
 	void (^mCompletion)(NSString *);
@@ -551,6 +555,7 @@ void PVPrepareMenu(NSMenu *inMenu)
 	if (!observing) {
 		observing = YES;
 		[[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidResignActiveNotification object:nil queue:nil usingBlock:^(NSNotification *inNotification) {
+			sDeactivations++;
 			NSLog(@"PVScript: the application is no longer active (frontmost: %@)", [[[NSWorkspace sharedWorkspace] frontmostApplication] bundleIdentifier]);
 		}];
 	}
@@ -622,7 +627,9 @@ void PVPrepareMenu(NSMenu *inMenu)
 		} else {
 			if (elapsed < [step[@"timeout"] doubleValue])
 				return;
-			mFailure = [[NSString alloc] initWithFormat:@"timed out waiting for: %@ (step %lu; modal window: %@ \"%@\")", step[@"what"], (unsigned long)mIndex, [[NSApp modalWindow] className], [[NSApp modalWindow] title]];
+			// (keys typed while another application had the front went nowhere: say so, it is not a fault of ProVoc)
+			NSString *disturbed = sDeactivations > mDeactivationsAtStart ? [NSString stringWithFormat:@"; THE MAC WAS IN USE: another application took the front %lu time(s) during this script", (unsigned long)(sDeactivations - mDeactivationsAtStart)] : @"";
+			mFailure = [[NSString alloc] initWithFormat:@"timed out waiting for: %@ (step %lu; modal window: %@ \"%@\"%@)", step[@"what"], (unsigned long)mIndex, [[NSApp modalWindow] className], [[NSApp modalWindow] title], disturbed];
 			if ([NSApp modalWindow])
 				PVSaveWindowScreenshot([NSApp modalWindow], @"failures/modal-window-at-timeout");
 			mFinished = YES;
@@ -660,6 +667,7 @@ void PVPrepareMenu(NSMenu *inMenu)
 -(void)startWithCompletion:(void (^)(NSString *))inCompletion
 {
 	mCompletion = [inCompletion copy];
+	mDeactivationsAtStart = sDeactivations;
 	[self retain];	// until the application ends
 	NSTimer *timer = [NSTimer timerWithTimeInterval:0.01 target:self selector:@selector(step:) userInfo:nil repeats:YES];
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
@@ -673,6 +681,7 @@ void PVPrepareMenu(NSMenu *inMenu)
 
 -(NSString *)run
 {
+	mDeactivationsAtStart = sDeactivations;
 	NSTimer *timer = [NSTimer timerWithTimeInterval:0.01 target:self selector:@selector(step:) userInfo:nil repeats:YES];
 	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 	NSDate *limit = [NSDate dateWithTimeIntervalSinceNow:120];
