@@ -86,6 +86,11 @@ targets:
               "$lproj" "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/"
           done
         basedOnDependencyAnalysis: false
+      - name: Build Automator actions
+        script: |
+          mkdir -p "$DERIVED_FILE_DIR"
+          "$SRCROOT/scripts/build-automator-actions.sh"
+        basedOnDependencyAnalysis: false
   ProVocTests:
     type: bundle.unit-test
     platform: macOS
@@ -102,6 +107,7 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
     dependencies:
       - target: ProVoc
+      - sdk: Automator.framework
   # The Spotlight importer of .pvoc documents, in the application at
   # Contents/Library/Spotlight (it replaces the PowerPC / i386 one of the original).
   ProVocImporter:

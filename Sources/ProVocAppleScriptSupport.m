@@ -64,7 +64,16 @@
 -(id)performDefaultImplementation
 {
 	id args = [self evaluatedArguments];
-	ProVocText *text = [[[ProVocText alloc] initWithContents:args[@""]] autorelease];
+	id contents = args[@""];
+	// Automator hands over a list of texts (the "Add Text to Vocabulary" action); a list
+	// of one text was made a text by the Cocoa scripting of 2006, it no longer is
+	if ([contents isKindOfClass:[NSArray class]])
+		contents = [contents componentsJoinedByString:@"\n"];
+	if (![contents isKindOfClass:[NSString class]]) {
+		[self setScriptErrorNumber:errAECoercionFail];
+		return nil;
+	}
+	ProVocText *text = [[[ProVocText alloc] initWithContents:contents] autorelease];
 	[NSApp importWordsFromFiles:@[text] inNewDocument:[self boolForArgument:@"NewDocument" defaultValue:NO]];
 	return nil;
 }
