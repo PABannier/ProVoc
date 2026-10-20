@@ -79,6 +79,7 @@
 		5038E2FEA9FE435799CCF397 /* ARAboutDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = BC874E005526E2788C03424C /* ARAboutDialog.m */; };
 		505D0AB82413E3E9B2BFCFB6 /* MicPressed.png in Resources */ = {isa = PBXBuildFile; fileRef = E1344020613361D5C6CA9206 /* MicPressed.png */; };
 		50B72381FC57BDF0D9C61F2A /* ProVocMovieView.m in Sources */ = {isa = PBXBuildFile; fileRef = EC5857671CE54D80632B28EB /* ProVocMovieView.m */; };
+		514A789F943204D308B516D4 /* ButtonExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = FD0213C855FA66353E84885C /* ButtonExtensions.m */; };
 		51AF0C29AAC4324DD26CEE5A /* ProVocPreset.m in Sources */ = {isa = PBXBuildFile; fileRef = 454B4CABBFA698B869AD098A /* ProVocPreset.m */; };
 		52CC1331BB2F94AA006CEEC2 /* PVDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = 153507AC6DEADE950764DFE1 /* PVDriver.m */; };
 		54FD50F8D6ED06AB856873C1 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8453819AC9F2BDD36700F845 /* AVKit.framework */; };
@@ -501,6 +502,7 @@
 		F83BD6D999D5F23EAAEA995F /* ProVocImporter.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProVocImporter.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8CDD9669BD6BB2DC237F2CB /* SpeakerOff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SpeakerOff.png; sourceTree = "<group>"; };
 		F9C0084DF24CB27B1B1B6545 /* ProVocPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocPage.h; sourceTree = "<group>"; };
+		FD0213C855FA66353E84885C /* ButtonExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ButtonExtensions.m; sourceTree = "<group>"; };
 		FD2F3CB823B981C278CBFF01 /* ProVocBackground.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocBackground.m; sourceTree = "<group>"; };
 		FEA0AD349C55C9540F2B3299 /* AppleScriptExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppleScriptExtensions.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -672,6 +674,7 @@
 				82F0E8BB0547D7C2EA0F850E /* ArrayExtensions.m */,
 				E7F8B16B72EAE0449BCF6863 /* BezierPathExtensions.h */,
 				129769EB2FD4B64ACF350AD6 /* BezierPathExtensions.m */,
+				FD0213C855FA66353E84885C /* ButtonExtensions.m */,
 				AA05B2056235B9AC3A69AB88 /* DateExtensions.h */,
 				F244851059BC1208F5BAC68F /* DateExtensions.m */,
 				BDF4E66BAD6E2C23F9B46705 /* ExtendedCell.h */,
@@ -1258,6 +1261,7 @@
 				261B7724BF4A5AE79A738F4E /* ArchiverExtensions.m in Sources */,
 				16FD8533B68E4E218A01A859 /* ArrayExtensions.m in Sources */,
 				C1E222AB48F76B79E0F5ED3B /* BezierPathExtensions.m in Sources */,
+				514A789F943204D308B516D4 /* ButtonExtensions.m in Sources */,
 				DA2150E610A419BC581D22EE /* DateExtensions.m in Sources */,
 				2CE169947121C9CDC8B5B2E1 /* ExtendedCell.m in Sources */,
 				165D4159181C0BD54AF4A30D /* FTPUploader.m in Sources */,
