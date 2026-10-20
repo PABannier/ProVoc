@@ -42,6 +42,7 @@ codesign --verify --deep --strict "$APP" || exit 1
 "$LSREGISTER" -u build/DerivedData/Build/Products/Release/ProVoc.app dist/ProVoc.app 2> /dev/null
 "$LSREGISTER" -f "$APP"
 echo "installed: $APP ($(lipo -archs "$APP/Contents/MacOS/ProVoc"), version $(defaults read "$APP/Contents/Info" CFBundleShortVersionString))"
-OPENS=$(osascript -e 'POSIX path of (path to application id "ch.arizona-software.provoc")')
+# (NSWorkspace looks the application up without launching it; AppleScript's "path to application" launches it)
+OPENS=$(osascript -l JavaScript -e "ObjC.import('AppKit'); var u = \$.NSWorkspace.sharedWorkspace.URLForApplicationWithBundleIdentifier('ch.arizona-software.provoc'); u.isNil() ? 'none' : u.path.js")
 echo "ProVoc opens: $OPENS"
-[ "$INSTALL_DIR" != /Applications ] || [ "$OPENS" = "$APP/" ] || { echo "another copy of ProVoc still opens instead: archive or remove it"; exit 1; }
+[ "$INSTALL_DIR" != /Applications ] || [ "$OPENS" = "$APP" ] || { echo "another copy of ProVoc still opens instead: archive or remove it"; exit 1; }
