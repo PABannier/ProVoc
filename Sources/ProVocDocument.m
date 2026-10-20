@@ -217,6 +217,56 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
     return mMainWindow;
 }
 
+// The three rows where a word is typed, as they were laid out for the controls of 2008:
+// the fields of the word and of its translation ran to the right edge while the comment
+// field stopped before the Add button; the Comment label sat a few points left of the
+// titles of the two language pop-ups; and the buttons of the tab bar had the widths of
+// their titles in Lucida Grande. Today's controls have other margins, so the rows are
+// aligned here: the three fields end at the same point, the label starts where the
+// pop-up titles start, the rows are evenly spaced, the Add button is as tall as its
+// field, and the tabs share the width equally.
+-(void)alignInputRows
+{
+	NSRect comment = [mCommentTextField frame];
+	for (NSTextField *field in @[mSourceTextField, mTargetTextField]) {
+		NSRect frame = [field frame];
+		frame.size.width = NSWidth(comment);
+		[field setFrame:frame];
+	}
+	// the same gap above the comment row as between the two rows above it
+	CGFloat gap = NSMinY([mSourceTextField frame]) + NSMinY([mSourceInputView frame]) - NSMaxY([mTargetTextField frame]) - NSMinY([mTargetInputView frame]);
+	comment.origin.y = NSMinY([mTargetTextField frame]) + NSMinY([mTargetInputView frame]) - gap - NSHeight(comment) - NSMinY([mCommentInputView frame]);
+	[mCommentTextField setFrame:comment];
+	// the label, and the view that holds the Add button
+	for (NSView *view in [mCommentInputView subviews]) {
+		NSRect frame = [view frame];
+		if (view == mCommentTextField)
+			continue;
+		if ([view isKindOfClass:[NSTextField class]]) {
+			frame.origin.x = NSMinX([mSourceLanguagePopUp frame]) + [[mSourceLanguagePopUp cell] titleRectForBounds:[mSourceLanguagePopUp bounds]].origin.x;
+			frame.origin.y = round(NSMidY(comment) - NSHeight(frame) / 2);
+			[view setFrame:frame];
+		} else
+			for (NSButton *button in [view subviews])
+				if ([button isKindOfClass:[NSButton class]]) {
+					NSRect buttonFrame = [button frame];
+					buttonFrame.size.height = NSHeight(comment);
+					buttonFrame.origin.y = NSMinY(comment) - NSMinY(frame);
+					[button setFrame:buttonFrame];
+				}
+	}
+	NSMutableArray *views = [NSMutableArray arrayWithObject:[mMainWindow contentView]];
+	while ([views count] > 0) {
+		NSView *view = views[0];
+		[views removeObjectAtIndex:0];
+		[views addObjectsFromArray:[view subviews]];
+		if ([view isKindOfClass:[NSSegmentedControl class]])
+			[(NSSegmentedControl *)view setSegmentDistribution:NSSegmentDistributionFillEqually];
+	}
+	for (NSView *view in @[mSourceInputView, mTargetInputView, mCommentInputView])
+		[view setNeedsDisplay:YES];
+}
+
 -(void)windowControllerDidLoadNib:(NSWindowController *)inController
 {
     [super windowControllerDidLoadNib:inController];
@@ -254,6 +304,7 @@ static NSString *PVUsableFontFamilyName(NSString *inName)
 		[self getGlobalPreferencesFromDefaults];
 
     [[mSearchField cell] setSearchMenuTemplate:mSearchMenu];
+	[self alignInputRows];
 	
     [self updateLanguagePopUps];
 	[self pagesDidChange];

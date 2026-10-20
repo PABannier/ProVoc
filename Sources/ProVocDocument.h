@@ -141,6 +141,7 @@
 -(void)setMainTab:(int)inTab;
 -(void)setEditingPreset:(BOOL)inEdit;
 
+-(void)alignInputRows;
 @end
 
 @interface ProVocDocument (Preferences)
