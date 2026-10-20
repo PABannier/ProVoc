@@ -346,7 +346,7 @@
 -(void)savePanelLayout
 {
 	NSView *otherSplitView = [mMCQSplitView subviews][0];
-	[[NSUserDefaults standardUserDefaults] setFloat:[otherSplitView bounds].size.height forKey:@"MCQ Other View Height"];
+	[[NSUserDefaults standardUserDefaults] setFloat:(mPaneHeightBeforeGrowth > 0 ? mPaneHeightBeforeGrowth : [otherSplitView bounds].size.height) forKey:@"MCQ Other View Height"];
 	[[NSUserDefaults standardUserDefaults] setFloat:[mMCQView frame].size.height / [self rows] forKey:[self lineHeightKey]];
 }
 
