@@ -114,6 +114,7 @@ AppleScript: `start test` (new) next to `import`, `import text` and `export`.
 | Submit Document | The upload server is gone | The command explains it and shows the file in the Finder |
 | Dashboard widget offer and log | Dashboard was removed from macOS | No offer; a `Widget.log` in a document is still read |
 | Quartz Composer backgrounds | Deprecated; the compositions no longer render | The same four backgrounds drawn with Core Animation |
+| ProVoc opened as "ProVoc 2026-10-02-134136" (the Dock showed that name) | `scripts/install.sh` moved the previous `/Applications/ProVoc.app` to `~/ProVoc backups/` as a `.app`; Launch Services chooses among every application with ProVoc's bundle identifier, wherever it is, and picked the backup for Spotlight, the Dock and double-clicked decks | The previous copy is archived as a zip and unregistered (the `.app` backups of earlier installs too), the build copies are unregistered, and the installer checks which ProVoc opens (`scripts/install.sh`, `scripts/install-check.sh`) |
 
 ## How to rebuild
 
@@ -128,8 +129,9 @@ or only the application:
 xcodegen generate && xcodebuild -project ProVoc.xcodeproj -scheme ProVoc -configuration Release -derivedDataPath build/DerivedData ARCHS=arm64 ONLY_ACTIVE_ARCH=NO clean build && rm -rf dist && mkdir dist && cp -R build/DerivedData/Build/Products/Release/ProVoc.app dist/ && codesign --force --deep -s - dist/ProVoc.app
 ```
 
-`scripts/install.sh` copies `dist/ProVoc.app` to `/Applications` (an older copy is moved
-to `~/ProVoc backups/` first).
+`scripts/install.sh` copies `dist/ProVoc.app` to `/Applications` (an older copy is archived
+as a zip in `~/ProVoc backups/` first, and forgotten by Launch Services: a second ProVoc.app
+left anywhere on the disk could be the one that opens, under its own name).
 
 ## Training with the keyboard only
 
