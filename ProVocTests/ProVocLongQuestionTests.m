@@ -132,6 +132,19 @@ static NSString *sComment = @"a comment under the question, kept apart from it";
 	[self runScript:script];
 }
 
+// With the layout a user saved (a question pane of 133 points, a panel of 512) and a test
+// font of 24 points, as in a real deck
+-(void)scenarioLongQuestionsAreShownEntirelyWithASavedLayout
+{
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults setFloat:133 forKey:@"Split Subview 0"];
+	[defaults setFloat:36 forKey:@"Split Subview 1"];
+	[defaults setObject:@"544 347 641 512 0 0 1728 1083 " forKey:@"NSWindow Frame TestPanel"];
+	[defaults setFloat:24 forKey:@"sourceTestFontSize"];
+	[defaults setFloat:24 forKey:@"targetTestFontSize"];
+	[self scenarioLongQuestionsAreShownEntirely];
+}
+
 -(id)mcqView
 {
 	return [[self tester] valueForKey:@"mMCQView"];
