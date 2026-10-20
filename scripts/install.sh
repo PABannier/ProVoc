@@ -19,7 +19,8 @@ BACKUP_DIR=${PROVOC_BACKUP_DIR:-$HOME/ProVoc backups}
 APP="$INSTALL_DIR/ProVoc.app"
 [ -d dist/ProVoc.app ] || { echo "no dist/ProVoc.app: run scripts/verify.sh first"; exit 1; }
 codesign --verify --deep --strict dist/ProVoc.app || { echo "dist/ProVoc.app is not properly signed"; exit 1; }
-RUNNING=$(ps -axo command= | grep -F -e "$APP/Contents/MacOS/ProVoc" -e "$BACKUP_DIR/" | grep -v "^grep " | head -1)
+# the executable paths only (comm), not the command lines: a shell whose command mentions the path is not ProVoc
+RUNNING=$(ps -axo comm= | grep -F -e "$APP/Contents/MacOS/ProVoc" -e "$BACKUP_DIR/" | head -1)
 [ -z "$RUNNING" ] || { echo "ProVoc is running ($RUNNING): quit it first"; exit 1; }
 if [ -e "$APP" ]; then
 	mkdir -p "$BACKUP_DIR" || exit 1
