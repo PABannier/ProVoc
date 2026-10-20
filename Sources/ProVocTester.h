@@ -81,6 +81,7 @@
 	
 	IBOutlet NSSplitView *mSplitView;
 	IBOutlet NSSplitView *mMCQSplitView;
+	float mPaneHeightBeforeGrowth;	// the height of the question pane before the panel grew for a long question, 0 if it did not
 	
 	ProVocTimer *mTimer;
 	BOOL mTimerDidElapse;

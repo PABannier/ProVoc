@@ -86,6 +86,7 @@
 		5A0D9531B0CB7170184B70E2 /* add.tiff in Resources */ = {isa = PBXBuildFile; fileRef = A8F7074BC8DE52FA6CB6285D /* add.tiff */; };
 		5B70232977951A9D74786C8A /* SmallMovie.tif in Resources */ = {isa = PBXBuildFile; fileRef = 22DF2AAB5AA3BDB1D6EB6E50 /* SmallMovie.tif */; };
 		5B910B699FA2C83DD5351802 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFC891376C4C014AD355F654 /* Cocoa.framework */; };
+		5C2113464B6A7FF3765F7B98 /* ProVocLongQuestionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 28EB22C53865C8FF4F150904 /* ProVocLongQuestionTests.m */; };
 		60E0BE684032948404D396F3 /* ProVocColoredWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 51E2176F4830BBC27641327A /* ProVocColoredWindowView.m */; };
 		61005A4D5E80D99D07699F57 /* iPodPreferences.tif in Resources */ = {isa = PBXBuildFile; fileRef = 24387940206D8C9918F4DF2F /* iPodPreferences.tif */; };
 		63D6F85228F51DEC0FF38365 /* ProVocPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5B881AB4D2FC5E04CF873D /* ProVocPage.m */; };
@@ -279,6 +280,7 @@
 		24387940206D8C9918F4DF2F /* iPodPreferences.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = iPodPreferences.tif; sourceTree = "<group>"; };
 		27F3FD4D2FE53D03F8AFF088 /* PVCaptureScenarios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVCaptureScenarios.m; sourceTree = "<group>"; };
 		288F2F8A3D71714EF651CE26 /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = English.lproj/schema.strings; sourceTree = "<group>"; };
+		28EB22C53865C8FF4F150904 /* ProVocLongQuestionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocLongQuestionTests.m; sourceTree = "<group>"; };
 		290D8389CAC03E656653822C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		292C43FDFE47B47530ECC31E /* Both.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Both.tif; sourceTree = "<group>"; };
 		2A900C25A4CEF881AA8C5D15 /* ProVocData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocData.h; sourceTree = "<group>"; };
@@ -622,6 +624,7 @@
 				D1FFD4D4162465984951956A /* ProVocEditingTests.m */,
 				9BC0303024C6E8E7DE3B92CA /* ProVocImporterTests.m */,
 				EA77C634106DC6D89517DC90 /* ProVocInterrogationTests.m */,
+				28EB22C53865C8FF4F150904 /* ProVocLongQuestionTests.m */,
 				5B9E76677603488A055E9E23 /* ProVocMCQTests.m */,
 				790F806BCA9939C03FC84B9B /* ProVocMediaTests.m */,
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
@@ -1201,6 +1204,7 @@
 				F0EF28EC7C6055C2C557CB3D /* ProVocEditingTests.m in Sources */,
 				7264DA4E3EC710A1FB7A2DE3 /* ProVocImporterTests.m in Sources */,
 				DA144F8545077BA825766F60 /* ProVocInterrogationTests.m in Sources */,
+				5C2113464B6A7FF3765F7B98 /* ProVocLongQuestionTests.m in Sources */,
 				10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */,
 				938AA2FD5E1EAF39B51DE40B /* ProVocMediaTests.m in Sources */,
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,

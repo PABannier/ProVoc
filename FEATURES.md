@@ -27,6 +27,7 @@ Notes on behaviour that differs from the wording of the specification are given 
 ## A. Interrogation (typed answers)
 
 - [x] Start a test with ⌘R. The test panel appears. The answer field has focus with no click. — test: `ProVocTests/ProVocInterrogationTests/testAllCorrect*`
+- [x] A question longer than its field is shown entirely: wrapped, with the panel growing as far as the screen allows, and scrolling from its first line beyond that; its comment stays under it; the growth is not saved as the user's layout. — test: `ProVocTests/ProVocLongQuestionTests/testLongQuestionsAreShownEntirely*`
 - [x] Correct answer + Return → recorded correct, then the app goes straight to the next word, with the field cleared and focused. — test: `ProVocTests/ProVocInterrogationTests/testAllCorrect*`
 - [x] Correct answer + Return when the full answer is displayed (partial synonym, late comment) → the answer is shown and the next Return advances. — test: `ProVocTests/ProVocTestOptionsTests/testLateCommentAndFullAnswer*`
 - [x] Wrong answer + Return → window shakes, counted wrong, field stays focused for a retry. — test: `ProVocTests/ProVocInterrogationTests/testWrongAnswersSolutionAcceptRejectAndRepeat*`
@@ -89,6 +90,7 @@ Notes on behaviour that differs from the wording of the specification are given 
 ## B. Multiple-choice tests
 
 - [x] Keys 1–9 select a choice. — test: `ProVocTests/ProVocMCQTests/testDigitSelectsReturnVerifies*`
+- [x] A long question is shown entirely above the choices, as in a written test. — test: `ProVocTests/ProVocLongQuestionTests/testLongQuestionsAreShownEntirelyInMultipleChoice*`
 - [x] ↑/↓ move the selection. — test: `ProVocTests/ProVocMCQTests/testArrowsWrongChoiceAndSolution*`
 - [x] Return verifies. — test: `ProVocTests/ProVocMCQTests/testDigitSelectsReturnVerifies*`
 - [x] Double-click selects and verifies. — test: `ProVocTests/ProVocMCQTests/testDoubleClickSelectsAndVerifies*`

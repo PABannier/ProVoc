@@ -99,6 +99,7 @@ enum {
 @interface ProVocTester (MorePrivate)
 
 -(void)savePanelLayout;
+-(void)fitQuestion:(BOOL)inMayGrow;
 
 -(BOOL)shouldHideLabel;
 -(NSPanel *)testPanel;
@@ -685,6 +686,134 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 
 @implementation ProVocTester (TestPanel)
 
+#pragma mark Long questions
+
+-(NSTextField *)questionFieldIn:(NSView *)inView
+{
+	if ([inView isKindOfClass:[NSTextField class]] && [[[inView infoForBinding:NSValueBinding] objectForKey:NSObservedKeyPathKey] isEqualToString:@"question"])
+		return (NSTextField *)inView;
+	for (NSView *subview in [inView subviews]) {
+		NSTextField *field = [self questionFieldIn:subview];
+		if (field)
+			return field;
+	}
+	return nil;
+}
+
+// The view of the split view that holds the question
+-(NSView *)paneOf:(NSView *)inView
+{
+	NSView *pane = inView;
+	while ([pane superview] && ![[pane superview] isKindOfClass:[NSSplitView class]])
+		pane = [pane superview];
+	return pane;
+}
+
+// The question field of the nib has room for three lines: a longer question was cut.
+// The field now lives in a scroll view that takes its place; the panel grows to show
+// the whole question as far as the screen allows, and what is still too long scrolls.
+-(NSScrollView *)questionScrollView
+{
+	NSTextField *field = [self questionFieldIn:[[self testPanel] contentView]];
+	if (!field)
+		return nil;
+	if ([[field superview] isKindOfClass:[NSClipView class]])
+		return [field enclosingScrollView];
+	NSScrollView *scrollView = [[[NSScrollView alloc] initWithFrame:[field frame]] autorelease];
+	[scrollView setAutoresizingMask:[field autoresizingMask]];
+	[scrollView setBorderType:NSNoBorder];
+	[scrollView setDrawsBackground:NO];
+	[scrollView setHasVerticalScroller:YES];
+	[scrollView setAutohidesScrollers:YES];
+	[field retain];
+	[[field superview] replaceSubview:field with:scrollView];
+	[field setAutoresizingMask:NSViewWidthSizable];
+	[[field cell] setWraps:YES];
+	[[field cell] setLineBreakMode:NSLineBreakByWordWrapping];
+	[scrollView setDocumentView:field];
+	[field release];
+	NSView *pane = [self paneOf:scrollView];
+	[pane setPostsFrameChangedNotifications:YES];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(questionPaneDidResize:) name:NSViewFrameDidChangeNotification object:pane];
+	return scrollView;
+}
+
+-(void)questionPaneDidResize:(NSNotification *)inNotification
+{
+	[self fitQuestion:NO];
+}
+
+-(void)fitQuestionGrowing
+{
+	[self fitQuestion:YES];
+}
+
+-(void)fitQuestion:(BOOL)inMayGrow
+{
+	NSScrollView *scrollView = [self questionScrollView];
+	if (!scrollView)
+		return;
+	NSView *pane = [self paneOf:scrollView];
+	// Whatever the autoresizing of the views in between, the question takes the room from
+	// the top of the pane down to the view under it: the comment, which keeps the height
+	// its own text needs.
+	for (NSView *view = scrollView; view != pane; view = [view superview]) {
+		NSRect viewFrame = [view frame];
+		CGFloat bottom = view == scrollView ? 0 : NSMinY(viewFrame);
+		if (view == scrollView)
+			for (NSView *sibling in [[view superview] subviews]) {
+				if (sibling == view || [sibling isHidden] || NSMaxY([sibling frame]) > NSMinY(viewFrame) + 1)
+					continue;
+				if ([sibling isKindOfClass:[NSTextField class]]) {
+					NSRect siblingFrame = [sibling frame];
+					siblingFrame.size.height = ceil([[(NSTextField *)sibling cell] cellSizeForBounds:NSMakeRect(0, 0, NSWidth(siblingFrame), 100000)].height);
+					[sibling setFrame:siblingFrame];
+				}
+				bottom = MAX(bottom, NSMaxY([sibling frame]));
+			}
+		viewFrame.origin.y = bottom;
+		viewFrame.size.height = MAX(0, NSMaxY([[view superview] bounds]) - bottom);
+		[view setFrame:viewFrame];
+	}
+	NSTextField *field = [scrollView documentView];
+	NSClipView *clipView = [scrollView contentView];
+	CGFloat needed = ceil([[field cell] cellSizeForBounds:NSMakeRect(0, 0, NSWidth([clipView bounds]), 100000)].height);
+	CGFloat missing = needed - NSHeight([clipView bounds]);
+	NSPanel *panel = [self testPanel];
+	NSSplitView *splitView = [[pane superview] isKindOfClass:[NSSplitView class]] ? (NSSplitView *)[pane superview] : nil;
+	if (inMayGrow && missing > 0 && splitView && [panel isVisible] && [panel screen]) {
+		NSRect frame = [panel frame];
+		NSRect visible = [[panel screen] visibleFrame];
+		CGFloat growth = MIN(missing, NSHeight(visible) - NSHeight(frame));
+		if (growth > 0) {
+			if (mPaneHeightBeforeGrowth <= 0)
+				mPaneHeightBeforeGrowth = NSHeight([pane frame]);
+			NSMutableArray *heights = [NSMutableArray array];
+			for (NSView *subview in [splitView subviews])
+				[heights addObject:@(NSHeight([subview frame]))];
+			frame.size.height += growth;
+			frame.origin.y = MAX(NSMinY(visible), NSMinY(frame) - growth);
+			[panel setFrame:frame display:YES];
+			growth = NSHeight([panel frame]) - (frame.size.height - growth);	// what the window server allowed (a sheet cannot leave its window)
+			NSUInteger index = [[splitView subviews] indexOfObject:pane];
+			heights[index] = @([heights[index] floatValue] + growth);
+			// the split view keeps the positions of its dividers, not frames set from outside
+			CGFloat position = 0;
+			for (NSUInteger i = 0; i + 1 < [heights count]; i++) {
+				position += [heights[i] floatValue];
+				[splitView setPosition:position ofDividerAtIndex:i];
+				position += [splitView dividerThickness];
+			}
+			[self fitQuestion:NO];
+			return;
+		}
+	}
+	NSRect frame = NSMakeRect(0, 0, NSWidth([clipView bounds]), MAX(needed, NSHeight([clipView bounds])));
+	[field setFrame:frame];
+	[clipView scrollToPoint:NSMakePoint(0, [field isFlipped] ? 0 : NSHeight(frame) - NSHeight([clipView bounds]))];	// the first line
+	[scrollView reflectScrolledClipView:clipView];
+}
+
 -(IBAction)setLabel:(id)inSender
 {
 	int label = [inSender tag];
@@ -900,6 +1029,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 		[self didChangeValueForKey:@"audio"];
 		[self didChangeValueForKey:@"image"];
 		[self didChangeValueForKey:@"movie"];
+		[self fitQuestion:YES];
 
 		[self updateWindowBackgroundColor];
         [mAnswerTextField setStringValue:@""];
@@ -1001,20 +1131,24 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	int i;
 	for (i = 0; i < 2; i++) {
 		NSView *subview = [mSplitView subviews][i];
-		[[NSUserDefaults standardUserDefaults] setFloat:[subview bounds].size.height forKey:[NSString stringWithFormat:@"Split Subview %i", i]];
+		float height = i == 0 && mPaneHeightBeforeGrowth > 0 ? mPaneHeightBeforeGrowth : [subview bounds].size.height;	// the growth for a long question is not a layout the user chose
+		[[NSUserDefaults standardUserDefaults] setFloat:height forKey:[NSString stringWithFormat:@"Split Subview %i", i]];
 	}
 }
 
 -(void)openTestPanel
 {
+	mPaneHeightBeforeGrowth = 0;
 	[self restorePanelLayout];
 //	[[self testPanel] setFrameFromString:[[NSUserDefaults standardUserDefaults] objectForKey:[self testPanelFrameKey]]];
-	if ([self modalWindow])
+	if ([self modalWindow]) {
 	    [NSApp beginSheet:[self testPanel] modalForWindow:[self modalWindow] modalDelegate:self
                     didEndSelector:@selector(testPanelEnded:returnCode:contextInfo:) contextInfo:NULL];
-	else {
+		[self fitQuestion:YES];	// a long first question: the sheet grows
+	} else {
 		NSWindow *testPanel = [self testPanel];
 		[testPanel setLevel:NSFloatingWindowLevel + 2];
+		[self performSelector:@selector(fitQuestionGrowing) withObject:nil afterDelay:0.0 inModes:@[NSModalPanelRunLoopMode]];	// once the panel is on the screen
 		int returnCode = [NSApp runModalForWindow:testPanel];
 		[self testPanelEnded:[self testPanel] returnCode:returnCode contextInfo:nil];
 	}
