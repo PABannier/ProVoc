@@ -7,6 +7,7 @@
 //
 
 #import "ProVocImageView.h"
+#import "ProVocWord.h"
 
 
 @implementation ProVocImageView
@@ -144,6 +145,61 @@
 	[window setContentView:nil];
 	[window close];
 	[background close];
+}
+
+static NSRect ProVocRectOfBox(NSDictionary *inBox, NSSize inSize)
+{
+	float x = [inBox[@"x"] floatValue], y = [inBox[@"y"] floatValue], w = [inBox[@"w"] floatValue], h = [inBox[@"h"] floatValue];
+	return NSMakeRect(x * inSize.width, (1 - y - h) * inSize.height, w * inSize.width, h * inSize.height);
+}
+
+// The boxes are painted in the image itself: wherever the image goes (the test panel, full
+// size, the slideshow, the printed cards), what is hidden stays hidden.
+-(NSImage *)imageWithBoxOfWord:(ProVocWord *)inWord state:(ProVocBoxState)inState
+{
+	NSSize size = [self pixelSize];
+	if (size.width <= 0 || size.height <= 0)
+		size = [self size];
+	NSBitmapImageRep *rep = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:size.width pixelsHigh:size.height bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO
+																  colorSpaceName:NSCalibratedRGBColorSpace bytesPerRow:0 bitsPerPixel:0] autorelease];
+	NSRect bounds = {NSZeroPoint, size};
+	float lineWidth = MAX(2, round(size.width / 200));
+	NSColor *grey = [NSColor colorWithCalibratedRed:0.80 green:0.82 blue:0.85 alpha:1];
+	NSColor *greyLine = [NSColor colorWithCalibratedRed:0.61 green:0.64 blue:0.67 alpha:1];
+	NSColor *gold = [NSColor colorWithCalibratedRed:0.96 green:0.78 blue:0.29 alpha:1];
+	NSColor *dark = [NSColor colorWithCalibratedRed:0.11 green:0.11 blue:0.12 alpha:1];
+	NSColor *green = [NSColor colorWithCalibratedRed:0.11 green:0.50 blue:0.23 alpha:1];
+	NSColor *red = [NSColor colorWithCalibratedRed:0.79 green:0.19 blue:0.11 alpha:1];
+
+	[NSGraphicsContext saveGraphicsState];
+	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+	[self drawInRect:bounds fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	if (inState != ProVocBoxSelected && ![[inWord occlusion][@"showOthers"] boolValue])
+		for (ProVocWord *sibling in [inWord occlusionSiblings])
+			if (sibling != inWord) {
+				NSRect rect = ProVocRectOfBox([sibling occlusion][@"box"], size);
+				[grey set];
+				NSRectFill(rect);
+				[greyLine set];
+				NSFrameRectWithWidth(rect, lineWidth / 2);
+			}
+	NSRect rect = ProVocRectOfBox([inWord occlusion][@"box"], size);
+	if (inState == ProVocBoxAsked || inState == ProVocBoxSelected) {
+		[gold set];
+		NSRectFill(rect);
+	}
+	[(inState == ProVocBoxRight ? green : inState == ProVocBoxWrong ? red : dark) set];
+	NSFrameRectWithWidth(NSInsetRect(rect, -lineWidth, -lineWidth), lineWidth);
+	if (inState == ProVocBoxAsked) {
+		NSDictionary *attributes = @{NSFontAttributeName: [NSFont boldSystemFontOfSize:MIN(NSHeight(rect), NSWidth(rect)) * 0.7], NSForegroundColorAttributeName: dark};
+		NSSize mark = [@"?" sizeWithAttributes:attributes];
+		[@"?" drawAtPoint:NSMakePoint(NSMidX(rect) - mark.width / 2, NSMidY(rect) - mark.height / 2) withAttributes:attributes];
+	}
+	[NSGraphicsContext restoreGraphicsState];
+
+	NSImage *image = [[[NSImage alloc] initWithSize:[self size]] autorelease];
+	[image addRepresentation:rep];
+	return image;
 }
 
 @end

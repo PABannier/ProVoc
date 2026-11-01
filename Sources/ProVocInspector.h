@@ -11,6 +11,7 @@
 #import "ARInspector.h"
 #import "ProVocDocument.h"
 #import "ProVocWord.h"
+#import "ProVocImageView.h"
 
 #define ProVocSoundDidStartPlayingNotification @"ProVocSoundDidStartPlayingNotification"
 #define ProVocSoundDidStopPlayingNotification @"ProVocSoundDidStopPlayingNotification"
@@ -103,6 +104,7 @@
 
 -(void)setImage:(NSImage *)inImage;
 -(void)setImageFile:(NSString *)inFile;
+-(IBAction)editBoxes:(id)inSender;
 
 @end
 
@@ -133,6 +135,8 @@
 -(void)setImage:(NSImage *)inImage ofWord:(ProVocWord *)inWord;
 -(NSImage *)imageForMedia:(NSString *)inMedia;
 -(NSImage *)imageOfWord:(ProVocWord *)inWord;
+-(NSImage *)imageOfWord:(ProVocWord *)inWord boxState:(ProVocBoxState)inState;
+-(NSString *)addImageFile:(NSString *)inFileName;
 
 @end
 

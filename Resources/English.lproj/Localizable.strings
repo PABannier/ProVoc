@@ -375,3 +375,19 @@ Than Twice";
 "Submit Obsolete Title" = "Documents can no longer be submitted";
 "Submit Obsolete Message" = "The vocabulary server of Arizona Software no longer exists. To share this vocabulary, save the document and send its file: it contains the words and their media.";
 "Submit Obsolete Reveal Button" = "Show in Finder";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"Boxes Title Label" = "Title:";
+"Boxes Find Labels Button" = "Find Labels";
+"Boxes Answers Column" = "Answers";
+"Boxes Hint" = "Drag a box over a label, then type its answer";
+"Boxes While Asking Label" = "While asking one box:";
+"Boxes Hide Others" = "Hide the other boxes";
+"Boxes Show Others" = "Show the other boxes";
+"Boxes Note" = "Use “/” to separate synonyms. A box is a word: it trains and is reviewed like any other.";
+"Boxes Cancel Button" = "Cancel";
+"Boxes Save Button" = "Save";
+"Boxes Add No Word Button" = "Add Words";
+"Boxes Add One Word Button" = "Add 1 Word";
+"Boxes Add Words Button" = "Add %i Words";
+"Edit Boxes Menu Item" = "Edit Boxes…";

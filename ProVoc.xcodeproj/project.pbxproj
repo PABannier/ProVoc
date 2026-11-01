@@ -112,6 +112,7 @@
 		83347720E8084F2E53E30BA1 /* ProVocStartingPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = A2F14B4CE172F0AD08E4FD88 /* ProVocStartingPoint.m */; };
 		8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */; };
 		89EDBF10B4070DB8720A0149 /* Inspector.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0D198F14946F3D1D6D80B376 /* Inspector.tiff */; };
+		8AB0EF58A72CAE0313887D8A /* ProVocBoxesSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 489D5BAB31E185855031F5B2 /* ProVocBoxesSheet.m */; };
 		8B2824D73F02FD14D55D63F4 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93153A51B2E16D90F78E96EA /* CoreMedia.framework */; };
 		8D336E1512BE9093979492C3 /* Warning.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D53249A1A8F0D669782715C3 /* Warning.tiff */; };
 		8D42D5367D7C3B0635BDE107 /* ejectipod.tif in Resources */ = {isa = PBXBuildFile; fileRef = F66BF1DBFD0D2D5109D325FD /* ejectipod.tif */; };
@@ -278,6 +279,7 @@
 		22DF2AAB5AA3BDB1D6EB6E50 /* SmallMovie.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = SmallMovie.tif; sourceTree = "<group>"; };
 		236F5BB3658F34F026E61DA7 /* ARInspector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ARInspector.h; sourceTree = "<group>"; };
 		23C618ACAB6344FA1210535D /* ProVocDocument+WidgetLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "ProVocDocument+WidgetLog.m"; sourceTree = "<group>"; };
+		23E06FFC49CB1AFDED2DFBCB /* ProVocBoxesSheet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocBoxesSheet.h; sourceTree = "<group>"; };
 		24387940206D8C9918F4DF2F /* iPodPreferences.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = iPodPreferences.tif; sourceTree = "<group>"; };
 		27F3FD4D2FE53D03F8AFF088 /* PVCaptureScenarios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PVCaptureScenarios.m; sourceTree = "<group>"; };
 		288F2F8A3D71714EF651CE26 /* schema.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = schema.strings; path = English.lproj/schema.strings; sourceTree = "<group>"; };
@@ -313,6 +315,7 @@
 		4757D9E8FE9106F59A3945EE /* album.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = album.tiff; sourceTree = "<group>"; };
 		479D411F4FDB4D5348311442 /* TextFieldExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextFieldExtensions.h; sourceTree = "<group>"; };
 		47B19592F919D0C6A112DB3C /* VideoPressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VideoPressed.png; sourceTree = "<group>"; };
+		489D5BAB31E185855031F5B2 /* ProVocBoxesSheet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocBoxesSheet.m; sourceTree = "<group>"; };
 		4C19A45D22A79607C5C9FC94 /* Continuous.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Continuous.tif; sourceTree = "<group>"; };
 		4C1A0ADA346CB7BE36506AF0 /* flagged.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = flagged.tiff; sourceTree = "<group>"; };
 		4C29C9DAA6C46DFEFA99EE37 /* PVTestSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PVTestSupport.h; sourceTree = "<group>"; };
@@ -703,6 +706,8 @@
 				FD2F3CB823B981C278CBFF01 /* ProVocBackground.m */,
 				70843A61EAD08BF53E09AB23 /* ProVocBackgroundScene.h */,
 				6DA6A12C9B39B3830D680A33 /* ProVocBackgroundScene.m */,
+				23E06FFC49CB1AFDED2DFBCB /* ProVocBoxesSheet.h */,
+				489D5BAB31E185855031F5B2 /* ProVocBoxesSheet.m */,
 				07536F7004D886884B8A859D /* ProVocCardController.h */,
 				5F6A4B3470B8CFF3BABD7B3A /* ProVocCardController.m */,
 				E999EA413057806843257E05 /* ProVocCardsView.h */,
@@ -1275,6 +1280,7 @@
 				3C36C99E58BEFDD5A6DF28DD /* ProVocApplication.m in Sources */,
 				6FAE75ADCBCB243F4AC053C5 /* ProVocBackground.m in Sources */,
 				4DC29E02CE164D16A9CB7C19 /* ProVocBackgroundScene.m in Sources */,
+				8AB0EF58A72CAE0313887D8A /* ProVocBoxesSheet.m in Sources */,
 				32C5710A9185212BE735F61F /* ProVocCardController.m in Sources */,
 				E4F5D76D2111FF3C166B8F72 /* ProVocCardsView.m in Sources */,
 				287E2CF27667BDCA80031615 /* ProVocChapter.m in Sources */,

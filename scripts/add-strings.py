@@ -11,6 +11,32 @@ LANGUAGES = ['English', 'French', 'German', 'Italian', 'Spanish', 'Danish']
 
 # key: (English, French, German, Italian, Spanish, Danish)
 STRINGS = {
+    'Boxes Title Label': ('Title:', 'Titre :', 'Titel:', 'Titolo:', 'Título:', 'Titel:'),
+    'Boxes Find Labels Button': ('Find Labels', 'Trouver les légendes', 'Beschriftungen finden', 'Trova etichette', 'Buscar etiquetas', 'Find etiketter'),
+    'Boxes Answers Column': ('Answers', 'Réponses', 'Antworten', 'Risposte', 'Respuestas', 'Svar'),
+    'Boxes Hint': (
+        'Drag a box over a label, then type its answer',
+        'Tracez un cadre sur une légende, puis tapez sa réponse',
+        'Ziehen Sie einen Rahmen über eine Beschriftung und tippen Sie die Antwort ein',
+        'Trascina un riquadro su un’etichetta, poi digita la risposta',
+        'Arrastre un recuadro sobre una etiqueta y escriba su respuesta',
+        'Træk en boks over en etiket, og skriv dens svar'),
+    'Boxes While Asking Label': ('While asking one box:', 'Pendant une question :', 'Bei einer Frage:', 'Durante una domanda:', 'Al preguntar un recuadro:', 'Under en boks:'),
+    'Boxes Hide Others': ('Hide the other boxes', 'Masquer les autres cadres', 'Andere Rahmen ausblenden', 'Nascondi gli altri riquadri', 'Ocultar los otros recuadros', 'Skjul de andre bokse'),
+    'Boxes Show Others': ('Show the other boxes', 'Montrer les autres cadres', 'Andere Rahmen zeigen', 'Mostra gli altri riquadri', 'Mostrar los otros recuadros', 'Vis de andre bokse'),
+    'Boxes Note': (
+        'Use “/” to separate synonyms. A box is a word: it trains and is reviewed like any other.',
+        'Utilisez « / » pour séparer les synonymes. Un cadre est un mot : il s’entraîne et se révise comme les autres.',
+        'Trennen Sie Synonyme mit „/“. Ein Rahmen ist ein Wort: Er wird wie jedes andere geübt und wiederholt.',
+        'Usa “/” per separare i sinonimi. Un riquadro è una parola: si allena e si ripassa come le altre.',
+        'Use «/» para separar sinónimos. Un recuadro es una palabra: se entrena y se repasa como cualquier otra.',
+        'Brug “/” til at adskille synonymer. En boks er et ord: den trænes og repeteres som alle andre.'),
+    'Boxes Cancel Button': ('Cancel', 'Annuler', 'Abbrechen', 'Annulla', 'Cancelar', 'Annuller'),
+    'Boxes Save Button': ('Save', 'Enregistrer', 'Sichern', 'Salva', 'Guardar', 'Gem'),
+    'Boxes Add No Word Button': ('Add Words', 'Ajouter les mots', 'Wörter hinzufügen', 'Aggiungi parole', 'Añadir palabras', 'Tilføj ord'),
+    'Boxes Add One Word Button': ('Add 1 Word', 'Ajouter 1 mot', '1 Wort hinzufügen', 'Aggiungi 1 parola', 'Añadir 1 palabra', 'Tilføj 1 ord'),
+    'Boxes Add Words Button': ('Add %i Words', 'Ajouter %i mots', '%i Wörter hinzufügen', 'Aggiungi %i parole', 'Añadir %i palabras', 'Tilføj %i ord'),
+    'Edit Boxes Menu Item': ('Edit Boxes…', 'Modifier les cadres…', 'Rahmen bearbeiten…', 'Modifica riquadri…', 'Editar recuadros…', 'Rediger bokse…'),
     'iPod Obsolete Title': (
         'Notes can no longer be sent to an iPod',
         'Les notes ne peuvent plus être envoyées sur un iPod',

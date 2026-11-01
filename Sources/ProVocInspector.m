@@ -13,6 +13,8 @@
 #import "ProVocChapter.h"
 #import "ProVocApplication.h"
 #import "ProVocImageView.h"
+#import "ProVocBoxesSheet.h"
+#import "ProVocActionPopUpButton.h"
 #import "StringExtensions.h"
 #import "WindowExtensions.h"
 #import "BezierPathExtensions.h"
@@ -74,6 +76,9 @@
 	[self addView:mTextView withName:NSLocalizedString(@"Text Inspector View", @"") identifier:@"Text" openByDefault:NO];
 	[self addView:mAudioView withName:NSLocalizedString(@"Audio Inspector View", @"") identifier:@"Audio" openByDefault:YES];
 	[self addView:mImageView withName:NSLocalizedString(@"Image Inspector View", @"") identifier:@"Image" openByDefault:YES];
+	NSPopUpButton *imageActions = (NSPopUpButton *)[mImageView subviewOfClass:[ProVocActionPopUpButton class]];
+	[[imageActions menu] addItem:[NSMenuItem separatorItem]];
+	[[[imageActions menu] addItemWithTitle:NSLocalizedString(@"Edit Boxes Menu Item", @"") action:@selector(editBoxes:) keyEquivalent:@""] setTarget:self];
 	[self addView:mMovieView withName:NSLocalizedString(@"Movie Inspector View", @"") identifier:@"Movie" openByDefault:YES];
 		
 	[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self forKeyPath:@"values.sourceFontFamilyName" options:NSKeyValueObservingOptionNew context:nil];
@@ -350,6 +355,8 @@
 		return [self hasSelection];
 	if (action == @selector(removeImage:) || action == @selector(exportImage:))
 		return [self canRemoveImage];
+	if (action == @selector(editBoxes:))
+		return [[self selectedWord] occlusion] != nil;
 	if (action == @selector(removeMovie:) || action == @selector(exportMovie:))
 		return [self canRemoveMovie];
 	if (action == @selector(importSourceAudio:) || action == @selector(importTargetAudio:))
@@ -667,8 +674,15 @@ static BOOL sRecording = NO;
 {
 	if (![self isViewVisibleWithIdentifier:@"Image"])
 		return nil;
+	else if ([[self selectedWord] occlusion])
+		return [mDocument imageOfWord:[self selectedWord] boxState:ProVocBoxSelected];
 	else
 		return [mDocument imageOfWord:[self selectedWord]];
+}
+
+-(IBAction)editBoxes:(id)inSender
+{
+	[mDocument editBoxesOfWord:[self selectedWord]];
 }
 
 -(void)imageView:(ProVocImageView *)inImageView didReceiveDraggedImageFile:(NSString *)inFile
@@ -1033,15 +1047,22 @@ error:
 	return [NSString newMediaFileName:@"Image"];
 }
 
--(void)setImageFile:(NSString *)inFileName ofWord:(ProVocWord *)inWord
+-(NSString *)addImageFile:(NSString *)inFileName
 {
 	NSString *directory = [self temporaryDirectory];
 	NSString *mediaName = [[self newImageFileName] stringByAppendingPathExtension:[inFileName pathExtension]];
 	NSString *copyPath = [directory stringByAppendingPathComponent:mediaName];
 	if (![[NSFileManager defaultManager] copyPath:inFileName toPath:copyPath handler:nil])
 		[NSException raise:@"ProVocInspectorException" format:@"Could not copy image file %@ to %@", inFileName, copyPath];
+	return [copyPath lastPathComponent];
+}
+
+-(void)setImageFile:(NSString *)inFileName ofWord:(ProVocWord *)inWord
+{
+	NSString *mediaName = [self addImageFile:inFileName];
 	[self willChangeWord:inWord];
-	[inWord setImageMedia:[copyPath lastPathComponent]];
+	[inWord setImageMedia:mediaName];
+	[inWord setOcclusion:nil];	// its box was on the other picture
 	[self visibleWordsDidChange];
 	[self selectedWordParameterDidChange:inWord];
 	[self didChangeWord:inWord];
@@ -1072,6 +1093,11 @@ error:
 -(NSImage *)imageOfWord:(ProVocWord *)inWord
 {
 	return [self imageForMedia:[inWord imageMedia]];
+}
+
+-(NSImage *)imageOfWord:(ProVocWord *)inWord boxState:(ProVocBoxState)inState
+{
+	return [[self imageOfWord:inWord] imageWithBoxOfWord:inWord state:inState];
 }
 
 @end
@@ -1288,6 +1314,7 @@ error:
 -(void)removeImage
 {
 	[[self mediaDictionary] removeObjectForKey:@"Image"];
+	[self setOcclusion:nil];
 }
 
 @end

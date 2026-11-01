@@ -29,8 +29,18 @@
 
 @end
 
+typedef enum {
+	ProVocBoxAsked,		// shut, with a question mark
+	ProVocBoxRight,		// open, outlined in green
+	ProVocBoxWrong,		// open, outlined in red
+	ProVocBoxSelected	// the word's box only, on the picture as it is
+} ProVocBoxState;
+
+@class ProVocWord;
+
 @interface NSImage (ProVocImageView)
 
 -(void)displayInFullSize;
+-(NSImage *)imageWithBoxOfWord:(ProVocWord *)inWord state:(ProVocBoxState)inState;
 
 @end
