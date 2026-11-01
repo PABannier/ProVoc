@@ -5,6 +5,8 @@
 
 #import "ProVocBoxesSheet.h"
 
+#import <Vision/Vision.h>
+
 #import "ProVocDocument+Lists.h"
 #import "ProVocInspector.h"
 #import "ProVocPage.h"
@@ -474,8 +476,67 @@ static const float kMinBoxSize = 12;
 	[mShowOthers setState:inSender == mShowOthers ? NSOnState : NSOffState];
 }
 
+-(NSArray *)recognitionLanguages
+{
+	// The languages of a document are names, as the user wrote them
+	NSArray *names = [[@[[mDocument sourceLanguage], [mDocument targetLanguage]] valueForKey:@"lowercaseString"] copy];
+	NSLocale *english = [NSLocale localeWithLocaleIdentifier:@"en"];
+	NSMutableArray *languages = [NSMutableArray array];
+	VNRecognizeTextRequest *request = [[[VNRecognizeTextRequest alloc] init] autorelease];
+	[request setRecognitionLevel:VNRequestTextRecognitionLevelAccurate];
+	for (NSString *language in [request supportedRecognitionLanguagesAndReturnError:nil]) {
+		NSString *code = [[NSLocale localeWithLocaleIdentifier:language] languageCode];
+		if ([names containsObject:[[english localizedStringForLanguageCode:code] lowercaseString]] ||
+			[names containsObject:[[[NSLocale localeWithLocaleIdentifier:code] localizedStringForLanguageCode:code] lowercaseString]])
+			[languages addObject:language];
+	}
+	[names release];
+	return languages;
+}
+
+// One box per line of text found in the picture. Everything about Vision is here.
 -(IBAction)findLabels:(id)inSender
 {
+	CGImageRef image = [[mBoxesView image] CGImageForProposedRect:NULL context:nil hints:nil];
+	if (!image)
+		return;
+	[mFindLabels setEnabled:NO];
+	NSArray *languages = [self recognitionLanguages];
+	CFRetain(image);
+	[self retain];
+	dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+		VNRecognizeTextRequest *request = [[[VNRecognizeTextRequest alloc] init] autorelease];
+		[request setRecognitionLevel:VNRequestTextRecognitionLevelAccurate];
+		if ([languages count] > 0)
+			[request setRecognitionLanguages:languages];
+		VNImageRequestHandler *handler = [[[VNImageRequestHandler alloc] initWithCGImage:image options:@{}] autorelease];
+		[handler performRequests:@[request] error:nil];
+		NSArray *results = [[request results] retain];
+		CFRelease(image);
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[self addLabels:results];
+			[results release];
+			[self release];
+		});
+	});
+}
+
+-(void)addLabels:(NSArray *)inObservations
+{
+	for (VNRecognizedTextObservation *observation in inObservations) {
+		NSString *text = [[[observation topCandidates:1] firstObject] string];
+		NSRect found = NSRectFromCGRect([observation boundingBox]);
+		NSRect rect = NSMakeRect(NSMinX(found), 1 - NSMaxY(found), NSWidth(found), NSHeight(found));	// Vision has its origin at the bottom left
+		BOOL boxed = [text length] == 0;
+		for (NSDictionary *box in [mBoxesView boxes])
+			if (NSIntersectsRect(rect, [box[@"rect"] rectValue]))
+				boxed = YES;
+		if (!boxed)
+			[mBoxesView addBoxWithRect:rect answer:text];
+	}
+	[mBoxesView selectBoxAtIndex:NSNotFound];
+	[mFindLabels setEnabled:YES];
+	[self boxesDidChange];
 }
 
 -(IBAction)removeBox:(id)inSender

@@ -109,6 +109,7 @@
 		7649204C4108735F5ECBE0C7 /* ProVocHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE847358AF0B022F5C11C45 /* ProVocHistory.m */; };
 		7734A506364DDE95A95425B7 /* DownloadDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = B9EFAFC2A74CEF0C57205011 /* DownloadDocument.png */; };
 		7A393762AF6F245CBDE6EFE1 /* ARDisclosureArrowRight.tif in Resources */ = {isa = PBXBuildFile; fileRef = 045DF83CA849D09120AEAF62 /* ARDisclosureArrowRight.tif */; };
+		7C414D386852E4DD10FC82E5 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9A6157B9E0D206870BC5934 /* Vision.framework */; };
 		83347720E8084F2E53E30BA1 /* ProVocStartingPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = A2F14B4CE172F0AD08E4FD88 /* ProVocStartingPoint.m */; };
 		8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */; };
 		89EDBF10B4070DB8720A0149 /* Inspector.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0D198F14946F3D1D6D80B376 /* Inspector.tiff */; };
@@ -414,6 +415,7 @@
 		A79731ED47B976074E41DAEE /* ProVocAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocAppDelegate.h; sourceTree = "<group>"; };
 		A8252097EFA162CCDFCD7EAD /* ProVocSilentTester.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProVocSilentTester.h; sourceTree = "<group>"; };
 		A8F7074BC8DE52FA6CB6285D /* add.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = add.tiff; sourceTree = "<group>"; };
+		A9A6157B9E0D206870BC5934 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		AA05B2056235B9AC3A69AB88 /* DateExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateExtensions.h; sourceTree = "<group>"; };
 		AEED1A72D8B56D4103FA8E7D /* TextFieldExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TextFieldExtensions.m; sourceTree = "<group>"; };
 		AFC891376C4C014AD355F654 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -550,6 +552,7 @@
 				54FD50F8D6ED06AB856873C1 /* AVKit.framework in Frameworks */,
 				8B2824D73F02FD14D55D63F4 /* CoreMedia.framework in Frameworks */,
 				A269F603A5638F991E9F943A /* WebKit.framework in Frameworks */,
+				7C414D386852E4DD10FC82E5 /* Vision.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,6 +572,7 @@
 				DF7E3E611F60498B1F16CECB /* CoreVideo.framework */,
 				9ACD0119ACF06FC11DF08F44 /* Foundation.framework */,
 				1FE67FDE9B7D599DAA41EBF6 /* Quartz.framework */,
+				A9A6157B9E0D206870BC5934 /* Vision.framework */,
 				4EAEFA4A3FB4B2C9AEF032B9 /* WebKit.framework */,
 			);
 			name = Frameworks;
