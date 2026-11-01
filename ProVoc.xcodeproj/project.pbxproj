@@ -90,6 +90,7 @@
 		5C2113464B6A7FF3765F7B98 /* ProVocLongQuestionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 28EB22C53865C8FF4F150904 /* ProVocLongQuestionTests.m */; };
 		60E0BE684032948404D396F3 /* ProVocColoredWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 51E2176F4830BBC27641327A /* ProVocColoredWindowView.m */; };
 		61005A4D5E80D99D07699F57 /* iPodPreferences.tif in Resources */ = {isa = PBXBuildFile; fileRef = 24387940206D8C9918F4DF2F /* iPodPreferences.tif */; };
+		63940296EF43024749354FE7 /* ProVocOcclusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C479FE6DCF6BBE392EACF4DA /* ProVocOcclusionTests.m */; };
 		63D6F85228F51DEC0FF38365 /* ProVocPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5B881AB4D2FC5E04CF873D /* ProVocPage.m */; };
 		64B8D12B8A8E55347A0948C8 /* ProVocSpotlighter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5572018BF6E5F26DD19FF69B /* ProVocSpotlighter.m */; };
 		661135681968E15599B69733 /* ProVocActionPopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F2AF5C9E884FA69AD638D062 /* ProVocActionPopUpButton.m */; };
@@ -437,6 +438,7 @@
 		C1BE87085769D7F3D2A7CF8F /* markAsFlagged.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = markAsFlagged.tiff; sourceTree = "<group>"; };
 		C2B5B14C508ACDCC804906F5 /* ProVocAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocAppDelegate.m; sourceTree = "<group>"; };
 		C3E8AC1C50383E4CA3140910 /* FTPUploader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FTPUploader.m; sourceTree = "<group>"; };
+		C479FE6DCF6BBE392EACF4DA /* ProVocOcclusionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocOcclusionTests.m; sourceTree = "<group>"; };
 		C498FE8D624DF024DC017F47 /* ProVocSubmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocSubmitter.m; sourceTree = "<group>"; };
 		C5458AB9B2845AAEF1000EF7 /* FontPreferences.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = FontPreferences.tiff; sourceTree = "<group>"; };
 		C69E243E05B84FDF68E699A3 /* ProVocData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProVocData.m; sourceTree = "<group>"; };
@@ -637,6 +639,7 @@
 				5B9E76677603488A055E9E23 /* ProVocMCQTests.m */,
 				790F806BCA9939C03FC84B9B /* ProVocMediaTests.m */,
 				F10BCBFBF7F272BCE464F5F7 /* ProVocNibTests.m */,
+				C479FE6DCF6BBE392EACF4DA /* ProVocOcclusionTests.m */,
 				1E82C5138C97635AEF2FAB07 /* ProVocPreferencesTests.m */,
 				039E3BB08A01D4A7385BD311 /* ProVocSlideshowTests.m */,
 				A3F2D50FB350CAE24A4731DB /* ProVocTestOptionsTests.m */,
@@ -1220,6 +1223,7 @@
 				10CCCB4E495D57D226387716 /* ProVocMCQTests.m in Sources */,
 				938AA2FD5E1EAF39B51DE40B /* ProVocMediaTests.m in Sources */,
 				C77AC3AF0205CBC9D4030805 /* ProVocNibTests.m in Sources */,
+				63940296EF43024749354FE7 /* ProVocOcclusionTests.m in Sources */,
 				D94EBFD3712472990F87E3AC /* ProVocPreferencesTests.m in Sources */,
 				8435D1BBCDAB0BEE0DA9CC31 /* ProVocSlideshowTests.m in Sources */,
 				E01C4F8FA3501B9C2D77BD94 /* ProVocTestOptionsTests.m in Sources */,
