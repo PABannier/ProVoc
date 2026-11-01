@@ -143,7 +143,7 @@
 
 -(id)mediaAnswerFromWord:(ProVocWord *)inWord
 {
-	if (!mImageMCQ)
+	if (!mImageMCQ || [inWord occlusion])
 		return nil;
 	NSString *imageMedia = [inWord imageMedia];
 	NSString *movieMedia = [inWord movieMedia];
@@ -252,6 +252,17 @@
 	if (!answer)
 		answer = @"";
 	[answers addObject:answer];
+	
+	if ([word occlusion]) {
+		// first the other boxes of the picture, then any other text: the choices of a box are never pictures
+		NSMutableArray *others = [NSMutableArray array];
+		for (ProVocWord *sibling in [[word occlusionSiblings] shuffledArray])
+			[others addObject:[self targetAnswerFromWord:sibling]];
+		[others addObjectsFromArray:[[self possibleAnswers] shuffledArray]];
+		for (id other in others)
+			if ([answers count] < [self numberOfChoices] && [other isKindOfClass:[NSString class]] && ![answers containsObject:other])
+				[answers addObject:other];
+	}
 	
 	NSSet *preferredAnswerSet = (mDirection ? mLabeledSources : mLabeledTargets)[@([mCurrentWord label])];
 	NSArray *preferredAnswers = [[preferredAnswerSet allObjects] shuffledArray];
