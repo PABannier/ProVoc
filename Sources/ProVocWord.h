@@ -28,6 +28,7 @@
 	
 	NSMutableDictionary *mMedia;
 	NSDate *mLastAnswered;
+	NSDictionary *mOcclusion;
 }
 
 -(void)setSourceWord:(NSString *)inSource;
@@ -73,6 +74,12 @@
 
 -(BOOL)isDouble;
 -(void)setDouble:(id)inValue;
+
+// A box on a picture: {group, box: {x, y, w, h}, showOthers}, x, y, w, h being fractions
+// of the picture, origin top left. The words of a group are the boxes of one picture.
+-(NSDictionary *)occlusion;
+-(void)setOcclusion:(NSDictionary *)inOcclusion;
+-(NSArray *)occlusionSiblings;
 
 @end
 
