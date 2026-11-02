@@ -436,14 +436,16 @@ static NSArray *sDraggedItems = nil;
 		}
         return NO;
     }
+	NSEventType eventType = [[NSApp currentEvent] type];
+	if ((eventType == NSEventTypeLeftMouseDown || eventType == NSEventTypeLeftMouseUp) && [[NSApp currentEvent] clickCount] > 1	// AppKit asks when the second click ends
+		&& inTableView == mWordTableView && inRowIndex < [mVisibleWords count] && [mVisibleWords[inRowIndex] occlusion]) {
+		[self performSelector:@selector(editBoxesOfWord:) withObject:mVisibleWords[inRowIndex] afterDelay:0.0];
+		return NO;
+	}
 	if ([[NSApp currentEvent] type] == NSLeftMouseDown && inTableView == mWordTableView && inRowIndex < [mVisibleWords count]) {
 		NSRect rect = [mWordTableView frameOfCellAtColumn:[[mWordTableView tableColumns] indexOfObject:inTableColumn] row:inRowIndex];
 		NSPoint pt = [mWordTableView convertPoint:[[NSApp currentEvent] locationInWindow] fromView:nil];
 		ProVocWord *word = mVisibleWords[inRowIndex];
-		if ([word occlusion] && [[NSApp currentEvent] clickCount] > 1) {
-			[self performSelector:@selector(editBoxesOfWord:) withObject:word afterDelay:0.0];
-			return NO;
-		}
 		if ([[inTableColumn identifier] isEqual:@"Number"]) {
 			[self displayMediaOfWord:word];
 			return NO;

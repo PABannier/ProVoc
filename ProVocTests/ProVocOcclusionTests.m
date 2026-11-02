@@ -118,7 +118,9 @@ static BOOL PVIsGrey(NSImage *inImage, float inX, float inY)
 	[mDocument setValue:@0 forKey:@"testKind"];
 	[mDocument setValue:@2 forKey:@"numberOfRetries"];
 	[mDocument setValue:@YES forKey:@"dontShuffleWords"];
+	PVWaitUntil(0.1, ^BOOL { return NO; });	// the window gives the focus to its first field after a delay
 	[mDocument setMainTab:1];
+	PVWaitUntil(0.1, ^BOOL { return NO; });
 }
 
 -(void)tearDown
@@ -722,11 +724,11 @@ static BOOL PVIsGrey(NSImage *inImage, float inX, float inY)
 	// the answer of another box: wrong, and the focus stays
 	[script then:^{ PVTypeText(@"RAF"); PVPostKey(PVKeyReturn, nil, 0); }];
 	[script wait:@"one wrong answer" until:^BOOL { return [(ProVocWord *)[mDocument allWords][0] wrong] == 1; }];
-	[script then:^{ XCTAssertTrue([self showsQuestionNumber:1]); XCTAssertTrue([self answerFieldHasFocus]); PVTypeCommand(@"a", 0); PVTypeText(@"RAS"); }];
+	[script then:^{ XCTAssertEqual([self progress], 1); XCTAssertTrue([self answerFieldHasFocus]); PVTypeCommand(@"a", 0); PVTypeText(@"RAS"); }];
 	[script wait:@"the answer typed" until:^BOOL { return [[self typedAnswer] isEqualToString:@"RAS"]; }];
 	// Return, and the next answer typed at once: nothing is lost while the box is open
 	[script then:^{ PVPostKey(PVKeyReturn, nil, 0); PVTypeText(@"RAF"); }];
-	[script wait:@"the second box, with what was typed ahead" until:^BOOL { return [self showsQuestionNumber:2] && [[self typedAnswer] isEqualToString:@"RAF"] && [self answerFieldHasFocus]; }];
+	[script wait:@"the second box, with what was typed ahead" until:^BOOL { return [self progress] == 2 && [[self typedAnswer] isEqualToString:@"RAF"] && [self answerFieldHasFocus]; }];
 	[script then:^{ PVPostKey(PVKeyReturn, nil, 0); }];
 	[script wait:@"the third box" until:^BOOL { return [self showsQuestionNumber:3] && [self answerFieldHasFocus]; }];
 	// out of tries: the solution, then Return

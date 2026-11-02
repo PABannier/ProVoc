@@ -451,7 +451,7 @@
 	[inScript wait:@"a double click to reopen the sheet" until:^BOOL { return [[[self boxesView] boxes] count] == 2; }];
 	[inScript then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
 	[inScript wait:@"Esc to close it" until:^BOOL { return [self attachedSheet] == nil; }];
-	[self selectWord:[[[self editedDocument] allWords][3] sourceWord] in:inScript];
+	[self selectWord:@"picture" in:inScript];
 	[inScript then:^{
 		ProVocInspector *inspector = [ProVocInspector sharedInspector];
 		if (![inspector isVisible])
