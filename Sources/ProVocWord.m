@@ -33,6 +33,7 @@
     [mComment release];
 	[mMedia release];
 	[mLastAnswered release];
+	[mOcclusion release];
     [super dealloc];
 }
 
@@ -52,6 +53,7 @@
         mMedia = [[inCoder decodeObjectForKey:@"Media"] retain];
         mLastAnswered = [[inCoder decodeObjectForKey:@"LastAnswered"] retain];
         mIndexInFile = [inCoder decodeIntForKey:@"IndexInFile"];
+        mOcclusion = [[inCoder decodeObjectForKey:@"Occlusion"] retain];	// last and unconditional: PseudoKeyedArchiver goes by the order
     }
     return self;
 }
@@ -71,6 +73,7 @@
 	[inCoder encodeObject:mMedia forKey:@"Media"];
 	[inCoder encodeObject:mLastAnswered forKey:@"LastAnswered"];
     [inCoder encodeInt:mIndexInFile forKey:@"IndexInFile"];
+    [inCoder encodeObject:mOcclusion forKey:@"Occlusion"];
 }
 
 -(id)copyWithZone:(NSZone *)inZone
@@ -150,6 +153,8 @@
 
 -(void)swapSourceAndTarget:(id)inSender
 {
+	if (mOcclusion)
+		return;	// the title of a picture is not an answer
 	NSString *swap;
 	switch ([inSender tag]) {
 		case 0:
@@ -320,6 +325,28 @@
 -(void)setDouble:(id)inValue
 {
 	mIsDouble = [inValue boolValue];
+}
+
+-(NSDictionary *)occlusion
+{
+	return mOcclusion;
+}
+
+-(void)setOcclusion:(NSDictionary *)inOcclusion
+{
+	if (mOcclusion != inOcclusion) {
+		[mOcclusion release];
+		mOcclusion = [inOcclusion copy];
+	}
+}
+
+-(NSArray *)occlusionSiblings
+{
+	NSMutableArray *siblings = [NSMutableArray array];
+	for (ProVocWord *word in [[self page] words])
+		if ([[word occlusion][@"group"] isEqual:mOcclusion[@"group"]])
+			[siblings addObject:word];
+	return siblings;
 }
 
 @end

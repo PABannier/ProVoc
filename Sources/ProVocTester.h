@@ -57,6 +57,7 @@
 	BOOL mShowBacktranslation;
 	BOOL mAutoPlayMedia;
 	BOOL mImageMCQ;
+	BOOL mBoxAnsweredRight;
 	int mMediaHideQuestion;
     
 	BOOL mDontShuffleWords;
@@ -244,7 +245,11 @@
 @interface ProVocTesterMediaView : NSView {
 	IBOutlet NSView *mLeftView;
 	IBOutlet NSView *mRightView;
+	BOOL mFillsPane;
 }
+
+-(BOOL)fillsPane;
+-(void)setFillsPane:(BOOL)inFlag;
 
 @end
 

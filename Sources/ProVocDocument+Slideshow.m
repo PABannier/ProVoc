@@ -55,6 +55,7 @@ static BOOL sPlayPause;
 	firstIndex:(int)inIndex;
 -(NSRect)fullRectForWordAtIndex:(int)inIndex;
 -(void)displayNow;
+-(void)setImage:(NSImage *)inImage;
 
 @end
 
@@ -385,6 +386,13 @@ static QTMovieView *sMovieView = nil;
 	}
 }
 
+-(void)setImage:(NSImage *)inImage
+{
+	[mImage autorelease];
+	mImage = [inImage retain];
+	[self setNeedsDisplay:YES];
+}
+
 -(void)displayNow
 {
 	[[SlideShowSoundGenerator sharedGenerator] playSounds:mSounds];
@@ -406,7 +414,7 @@ static SlideView *sSecondSlideView = nil;
 	NSString *target = [inWord targetWord] ? [inWord targetWord] : @"";
 	NSSound *sourceSound = [self audio:@"Source" ofWord:inWord];
 	NSSound *targetSound = [self audio:@"Target" ofWord:inWord];
-	BOOL swapped = [self testDirection];
+	BOOL swapped = [self testDirection] && ![inWord occlusion];
 	if (swapped) {
 		id swap = source;
 		source = target;
@@ -433,7 +441,7 @@ static SlideView *sSecondSlideView = nil;
 	sSlide = [[NSWindow alloc] initWithContentRect:riFrame styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 	frame.origin = NSZeroPoint;
 	sSlideView = [[SlideView alloc] initWithFrame:frame strings:strings swapFonts:swapped
-						image:[self imageOfWord:inWord] movie:[self movieOfWord:inWord]
+						image:[inWord occlusion] ? [self imageOfWord:inWord boxState:ProVocBoxAsked] : [self imageOfWord:inWord] movie:[self movieOfWord:inWord]
 						sourceSound:sourceSound targetSound:delayTarget ? nil : targetSound
 						firstIndex:0];
 	[sSlide setContentView:sSlideView];
@@ -568,9 +576,11 @@ waitAgain:
 				goto rewait;
 			}
 			if (sSlideNumber != CANCEL) {
-				if (sSlideNumber == currentSlide && firstSlide && !sSkipSlide)
+				if (sSlideNumber == currentSlide && firstSlide && !sSkipSlide) {
+					if ([words[sSlideNumber] occlusion])
+						[sSlideView setImage:[self imageOfWord:words[sSlideNumber] boxState:ProVocBoxRight]];
 					[sSecondSlideView displayNow];
-				else {
+				} else {
 					sSlideNumber = MAX(0, sSlideNumber + 1);
 					if (sSlideNumber >= n)
 						sSlideNumber = STOP;

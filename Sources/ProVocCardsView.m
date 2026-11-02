@@ -137,7 +137,7 @@
 	[NSBezierPath clipRect:r];
 	r = NSInsetRect(r, 5, 5);
 	if (([defaults integerForKey:ProVocCardDisplayImages] & (inRecto ? 1 : 2)) != 0) {
-		NSImage *image = [inDocument imageOfWord:inWord];
+		NSImage *image = [inWord occlusion] ? [inDocument imageOfWord:inWord boxState:inRecto ? ProVocBoxAsked : ProVocBoxRight] : [inDocument imageOfWord:inWord];
 		[image drawScaledProportionallyInRect:r fraction:[defaults floatForKey:ProVocCardImageFraction]];
 	}
 	NSString *tag = nil;

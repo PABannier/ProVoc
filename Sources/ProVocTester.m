@@ -7,6 +7,7 @@
 //
 
 #import "ProVocTester.h"
+#import <QuartzCore/QuartzCore.h>
 #import "ProVocPreferences.h"
 #import "ProVocDocument+Lists.h"
 #import "ProVocDocument+Slideshow.h"
@@ -100,6 +101,8 @@ enum {
 
 -(void)savePanelLayout;
 -(void)fitQuestion:(BOOL)inMayGrow;
+-(BOOL)isAskingBox;
+-(void)showBoxAnsweredRightPausing:(BOOL)inPause;
 
 -(BOOL)shouldHideLabel;
 -(NSPanel *)testPanel;
@@ -409,6 +412,8 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 			ProVocDirectedWord *directedWord = [[ProVocDirectedWord alloc] initWithWord:word direction:0];
 			[mWordsArray addObject:directedWord];
 			[directedWord release];
+			if ([word occlusion])
+				continue;	// a box has one direction
 			directedWord = [[ProVocDirectedWord alloc] initWithWord:word direction:1];
 			[mWordsArray addObject:directedWord];
 			[directedWord release];
@@ -429,7 +434,7 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 			int direction = mRequestedDirection;
 			if (direction == 3)
 				direction = [word direction];
-			if (direction < 2) {
+			if (direction < 2 && ![word occlusion]) {
 				id question = !direction ? [word sourceWord] : [word targetWord];
 				NSArray *questionSynonyms = [question synonyms];
 				if ([questionSynonyms count] > 1) {
@@ -748,12 +753,48 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 	[self fitQuestion:YES];
 }
 
+// The picture of a box takes the width of the pane, under the question and its comment
+-(CGFloat)fitBoxedPictureInPane:(NSView *)inPane questionView:(NSScrollView *)inScrollView
+{
+	ProVocTesterMediaView *mediaView = (ProVocTesterMediaView *)[inPane subviewOfClass:[ProVocTesterMediaView class]];
+	NSView *questionView = inScrollView;
+	while ([questionView superview] != inPane)
+		questionView = [questionView superview];
+	BOOL boxed = [self isAskingBox];
+	if (!boxed && ![mediaView fillsPane])
+		return 0;
+	[mediaView setFillsPane:boxed];
+	NSRect bounds = [inPane bounds];
+	if (!boxed) {
+		[questionView setFrame:bounds];
+		[mediaView setFrame:bounds];
+		[mediaView adjustSize];
+		return 0;
+	}
+	NSTextField *field = [inScrollView documentView];
+	CGFloat questionHeight = ceil([[field cell] cellSizeForBounds:NSMakeRect(0, 0, NSWidth(bounds), 100000)].height);
+	for (NSView *sibling in [[inScrollView superview] subviews])
+		if (sibling != inScrollView && ![sibling isHidden] && [sibling isKindOfClass:[NSTextField class]])
+			questionHeight += ceil([[(NSTextField *)sibling cell] cellSizeForBounds:NSMakeRect(0, 0, NSWidth(bounds), 100000)].height);
+	NSRect questionFrame = bounds;
+	questionFrame.size.height = MIN(questionHeight, NSHeight(bounds));
+	questionFrame.origin.y = NSMaxY(bounds) - NSHeight(questionFrame);
+	[questionView setFrame:questionFrame];
+	NSRect mediaFrame = bounds;
+	mediaFrame.size.height = NSMinY(questionFrame);
+	[mediaView setFrame:mediaFrame];
+	[mediaView adjustSize];
+	NSSize imageSize = [[mProVocDocument imageOfWord:[self wordForImage]] size];
+	return imageSize.width > 0 ? MIN(imageSize.height, NSWidth(bounds) * imageSize.height / imageSize.width) - NSHeight(mediaFrame) : 0;
+}
+
 -(void)fitQuestion:(BOOL)inMayGrow
 {
 	NSScrollView *scrollView = [self questionScrollView];
 	if (!scrollView)
 		return;
 	NSView *pane = [self paneOf:scrollView];
+	CGFloat missingForPicture = [self fitBoxedPictureInPane:pane questionView:scrollView];
 	// Whatever the autoresizing of the views in between, the question takes the room from
 	// the top of the pane down to the view under it: the comment, which keeps the height
 	// its own text needs.
@@ -778,7 +819,7 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 	NSTextField *field = [scrollView documentView];
 	NSClipView *clipView = [scrollView contentView];
 	CGFloat needed = ceil([[field cell] cellSizeForBounds:NSMakeRect(0, 0, NSWidth([clipView bounds]), 100000)].height);
-	CGFloat missing = needed - NSHeight([clipView bounds]);
+	CGFloat missing = MAX(needed - NSHeight([clipView bounds]), missingForPicture);
 	NSPanel *panel = [self testPanel];
 	NSSplitView *splitView = [[pane superview] isKindOfClass:[NSSplitView class]] ? (NSSplitView *)[pane superview] : nil;
 	if (inMayGrow && missing > 0 && splitView && [panel isVisible] && [panel screen]) {
@@ -844,7 +885,7 @@ NSInteger SORT_BY_NUMBER(id left, id right, void *info)
 
 -(NSString *)question
 {
-	if (mHidingQuestionText || mMediaHideQuestion == 2 && ([self canPlayQuestionAudio] || [self image] || [self movie]))
+	if (mHidingQuestionText || mMediaHideQuestion == 2 && ![self isAskingBox] && ([self canPlayQuestionAudio] || [self image] || [self movie]))
 		return @"";
     return !mDirection ? [mCurrentWord sourceWord] : [mCurrentWord targetWord];
 }
@@ -956,6 +997,8 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	id word = mWordsArray[randomIndex];
 	if ([word respondsToSelector:@selector(direction)])
 		mDirection = [(ProVocDirectedWord *)word direction];
+	if ([word occlusion])
+		mDirection = 0;	// the answer of a box is never its title
 	return word;
 }
 
@@ -975,7 +1018,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 {
 	mShowingQuestionMedia = YES;
 	if (mMediaHideQuestion != 4 && ([self canPlayQuestionAudio] || [self image] || [self movie])) {
-		mHidingQuestionText = mMediaHideQuestion == 1;
+		mHidingQuestionText = mMediaHideQuestion == 1 && ![self isAskingBox];
 		if (mAutoPlayMedia) {
 			NSArray *modes = @[NSDefaultRunLoopMode, NSModalPanelRunLoopMode];
 			[self performSelector:@selector(playQuestionAudio:) withObject:nil afterDelay:0.0 inModes:modes];
@@ -1005,6 +1048,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 		[mCurrentWord release];
 		mCurrentWord = nil;
+		mBoxAnsweredRight = NO;
 		if (!mFinishing) {
 			ProVocWord *newWord = [self chooseRandomWord];
 			mCurrentWord = [newWord retain];
@@ -1014,7 +1058,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 		
 		mHidingQuestionText = NO;
 		mShowingQuestionMedia = YES;
-		if (([self image] || [self movie]) && mMediaHideQuestion == 3)
+		if (mMediaHideQuestion == 3 && ![self isAskingBox] && ([self image] || [self movie]))
 			mShowingQuestionMedia = NO;
 		else
 			[self displayQuestionMedia];
@@ -1343,6 +1387,8 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	NSString *answer = [mAnswerTextField stringValue];
 	if ([self isAnswer:answer equalToWord:[self answer]])
 		return YES;
+	if ([self isAskingBox])
+		return NO;	// the other boxes of the picture have the same title: they are not synonyms
 		
 	[self setNotesForAnswer:answer];
 	NSEnumerator *enumerator = [mNoteWords objectEnumerator];
@@ -1455,9 +1501,14 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 {
 	if (mShowingCorrectAnswer != inDisplay) {
 		[self willChangeValueForKey:@"displayCorrectAnswer"];
+		BOOL boxed = [self isAskingBox];
+		if (boxed)
+			[self willChangeValueForKey:@"image"];
 		mShowingCorrectAnswer = inDisplay;
 		if (mShowingCorrectAnswer && [self canPlayAnswerAudio] && mAutoPlayMedia)
 			[self playAnswerAudio:nil];
+		if (boxed)
+			[self didChangeValueForKey:@"image"];
 		[self didChangeValueForKey:@"displayCorrectAnswer"];
 		[self updateBackground:kBackgroundAnswer];
 	}
@@ -1669,7 +1720,10 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
     } else if ([self isAnswerCorrect]) {
 		[self updateBackground:kBackgroundCorrectAnswer];
 		[self wordWasAnsweredCorrectly:mCurrentWord];
-		if (![self displayAnswer] && ![self applyRandomWord])
+		BOOL answerDisplayed = [self displayAnswer];
+		if ([self isAskingBox])
+			[self showBoxAnsweredRightPausing:!answerDisplayed];
+		if (!answerDisplayed && ![self applyRandomWord])
 			[self testEnded];
     } else {
 		[self updateBackground:kBackgroundWrongAnswer];
@@ -1690,6 +1744,20 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 		mTimerDidElapse = NO;
 		if ([[self testPanel] isVisible])	// not if that answer was the last one
 			[self timerDidElapse:nil];
+	}
+}
+
+-(void)showBoxAnsweredRightPausing:(BOOL)inPause
+{
+	[self willChangeValueForKey:@"image"];
+	mBoxAnsweredRight = YES;
+	[self didChangeValueForKey:@"image"];
+	if (inPause) {
+		// ponytail: blocks the event loop, as -shake does: what is typed meanwhile waits in
+		// the queue and lands in the next question. A timer would need a state of its own.
+		[[self testPanel] displayIfNeeded];
+		[CATransaction flush];
+		[NSThread sleepForTimeInterval:0.5];
 	}
 }
 
@@ -2418,8 +2486,18 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 	return [mCurrentWord word];
 }
 
+-(BOOL)isAskingBox
+{
+	return [[self wordForImage] occlusion] != nil;
+}
+
 -(NSImage *)image
 {
+	if ([self isAskingBox]) {
+		if (mMaskMedia)
+			return nil;
+		return [mProVocDocument imageOfWord:[self wordForImage] boxState:mShowingCorrectAnswer ? ProVocBoxWrong : mBoxAnsweredRight ? ProVocBoxRight : ProVocBoxAsked];
+	}
 	if (mImageMCQ || !mShowingQuestionMedia || mMediaHideQuestion == 4 || mMaskMedia)
 		return nil;
 	return [mProVocDocument imageOfWord:[self wordForImage]];
@@ -2436,7 +2514,7 @@ static float sMinDifficulty, sDifficultyFactor, sDifficultyTemperature;
 
 -(id)movie
 {
-	if (mImageMCQ || !mShowingQuestionMedia || mMediaHideQuestion == 4 || mMaskMedia)
+	if (mImageMCQ || !mShowingQuestionMedia || mMediaHideQuestion == 4 || mMaskMedia || [self isAskingBox])
 		return nil;
 	return [mProVocDocument movieOfWord:[self wordForMovie]];
 }
@@ -2715,8 +2793,23 @@ static int sDimCount = 0;
 	}
 }
 
+-(BOOL)fillsPane
+{
+	return mFillsPane;
+}
+
+-(void)setFillsPane:(BOOL)inFlag
+{
+	mFillsPane = inFlag;
+}
+
 -(void)adjustSize
 {
+	if (mFillsPane) {
+		[mLeftView setFrame:[self bounds]];
+		[self setHidden:NO];
+		return;
+	}
 	float height = [self frame].size.height;
 	BOOL hidden = NO;
 	if ([mLeftView isHidden] && [mRightView isHidden]) {

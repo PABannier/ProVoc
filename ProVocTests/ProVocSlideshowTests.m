@@ -7,6 +7,8 @@
 #import "PVScenarioTestCase.h"
 #import "ProVocDocument+Slideshow.h"
 #import "QTKitCompat.h"
+#import "ProVocBoxesSheet.h"
+#import "ProVocInspector.h"
 
 @interface ProVocSlideshowTests : PVScenarioTestCase
 @end
@@ -53,6 +55,29 @@
 -(BOOL)shows:(NSArray *)inTexts
 {
 	return [[NSSet setWithArray:[self visibleSlideTexts]] isEqualToSet:[NSSet setWithArray:inTexts]];
+}
+
+-(void)testABoxIsShutThenOpen
+{
+	[mDocument applyBoxes:@[[NSMutableDictionary dictionaryWithDictionary:@{@"rect": [NSValue valueWithRect:NSMakeRect(0.25, 0.25, 0.5, 0.5)], @"answer": @"soleil"}]]
+					title:@"Picture" showOthers:NO imageFile:PVMediaFile(@"png") row:0 oldWords:nil];
+	[mDocument setValue:@1 forKey:@"testDirection"];	// the title stays the question
+	__block NSData *shut = nil;
+	PVScript *script = [PVScript script];
+	[script then:^{ PVTypeCommand(@"r", NSEventModifierFlagShift); }];
+	[script wait:@"the picture, its box shut" timeout:10 until:^BOOL { return [self shows:@[@"Picture"]]; }];
+	[script then:^{
+		shut = [[[[[self slideViews] lastObject] valueForKey:@"mImage"] TIFFRepresentation] retain];
+		XCTAssertNotNil(shut);
+		PVPostKey(PVKeyRight, nil, 0);
+	}];
+	[script wait:@"the answer" until:^BOOL { return [self shows:@[@"Picture", @"soleil"]]; }];
+	[script then:^{
+		XCTAssertNotEqualObjects([[[[self slideViews] lastObject] valueForKey:@"mImage"] TIFFRepresentation], shut, @"the box opens with the answer");
+		PVPostKey(PVKeyEscape, nil, 0);
+	}];
+	[script wait:@"the end of the slideshow" timeout:10 until:^BOOL { return [[self slideViews] count] == 0; }];
+	[self runScript:script];
 }
 
 -(void)testSlideshowKeys

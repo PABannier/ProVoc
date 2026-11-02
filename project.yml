@@ -72,6 +72,7 @@ targets:
       - sdk: AVKit.framework
       - sdk: CoreMedia.framework
       - sdk: WebKit.framework
+      - sdk: Vision.framework
       - target: ProVocImporter
         embed: true
         codeSign: true

@@ -33,6 +33,7 @@ SCENARIOS = {
     'document-new-save-close-reopen': [('documentNewSaveCloseReopen', FRESH)],
     'editing-words-with-undo': [('editingWordsWithUndo', FRESH)],
     'editing-lessons-with-undo': [('editingLessonsWithUndo', FRESH)],
+    'boxes-on-a-picture-with-undo': [('boxesOnAPictureWithUndo', FRESH)],
     'clipboard-between-documents': [('clipboardBetweenDocuments', FRESH)],
     'quit-with-unsaved-changes': [('quitWithUnsavedChanges', FRESH)],
     'launch-with-document': [('launchWithDocument', FRESH + ['{copy:generated/Rich.pvoc}'])],

@@ -75,6 +75,7 @@
 
 -(void)pagesDidChange;
 -(void)selectedPagesDidChange;
+-(void)insertWords:(NSArray *)inWords row:(int)inRow;
 
 -(NSArray *)selectedSourceAncestors;
 -(NSArray *)selectedPages;

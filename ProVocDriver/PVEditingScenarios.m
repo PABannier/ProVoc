@@ -8,6 +8,8 @@
 #import "PVDriver.h"
 #import "ProVocChapter.h"
 #import "ProVocData.h"
+#import "ProVocBoxesSheet.h"
+#import "ProVocInspector.h"
 
 @interface PVScenarios (Editing)
 @end
@@ -398,6 +400,67 @@
 	}];
 	[inScript wait:@"the Delete key to remove the lesson and its words" until:^BOOL { return numberOfPets() == 1 && [[[self editedDocument] allWords] count] == wordCount - 3; }];
 	[self undoAndRedoIn:inScript what:@"deleting a lesson" before:^BOOL { return numberOfPets() == 2 && [[[self editedDocument] allWords] count] == wordCount; } after:^BOOL { return numberOfPets() == 1 && [[[self editedDocument] allWords] count] == wordCount - 3; }];
+	[inScript then:^{ [[self editedDocument] updateChangeCount:NSChangeCleared]; }];
+}
+
+#pragma mark Boxes on a picture
+
+-(NSWindow *)attachedSheet
+{
+	return [[[self editedDocument] window] attachedSheet];
+}
+
+-(ProVocBoxesView *)boxesView
+{
+	for (NSView *view in [[[self attachedSheet] contentView] subviews])
+		if ([view isKindOfClass:[ProVocBoxesView class]])
+			return (ProVocBoxesView *)view;
+	return nil;
+}
+
+-(NSArray *)targets
+{
+	return [[[self editedDocument] allWords] valueForKey:@"targetWord"];
+}
+
+// An image dropped past the end of the list, boxes drawn: one Undo removes all the words; a double click reopens them.
+-(void)boxesOnAPictureWithUndo:(PVScript *)inScript
+{
+	[self newDocumentWithThreeWordsIn:inScript];
+	[inScript then:^{
+		PVDragInfo *info = [PVDragInfo infoWithFiles:@[PVMediaFile(@"png")]];
+		id <NSTableViewDataSource> source = (id <NSTableViewDataSource>)[self editedDocument];
+		PVExpect([source tableView:[self wordTable] validateDrop:info proposedRow:3 proposedDropOperation:NSTableViewDropAbove] != NSDragOperationNone, @"the drop past the end is refused");
+		PVExpect([source tableView:[self wordTable] acceptDrop:info row:3 dropOperation:NSTableViewDropAbove], @"the drop failed");
+	}];
+	[inScript wait:@"the boxes sheet" until:^BOOL { return [self boxesView] != nil; }];
+	[inScript then:^{
+		[[self boxesView] addBoxWithRect:NSMakeRect(0.1, 0.1, 0.3, 0.2) answer:@"one"];
+		[[self boxesView] addBoxWithRect:NSMakeRect(0.1, 0.6, 0.3, 0.2) answer:@"two"];
+		PVPostKey(PVKeyReturn, nil, 0);
+	}];
+	[inScript wait:@"Return to edit the box" until:^BOOL { return [[self boxesView] editor] != nil; }];
+	[inScript then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
+	[inScript wait:@"Esc to leave the box, not the sheet" until:^BOOL { return [[self boxesView] editor] == nil && [self boxesView] != nil; }];
+	[inScript then:^{ [[self boxesView] selectBoxAtIndex:NSNotFound]; PVPostKey(PVKeyReturn, nil, 0); }];
+	[inScript wait:@"the words to be added" until:^BOOL { return [self attachedSheet] == nil && [[self targets] count] == 5; }];
+	NSArray *with = @[@"maison", @"chat", @"chien", @"one", @"two"];
+	NSArray *without = @[@"maison", @"chat", @"chien"];
+	[self undoAndRedoIn:inScript what:@"adding the words of a picture" before:^BOOL { return [[self targets] isEqualToArray:without]; } after:^BOOL { return [[self targets] isEqualToArray:with] && [[[self editedDocument] allWords][4] occlusion] != nil; }];
+	[inScript then:^{ [self clickWordRow:3 column:@"Target" clickCount:2 modifiers:0]; }];
+	[inScript wait:@"a double click to reopen the sheet" until:^BOOL { return [[[self boxesView] boxes] count] == 2; }];
+	[inScript then:^{ PVPostKey(PVKeyEscape, nil, 0); }];
+	[inScript wait:@"Esc to close it" until:^BOOL { return [self attachedSheet] == nil; }];
+	[self selectWord:@"picture" in:inScript];
+	[inScript then:^{
+		ProVocInspector *inspector = [ProVocInspector sharedInspector];
+		if (![inspector isVisible])
+			[inspector toggle];
+		[inspector editBoxes:nil];
+	}];
+	[inScript wait:@"the sheet, from the Inspector" until:^BOOL { return [[[self boxesView] boxes] count] == 2; }];
+	[inScript then:^{ [[ProVocInspector sharedInspector] toggle]; PVPostKey(PVKeyEscape, nil, 0); }];
+	[inScript wait:@"Esc to close it" until:^BOOL { return [self attachedSheet] == nil; }];
 	[inScript then:^{ [[self editedDocument] updateChangeCount:NSChangeCleared]; }];
 }
 

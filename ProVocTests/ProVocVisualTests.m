@@ -11,9 +11,11 @@
 #import "ProVocDocument.h"
 #import "ProVocDocument+Lists.h"
 #import "ProVocPreferences.h"
+#import "ProVocTester.h"
 #import "ProVocInspector.h"
 #import "ProVocStartingPoint.h"
 #import "ARAboutDialog.h"
+#import "ProVocBoxesSheet.h"
 
 @interface ProVocVisualTests : XCTestCase
 @end
@@ -33,6 +35,35 @@
 	// custom views were drawn for it): the windows must not come out dark.
 	NSArray *appearances = @[NSAppearanceNameAqua, NSAppearanceNameDarkAqua];
 	XCTAssertEqualObjects([[inWindow effectiveAppearance] bestMatchFromAppearancesWithNames:appearances], NSAppearanceNameAqua, @"%@", inName);
+}
+
+-(void)testBoxesSheetAndTestPanelRender
+{
+	PVWaitUntil(10, ^BOOL { return [NSApp isActive]; });
+	PVResetPreferences();
+	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:PVDimTestBackground];
+	ProVocDocument *document = PVNewDocumentWithWords(@[]);
+	[document setValue:@NO forKey:@"testMCQ"];
+	[document setValue:@NO forKey:@"initialSlideshow"];
+	[document setValue:@0 forKey:@"timer"];
+	[document setMainTab:1];
+	[document addBoxesOnImageFile:PVMediaFile(@"png") row:0];
+	NSWindow *sheet = [[document window] attachedSheet];
+	PVWaitUntil(0.5, ^BOOL { return NO; });
+	[self shoot:sheet as:@"boxes-sheet"];
+	[sheet orderOut:nil];
+	[NSApp endSheet:sheet];
+	PVWaitUntil(0.5, ^BOOL { return NO; });
+	NSArray *boxes = @[[NSMutableDictionary dictionaryWithDictionary:@{@"rect": [NSValue valueWithRect:NSMakeRect(0.1, 0.1, 0.4, 0.3)], @"answer": @"one"}],
+					   [NSMutableDictionary dictionaryWithDictionary:@{@"rect": [NSValue valueWithRect:NSMakeRect(0.1, 0.6, 0.4, 0.3)], @"answer": @"two"}]];
+	[document applyBoxes:boxes title:@"Picture" showOthers:NO imageFile:PVMediaFile(@"png") row:0 oldWords:nil];
+	[document startTest:nil];
+	id tester = [document valueForKey:@"mTester"];
+	PVWaitUntil(0.8, ^BOOL { return NO; });
+	[self shoot:[tester valueForKey:@"testPanel"] as:@"boxes-test-panel"];
+	[tester performSelector:@selector(closePanelWithCode:) withObject:nil];
+	PVWaitUntil(0.5, ^BOOL { return NO; });
+	PVCloseDocument(document);
 }
 
 -(void)testMainWindowsRender

@@ -381,3 +381,19 @@ de deux fois";
 "Submit Obsolete Title" = "Les documents ne peuvent plus être soumis";
 "Submit Obsolete Message" = "Le serveur de vocabulaires d’Arizona Software n’existe plus. Pour partager ce vocabulaire, enregistrez le document et envoyez son fichier : il contient les mots et leurs médias.";
 "Submit Obsolete Reveal Button" = "Afficher dans le Finder";
+
+/* Added for the arm64 revival (scripts/add-strings.py) */
+"Boxes Title Label" = "Titre :";
+"Boxes Find Labels Button" = "Trouver les légendes";
+"Boxes Answers Column" = "Réponses";
+"Boxes Hint" = "Tracez un cadre sur une légende, puis tapez sa réponse";
+"Boxes While Asking Label" = "Pendant une question :";
+"Boxes Hide Others" = "Masquer les autres cadres";
+"Boxes Show Others" = "Montrer les autres cadres";
+"Boxes Note" = "Utilisez « / » pour séparer les synonymes. Un cadre est un mot : il s’entraîne et se révise comme les autres.";
+"Boxes Cancel Button" = "Annuler";
+"Boxes Save Button" = "Enregistrer";
+"Boxes Add No Word Button" = "Ajouter les mots";
+"Boxes Add One Word Button" = "Ajouter 1 mot";
+"Boxes Add Words Button" = "Ajouter %i mots";
+"Edit Boxes Menu Item" = "Modifier les cadres…";

@@ -15,6 +15,7 @@
 #import "ProVocSilentTester.h"
 #import "ProVocTableColumns.h"
 #import "ProVocInspector.h"
+#import "ProVocBoxesSheet.h"
 
 #import "TableViewExtensions.h"
 #import "BezierPathExtensions.h"
@@ -160,6 +161,24 @@ static NSArray *sDraggedItems = nil;
 	return YES;
 }
 
+-(BOOL)dragIsOneImage:(id <NSDraggingInfo>)inInfo
+{
+	NSArray *fileNames = [[inInfo draggingPasteboard] propertyListForType:NSFilenamesPboardType];
+	return [fileNames count] == 1 && [[NSImage imageUnfilteredFileTypes] containsObject:[fileNames[0] pathExtension]];
+}
+
+// After the drag: the sheet must not open while AppKit is still concluding it
+-(void)openBoxesSheetForDrop:(id <NSDraggingInfo>)inInfo row:(int)inRow
+{
+	NSString *fileName = [[inInfo draggingPasteboard] propertyListForType:NSFilenamesPboardType][0];
+	[self performSelector:@selector(openBoxesSheet:) withObject:@[fileName, @(inRow)] afterDelay:0.0];
+}
+
+-(void)openBoxesSheet:(NSArray *)inFileAndRow
+{
+	[self addBoxesOnImageFile:inFileAndRow[0] row:[inFileAndRow[1] intValue]];
+}
+
 -(NSDragOperation)outlineView:(NSOutlineView *)inOutlineView validateDrop:(id <NSDraggingInfo>)inInfo proposedItem:(id)inItem proposedChildIndex:(int)inIndex
 {
     NSDragOperation operation = [inInfo draggingSourceOperationMask];
@@ -185,6 +204,9 @@ static NSArray *sDraggedItems = nil;
 			return NSDragOperationNone;
 		return operation;
 	}
+	
+	if (inIndex < 0 && [inItem isKindOfClass:[ProVocPage class]] && [self dragIsOneImage:inInfo])
+		return NSDragOperationCopy;
 	
 	return NSDragOperationNone;
 }
@@ -225,6 +247,12 @@ static NSArray *sDraggedItems = nil;
 	BOOL copy = [inInfo draggingSourceOperationMask] == NSDragOperationCopy;
 	BOOL ok = NO;
 	BOOL removeFromParents = NO;
+
+	if ([self dragIsOneImage:inInfo] && [inItem isKindOfClass:[ProVocPage class]]) {
+		[mPageOutlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:[mPageOutlineView rowForItem:inItem]] byExtendingSelection:NO];
+		[self openBoxesSheetForDrop:inInfo row:[mVisibleWords count]];
+		return YES;
+	}
 
 	if ([[inInfo draggingPasteboard] availableTypeFromArray:@[ProVocSourcesType, ProVocSelfSourcesType]]) {
 		id item = inItem ? inItem : [mProVocData rootChapter];
@@ -408,6 +436,12 @@ static NSArray *sDraggedItems = nil;
 		}
         return NO;
     }
+	NSEventType eventType = [[NSApp currentEvent] type];
+	if ((eventType == NSEventTypeLeftMouseDown || eventType == NSEventTypeLeftMouseUp) && [[NSApp currentEvent] clickCount] > 1	// AppKit asks when the second click ends
+		&& inTableView == mWordTableView && inRowIndex < [mVisibleWords count] && [mVisibleWords[inRowIndex] occlusion]) {
+		[self performSelector:@selector(editBoxesOfWord:) withObject:mVisibleWords[inRowIndex] afterDelay:0.0];
+		return NO;
+	}
 	if ([[NSApp currentEvent] type] == NSLeftMouseDown && inTableView == mWordTableView && inRowIndex < [mVisibleWords count]) {
 		NSRect rect = [mWordTableView frameOfCellAtColumn:[[mWordTableView tableColumns] indexOfObject:inTableColumn] row:inRowIndex];
 		NSPoint pt = [mWordTableView convertPoint:[[NSApp currentEvent] locationInWindow] fromView:nil];
@@ -491,6 +525,8 @@ static NSArray *sDraggedItems = nil;
 			if ([[inInfo draggingPasteboard] availableTypeFromArray:@[ProVocSelfWordsType]])
 				return [inInfo draggingSourceOperationMask] == NSDragOperationCopy ? NSDragOperationCopy : NSDragOperationMove;
 			if ([[inInfo draggingPasteboard] availableTypeFromArray:@[ProVocWordsType]])
+				return NSDragOperationCopy;
+			if ([self dragIsOneImage:inInfo])
 				return NSDragOperationCopy;
 		}
 			
@@ -587,6 +623,10 @@ static NSArray *sDraggedItems = nil;
 				ok = YES;
 			else {
 				NSData *data = [[inInfo draggingPasteboard] dataForType:NSFilenamesPboardType];
+				if (data && inOperation != NSTableViewDropOn) {
+					[self openBoxesSheetForDrop:inInfo row:inRow];
+					return YES;
+				}
 				if (data) {
 					NSString *fileName = [[inInfo draggingPasteboard] propertyListForType:NSFilenamesPboardType][0];
 					NSString *fileType = [fileName pathExtension];
@@ -910,6 +950,7 @@ static BOOL sKeepOnDoubleWordSearch = YES;
 {
 	sKeepOnDoubleWordSearch = YES;
 	NSMutableSet *doubles = [NSMutableSet set];
+	inWords = [inWords filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"occlusion == nil"]];	// the boxes of a picture all have its title
 	// This runs in a thread of its own (-findDoublesThread:). The tester that compares the
 	// words loads a nib with windows, which may only be made - and released - in the main
 	// thread: Find Double Entries raised an exception there and the application quit.
