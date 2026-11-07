@@ -187,6 +187,8 @@ script_check applescript-check.sh applescript-check.sh
 script_check deadkey-check.sh deadkey-check.sh
 # ... and the same keys in the application that is shipped (the Release build)
 script_check deadkey-check-release deadkey-check.sh "$ROOT/dist/ProVoc.app"
+# the installer, in folders of its own: the previous copy is archived, and only one ProVoc can open
+script_check install-check.sh install-check.sh
 
 say "Logs"
 # the scan must fail when the application logs an exception: one is raised on purpose
