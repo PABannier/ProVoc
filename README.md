@@ -175,8 +175,10 @@ application and runs the tests that need neither the keyboard nor a permission.
   to an iPod, checking for updates, the vocabulary sharing site of Arizona Software, the
   Dashboard widget. The report says what replaces each one.
 - No iPhone application and no sync.
-- The Spotlight importer was rewritten and is tested by loading it directly; I have not
-  yet seen Spotlight itself index a deck with it.
+- The Spotlight importer was rewritten and is tested by loading it directly.
+  `scripts/spotlight-check.sh` asks Spotlight itself: on a Mac that never had an earlier
+  build (macOS 26.4) Spotlight indexes a deck with it and queries find the deck. The
+  check is not part of `scripts/verify.sh`.
 
 ## Licence and disclaimer
 
