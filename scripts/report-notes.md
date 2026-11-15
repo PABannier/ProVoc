@@ -173,4 +173,7 @@ to `~/ProVoc backups/` first).
   caused by another application taking the front says so.
 - Spotlight: the importer is tested by loading it as Spotlight does. On the Mac where this
   was developed Spotlight still files `.pvoc` documents under the type name that earlier
-  builds of this work registered; a restart of the Mac clears that.
+  builds of this work registered; a restart of the Mac clears that. On a Mac without
+  that history (macOS 26.4) `scripts/spotlight-check.sh` passes: Spotlight indexes a deck
+  with the importer of the application and finds it by its type and by its number of
+  words.
